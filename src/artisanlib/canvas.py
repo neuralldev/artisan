@@ -914,7 +914,8 @@ class tgraphcanvas(FigureCanvas):
                        '+Santoker DelatBT/DeltaET', #173
                        'ColorTrack BT',             #174
                        'Thermoworks BlueDOT',       #175
-                       'Aillio Bullet R2'           #176
+                       'Aillio Bullet R2'          #176
+                      
                        ]
 
         # ADD DEVICE:
@@ -984,6 +985,7 @@ class tgraphcanvas(FigureCanvas):
             174, # ColorTrack BT
             175, # Thermoworks BlueDOT
             176  # Aillio Bullet R2
+          
         ]
 
         # ADD DEVICE:
@@ -1057,7 +1059,8 @@ class tgraphcanvas(FigureCanvas):
             166, # +Mugma Heater/Catalyzer
             170, # ColorTrack Serial
             173, # +Santoker BT RoR / ET RoR
-            174  # ColorTrack BT
+            174 # ColorTrack BT
+           
         ]
 
         # ADD DEVICE:
@@ -13714,7 +13717,7 @@ class tgraphcanvas(FigureCanvas):
                 ser.colorTrackSerial.stop() # ty: ignore[possibly-unbound-attribute]
                 libtime.sleep(0.05)
                 ser.colorTrackSerial = None
-
+                
             # close main serial port
             try:
                 ser.closeport()

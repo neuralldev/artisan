@@ -551,7 +551,7 @@ class serialport:
                                    self.ColorTrackBT,         #174
                                    self.BlueDOT_BTET,         #175
                                    self.R2_BTIBTS             #176
-                                   ]
+                                   ] 
         #string with the name of the program for device #27
         self.externalprogram:str = 'test.py'
         self.externaloutprogram:str = 'out.py' # this program is called with arguments <ET>,<BT>,<ETB>,<BTB> values on each sampling
