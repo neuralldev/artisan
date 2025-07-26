@@ -31,8 +31,16 @@ LEBREW_DEVICES_NAMES = [
     ('RoastSee', 'RoastSee C1')
 ]
 
+<<<<<<< HEAD
 class LebrewBLE(ClientBLE): # pyright: ignore [reportGeneralTypeIssues] # Argument to class must be a base class
 
+=======
+
+
+class LebrewBLE(ClientBLE): # pyright: ignore [reportGeneralTypeIssues] # Argument to class must be a base class
+
+    # ColorTrack RT service and characteristics UUIDs
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
     C1_NAME:Final[str] = 'RoastSee C1'
     C1_SERVICE_UUID:Final[str] = 'bc41e50b-91cd-4916-9152-02d52446ac3a'
     C1_READ_NOTIFY_UUID:Final[str] = '0000ff03-0000-1000-8000-00805f9b34fb'    # Laser Measurements
@@ -43,7 +51,11 @@ class LebrewBLE(ClientBLE): # pyright: ignore [reportGeneralTypeIssues] # Argume
     disconnected_signal = pyqtSignal()  # issued on disconnect
     color_changed_signal = pyqtSignal(float)  # issued on color change
 
+<<<<<<< HEAD
     def __init__(self, connected_handler:Optional[Callable[[], None]] = None,
+=======
+    def __init__(self,  connected_handler:Optional[Callable[[], None]] = None,
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
                        disconnected_handler:Optional[Callable[[], None]] = None,
                        decimals:int=1):
         super().__init__()
@@ -57,6 +69,7 @@ class LebrewBLE(ClientBLE): # pyright: ignore [reportGeneralTypeIssues] # Argume
         self.is_connected = False
         self.rounding = decimals
         
+<<<<<<< HEAD
         self.device = self.C1_SERVICE_UUID
         if self.device is not None:
             self.add_device_description(self.device, self.C1_NAME)
@@ -64,6 +77,25 @@ class LebrewBLE(ClientBLE): # pyright: ignore [reportGeneralTypeIssues] # Argume
             self.add_notify(self.C1_READ_NOTIFY_UUID, self.notify_callback)
         self.start(case_sensitive=False, address=self.C1_DEVICE_UUID)
         self.start_notifications()
+=======
+#        self.device = None
+        # cherche (BLEDevice(F084AA8F-3836-B9AA-2896-BD451B7579AF, RoastSee C1), AdvertisementData(local_name='RoastSee C1', manufacturer_data={17184: b'\xa8&\xff\x0e'}, service_uuids=['bc41e50b-91cd-4916-9152-02d52446ac3a'], tx_power=9, rssi=-53))
+#        devices = self.scan()
+#        for d in devices:
+#            # d is expected to be a tuple: (BLEDevice, AdvertisementData)
+#            ble_device = d[0]
+#            adv_data = d[1]
+#            if self.C1_SERVICE_UUID.lower() in [s.lower() for s in getattr(adv_data, "service_uuids", [])]:
+#                if ble_device.name == self.C1_NAME:
+#                    self.device = ble_device.address
+#                    _log.info(f"Found device with C1_SERVICE_UUID: {self.device}")
+#                    break
+        self.device = self.C1_DEVICE_UUID
+        if self.device is not None:
+            self.add_device_description(self.C1_SERVICE_UUID, self.C1_NAME)
+            self.add_read(self.C1_SERVICE_UUID, self.C1_READ_NOTIFY_UUID)
+            self.add_notify(self.C1_READ_NOTIFY_UUID, self.notify_callback)
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
     # maps received byte decimal value to ColorTrack readings in range 0-100
 
     def set_color(self, value) -> None:        
@@ -75,6 +107,7 @@ class LebrewBLE(ClientBLE): # pyright: ignore [reportGeneralTypeIssues] # Argume
     def getColor(self) -> float:
         self.color_changed = False
         data = self.read(self.C1_READ_NOTIFY_UUID)
+<<<<<<< HEAD
         if data is None or len(data) < 3:
             return 0.0
         msg_type = data[0]                 # Premier octet : identifiant
@@ -82,14 +115,24 @@ class LebrewBLE(ClientBLE): # pyright: ignore [reportGeneralTypeIssues] # Argume
             return 0.0
         raw_value = (data[1] << 8) | data[2]
         self.color_read = round(raw_value / 100.0, self.rounding)  # round according to decimals sent by parent thread
+=======
+        datax = data.hex() if data is not None else None
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
         return self.color_read
 
     def notify_callback(self, _sender:'BleakGATTCharacteristic', data:bytearray) -> None:
         msg_type = data[0]                 # Premier octet : identifiant
+<<<<<<< HEAD
         if msg_type != 0x01:       # Type de message attendu
             return
         raw_value = (data[1] << 8) | data[2]
         self.color_read = round(raw_value / 100.0, self.rounding)  # round according to decimals sent by parent thread
+=======
+        if msg_type != 0x01:                  # Type de message attendu
+            return
+        raw_value = (data[1] << 8) | data[2]
+        self.color_read = round(raw_value / 100.0, self.rounding)
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
         self.color_changed = True
         self.color_changed_signal.emit(self.color_read)
 
@@ -122,9 +165,15 @@ class LebrewColorChecker(): # pyright: ignore [reportGeneralTypeIssues] # Argume
         super().__init__()
         self.lebrewble = LebrewBLE(connected_handler = connected_handler, disconnected_handler=disconnected_handler, decimals=decimals)
         self.lebrew_devices: List[Tuple[str, str]] = []
+<<<<<<< HEAD
         self.colorchecker_connected = False
         self.searchfor = self.C1_DEVICE_UUID
 #        self.scan()
+=======
+        
+        self.colorchecker_connected = False
+        self.searchfor = ident
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
 
 
     def scan(self) -> None:
@@ -138,13 +187,18 @@ class LebrewColorChecker(): # pyright: ignore [reportGeneralTypeIssues] # Argume
                     if ble_device.name is not None:
                         self.lebrew_devices.append((ble_device.name, ble_device.address))
                     self.searchfor = ble_device.address
+<<<<<<< HEAD
 #                    self.lebrewble.scanned_signal.emit(self.lebrew_devices)
+=======
+                    self.lebrewble.scanned_signal.emit(self.lebrew_devices)
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
                     break
 
     def is_connected(self) -> bool:
         return self.colorchecker_connected
 
     def connect_colorchecker(self) -> None:
+<<<<<<< HEAD
 #        self.lebrewble.start(address=self.C1_DEVICE_UUID)
 #        self.lebrewble.start_notifications()
         self.colorchecker_connected = True
@@ -152,6 +206,12 @@ class LebrewColorChecker(): # pyright: ignore [reportGeneralTypeIssues] # Argume
     def disconnect_colorchecker(self) -> None:
         self.lebrewble.stop()
         self.colorchecker_connected = False
+=======
+        self.lebrewble.start(address=self.searchfor)
+
+    def disconnect_colorchecker(self) -> None:
+        self.lebrewble.stop()
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
 
     def readability(self) -> float:
         return self.lebrewble.readability

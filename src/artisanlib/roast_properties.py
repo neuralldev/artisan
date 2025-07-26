@@ -1085,7 +1085,11 @@ class editGraphDlg(ArtisanResizeablDialog):
             self.colorSystemComboBox.setCurrentIndex(self.aw.qmc.color_system_idx)
         else: # in older versions this could have been a string
             self.aw.qmc.color_system_idx = 0 # type: ignore[unreachable]
+<<<<<<< HEAD
         self.ground_color_trackinglabel = QLabel('')
+=======
+        ground_color_trackinglabel = QLabel('<b>RoastSee C1 used</b>')
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
         #Greens Temp
         greens_temp_label = QLabel('<b>' + QApplication.translate('Label', 'Beans') + '</b>')
         greens_temp_unit_label = QLabel(self.aw.qmc.mode)
@@ -1520,11 +1524,18 @@ class editGraphDlg(ArtisanResizeablDialog):
             self.roastsee.lebrewble.color_changed_signal.connect(self.colorRead_changed)
             self.roastsee.lebrewble.disconnected_signal.connect(self.colorRead_disconnected)
             self.roastsee.connect_colorchecker()
+<<<<<<< HEAD
             if self.roastsee.is_connected():
                 self.ble_c1_connected()
         except Exception as e:
              _log.exception(e)
 
+=======
+        except Exception as e:
+             _log.exception(e)
+
+        # self.roastsee.disconnected_signal.connect(self.ble_C1_disconnected)
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
 
         propGrid.setRowMinimumHeight(3,volumeCalcButton.minimumSizeHint().height())
         propGrid.addWidget(volumelabel,3,0,Qt.AlignmentFlag.AlignVCenter)
@@ -1566,10 +1577,19 @@ class editGraphDlg(ArtisanResizeablDialog):
         propGrid.addWidget(whole_color_label,7,1,Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
         propGrid.addWidget(ground_color_label,7,2,Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
 
+<<<<<<< HEAD
         propGrid.addWidget(color_label,7,0,Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
         propGrid.addWidget(self.whole_color_edit,8,0,Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
         propGrid.addWidget(self.ground_color_edit,8,1,Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
         propGrid.addWidget(self.colorSystemComboBox,8,2,1,2) # rowSpan=1, columnSpan=2
+=======
+        propGrid.addWidget(color_label,8,0)
+        propGrid.addWidget(self.whole_color_edit,8,1,Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
+        propGrid.addWidget(self.ground_color_edit,8,2,Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
+        propGrid.addWidget(self.colorSystemComboBox,8,3,1,2) # rowSpan=1, columnSpan=2
+        if self.roastsee is not None:
+            propGrid.addWidget(ground_color_trackinglabel,9,1)
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
 
         if (self.aw.color.device is not None and self.aw.color.device != '' and self.aw.color.device not in ['None','Tiny Tonino', 'Classic Tonino']):
             propGrid.addWidget(scanWholeButton,8,6)
@@ -1956,6 +1976,7 @@ class editGraphDlg(ArtisanResizeablDialog):
 
     def ble_ReadColorC1(self) -> None:
         if self.roastsee.lebrewble.is_new_color():
+<<<<<<< HEAD
             self.whole_color_edit.setText(str(self.roastsee.lebrewble.getColor()))
 
     def ble_c1_connected(self) -> None:
@@ -1966,6 +1987,12 @@ class editGraphDlg(ArtisanResizeablDialog):
             self.roastsee.lebrewble.disconnect()
         self.roastsee.lebrewble.set_color(0)
         self.ground_color_trackinglabel.setText('(Roastsee C1 disconnected)')
+=======
+            self.whole_color_edit.setText(str(self.getColor()))
+            
+    def ble_c1_disconnected(self) -> None:
+        self.roastsee.lebrewble.set_color(0)
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
 
     @pyqtSlot()
     def colorRead_disconnected(self) -> None:
@@ -4348,7 +4375,11 @@ class editGraphDlg(ArtisanResizeablDialog):
 
     @pyqtSlot(bool)
     def scanWholeColor(self, _:bool = False) -> None:
+<<<<<<< HEAD
         if self.roastsee.is_connected():
+=======
+        if self.roastsee.colorchecker_connected :
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
             v = self.roastsee.lebrewble.getColor()
         else:
             v = self.aw.color.readColor()
@@ -4358,7 +4389,11 @@ class editGraphDlg(ArtisanResizeablDialog):
 
     @pyqtSlot(bool)
     def scanGroundColor(self, _:bool = False) -> None:
+<<<<<<< HEAD
         if self.roastsee.is_connected():
+=======
+        if self.roastsee.colorchecker_connected :
+>>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
             v = self.roastsee.lebrewble.getColor()
         else:
             v = self.aw.color.readColor()
