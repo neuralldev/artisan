@@ -1209,6 +1209,15 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
         self.colorTrackMedianSpinBox.setRange(10,200)
         self.colorTrackMedianSpinBox.setValue(int(self.aw.colorTrack_median_window_size))
 
+        self.lebrewRoastSeeC1ComboBox = QComboBox()    
+        self.lebrewRoastSeeC1ComboBox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        if self.aw.bleRoastSeeDevicesList is not None:
+            self.lebrewRoastSeeC1ComboBox.addItems(['RoastSee C1 (' + ', '.join(self.aw.bleRoastSeeDevicesList) + ')'])
+        self.bleScanForRoastSeeC1 = QPushButton('Scan')
+        self.bleScanForRoastSeeC1.clicked.connect(self.ScanForLebrewBLEDevices)
+        self.bleScanForRoastSeeC1.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.bleScanForRoastSeeC1.setToolTip(QApplication.translate('Tooltip','Scan for BLE devices'))
+
         santokerNetworkGrid = QGridLayout()
         santokerNetworkGrid.addWidget(self.santokerNetworkFlag,0,0)
         santokerNetworkGrid.addWidget(santokerHostLabel,0,1)
@@ -1290,17 +1299,14 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
 
         # create lebrew color see C1
         LebrewRoastSeeNetworkGrid = QGridLayout()
+        LebrewRoastSeeNetworkGrid.addWidget(self.lebrewRoastSeeC1ComboBox,0,0)
+        LebrewRoastSeeNetworkGrid.addWidget(self.bleScanForRoastSeeC1,0,1)
         LebrewRoastSeeNetworkGrid.setSpacing(20)
         LebrewRoastSeeNetworkGroupBox = QGroupBox('Lebrew Roast See C1')
         LebrewRoastSeeNetworkGroupBox.setLayout(LebrewRoastSeeNetworkGrid)
         LebrewRoastSeeHBox = QHBoxLayout()
         LebrewRoastSeeHBox.addWidget(LebrewRoastSeeNetworkGroupBox)
         LebrewRoastSeeHBox.addStretch()
-        LebrewRoastSeeVBox = QVBoxLayout()
-        LebrewRoastSeeVBox.addLayout(LebrewRoastSeeHBox)
-        LebrewRoastSeeVBox.addStretch()
-        LebrewRoastSeeVBox.setSpacing(5)
-        LebrewRoastSeeVBox.setContentsMargins(0,0,0,0)
  
         # create pid box
         PIDgrid = QGridLayout()
@@ -1456,7 +1462,8 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
         tab7V2Layout = QVBoxLayout()
         tab7V2Layout.addLayout(mugmaVBox)
         tab7V2Layout.addLayout(colorTrackVBox)
-        tab7V2Layout.addLayout(LebrewRoastSeeVBox)
+        #add lebrew roast see C1
+        tab7V2Layout.addLayout(LebrewRoastSeeHBox)
         tab7V2Layout.addStretch()
         tab7Layout = QHBoxLayout()
         tab7Layout.addLayout(tab7VLayout)
@@ -1895,6 +1902,26 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
         # some tabs are not rendered at all on Windows using Qt v6.5.1 (https://bugreports.qt.io/projects/QTBUG/issues/QTBUG-114204?filter=allissues)
         QTimer.singleShot(50, self.setActiveTab)
 
+    @pyqtSlot(bool)
+    def ScanForLebrewBLEDevices(self, __:bool = False) -> None:
+        from artisanlib.lebrewroastsee import LebrewBLE
+        _log.info('Scan for Lebrew BLE devices')
+        self.lebrewble = LebrewBLE( )
+        self.lebrew_devices: List[Tuple[str, str]] = []
+        self.devices = self.lebrewble.scan()
+        for d in self.devices:
+            ble_device = d[0]
+            adv_data = d[1]
+            if ble_device.name == 'RoastSee C1':
+                self.lebrew_devices.append((ble_device.name, ble_device.address))
+                break
+        self.lebrewRoastSeeC1ComboBox.clear()
+        self.aw.bleRoastSeeDevicesList = [address for _, address in self.lebrew_devices]
+        if self.lebrew_devices is not None and len(self.lebrew_devices) > 0:
+            for name, address in self.lebrew_devices:
+                self.lebrewRoastSeeC1ComboBox.addItem(f"{name}({address})")
+        else:
+            self.lebrewRoastSeeC1ComboBox.addItem('No Lebrew BLE devices found')
 
     @pyqtSlot()
     def changeTaskWebDisplayGreenPort(self) -> None:
@@ -4217,12 +4244,6 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
                 elif meter == 'Aillio Bullet R2':
                     self.aw.qmc.device = 176
                     message = QApplication.translate('Message','Device set to {0}').format(meter)
-                ##########################
-                ####  DEVICE 177 is Lebrew Roast See C1
-                ##########################
-                elif meter == 'Lebrew Roast See C1':
-                    self.aw.qmc.device = 177
-                    message = QApplication.translate('Message','Device set to {0}').format(meter)
 
                 # ADD DEVICE:
 
@@ -4552,6 +4573,17 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
                 pass
             self.aw.colorTrack_mean_window_size = self.colorTrackMeanSpinBox.value()
             self.aw.colorTrack_median_window_size = self.colorTrackMedianSpinBox.value()
+            #lebrew section
+            # Extract selected index and value from the Lebrew Roast See C1 combobox
+            selected_index = self.lebrewRoastSeeC1ComboBox.currentIndex()
+            selected_text = self.lebrewRoastSeeC1ComboBox.currentText()
+            # If the text matches the pattern "string(string)", extract the value inside parentheses
+            match = re.match(r'^(.*)\((.*)\)$', selected_text)
+            if match:
+                self.aw.bleRoastSeeDeviceName = match.group(2)
+            else:
+                self.aw.bleRoastSeeDeviceName = ''
+
             for i in range(8):
                 self.aw.qmc.phidget1018_async[i] = self.asyncCheckBoxes[i].isChecked()
                 self.aw.qmc.phidget1018_ratio[i] = self.ratioCheckBoxes[i].isChecked()

@@ -552,14 +552,8 @@ class serialport:
                                    self.Santoker_RR,          #173
                                    self.ColorTrackBT,         #174
                                    self.BlueDOT_BTET,         #175
-<<<<<<< HEAD
                                    self.R2_BTIBTS             #176
                                    ] 
-=======
-                                   self.R2_BTIBTS,            #176
-                                   self.RoastSeeC1BT          #177
-                                   ]
->>>>>>> 18b5a983b6432978380f106f2b73ce9fad585ced
         #string with the name of the program for device #27
         self.externalprogram:str = 'test.py'
         self.externaloutprogram:str = 'out.py' # this program is called with arguments <ET>,<BT>,<ETB>,<BTB> values on each sampling

@@ -750,14 +750,12 @@ from artisanlib.slider_style import artisan_slider_style
 from artisanlib.event_button_style import artisan_event_button_style
 from artisanlib.simulator import Simulator
 from artisanlib.dialogs import HelpDlg, ArtisanInputDialog, ArtisanComboBoxDialog, ArtisanPortsDialog, ArtisanSliderLCDinputDlg
-from artisanlib.large_lcds import (LargeMainLCDs, LargeDeltaLCDs, LargePIDLCDs, LargeExtraLCDs, LargePhasesLCDs, LargeScaleLCDs)
-from artisanlib.logs import (serialLogDlg, errorDlg, messageDlg)
+from artisanlib.large_lcds import LargeMainLCDs, LargeDeltaLCDs, LargePIDLCDs, LargeExtraLCDs, LargePhasesLCDs, LargeScaleLCDs
+from artisanlib.logs import serialLogDlg, errorDlg, messageDlg
 from artisanlib.comm import serialport, colorport, scaleport
-from artisanlib.pid_dialogs import (PXRpidDlgControl, PXG4pidDlgControl,
-    PID_DlgControl, DTApidDlgControl)
+from artisanlib.pid_dialogs import PXRpidDlgControl, PXG4pidDlgControl,PID_DlgControl, DTApidDlgControl
 from artisanlib.pid_control import FujiPID, PIDcontrol, DtaPID
-from artisanlib.widgets import (MyQLCDNumber, EventPushButton, MajorEventPushButton,
-    AnimatedMajorEventPushButton, MinorEventPushButton, AuxEventPushButton, ClickableLCDFrame, Splitter, SliderUnclickable)
+from artisanlib.widgets import MyQLCDNumber, EventPushButton, MajorEventPushButton,AnimatedMajorEventPushButton, MinorEventPushButton, AuxEventPushButton, ClickableLCDFrame, Splitter, SliderUnclickable
 
 from artisanlib.notifications import Notification, NotificationManager, NotificationType
 from artisanlib.canvas import tgraphcanvas
@@ -1509,7 +1507,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         'seriallog', 'ser', 'modbus', 'extraMODBUStemps', 'extraMODBUStx', 's7', 'extraS7tx', 'ws', 'scale', 'color', 'extraser', 'extracomport', 'extrabaudrate',
         'extrabytesize', 'extraparity', 'extrastopbits', 'extratimeout', 'hottop', 'santokerHost', 'santokerPort', 'santokerSerial', 'santokerBLE', 'santoker', 'santokerR', 'fujipid', 'dtapid', 'pidcontrol', 'soundflag', 'recentRoasts', 'maxRecentRoasts',
         'mugmaHost','mugmaPort', 'mugma', 'mugma_default_host',
-        'kaleido_default_host', 'kaleidoHost', 'kaleidoPort', 'kaleidoSerial', 'kaleidoPID', 'kaleido', 'colorTrack_mean_window_size', 'colorTrack_median_window_size' ,'ikawa',
+        'kaleido_default_host', 'kaleidoHost', 'kaleidoPort', 'kaleidoSerial', 'kaleidoPID', 'kaleido', 'colorTrack_mean_window_size', 'colorTrack_median_window_size' ,'bleRoastSeeDeviceName', 'ikawa',
         'lcdpaletteB', 'lcdpaletteF', 'extraeventsbuttonsflags', 'extraeventslabels', 'extraeventbuttoncolor', 'extraeventsactionstrings',
         'extraeventbuttonround', 'block_quantification_sampling_ticks', 'sampling_seconds_to_block_quantifiction', 'sampling_ticks_to_block_quantifiction', 'extraeventsactionslastvalue',
         'org_extradevicesettings', 'eventslidervalues', 'eventslidervisibilities', 'eventsliderKeyboardControl', 'eventsliderAlternativeLayout_default',
@@ -1868,6 +1866,10 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         # ColorTrack
         self.colorTrack_mean_window_size:int = 50    # window size of the mean filter (10-200)
         self.colorTrack_median_window_size:int = 50  # window size of the median filter (10-200)
+
+        #lebrew BLE
+        self.bleRoastSeeDeviceName:Optional[str] = 'none' # device UUID selected
+        self.bleRoastSeeDevicesList:List[str] = ['please scan devices for list']
 
         # Kaleido Network
         self.kaleido_default_host:Final[str] = '127.0.0.1'
@@ -17630,6 +17632,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.mugmaPort = toInt(settings.value('mugmaPort',self.mugmaPort))
             self.colorTrack_mean_window_size = toInt(settings.value('ctMean',self.colorTrack_mean_window_size))
             self.colorTrack_median_window_size = toInt(settings.value('ctMedian',self.colorTrack_median_window_size))
+            self.bleRoastSeeDeviceName = toString(settings.value('lbrsc1',self.bleRoastSeeDeviceName))
             # activate CONTROL BUTTON
             self.showControlButton()
             self.ser.controlETpid = [toInt(x) for x in toList(settings.value('controlETpid',self.ser.controlETpid))]
@@ -19663,6 +19666,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.settingsSetValue(settings, default_settings, 'mugmaPort',self.mugmaPort, read_defaults)
             self.settingsSetValue(settings, default_settings, 'ctMean',self.colorTrack_mean_window_size, read_defaults)
             self.settingsSetValue(settings, default_settings, 'ctMedian',self.colorTrack_median_window_size, read_defaults)
+            self.settingsSetValue(settings, default_settings, 'lbrsc1',self.bleRoastSeeDeviceName, read_defaults)
             settings.endGroup()
 #--- END GROUP System
 
