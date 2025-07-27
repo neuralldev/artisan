@@ -15,6 +15,8 @@
 # AUTHOR
 # Marko Luther, 2025
 
+import math
+import platform
 import time as libtime
 import logging
 from typing import Final, List, Tuple, Optional, Callable
@@ -24,21 +26,23 @@ try:
 except ImportError:
     from PyQt5.QtCore import Qt, QObject, pyqtSignal, pyqtSlot, QTimer # type: ignore # @UnusedImport @Reimport  @UnresolvedImport
 
+from artisanlib.util import toFloat
 
 _log: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 
 #  tuples (model name, connection type) with connection type from {0: BT, 1: WiFi, 2: Serial}
-SUPPORTED_SCALES:Final[List[Tuple[str,int]]] = [
+SUPPORTED_SCALES:Final[List[Tuple[str,int]]] = (
+[
     ('Acaia', 0) # 0
-]
+] if not (platform.system() == 'Windows' and math.floor(toFloat(platform.release())) < 10) else [])
 
 ScaleSpec = Tuple[str,str] # scale name, scale id (eg. ble address)
 ScaleSpecs = List[ScaleSpec]
 
 # STABLE_TIMER_PERIOD should be >1sec if Acaia is reporting also non-stable readings, for stable readings a very short period is fine
-STABLE_TIMER_PERIOD = 500 # period to wait until new weight stabilized before forwarding the new reading via scale_stable_weight_changed signals (> then scale update period!)
+STABLE_TIMER_PERIOD =350 # period to wait until new weight stabilized before forwarding the new reading via scale_stable_weight_changed signals (> then scale update period!)
 MIN_STABLE_WEIGHT_CHANGE = 1 # The weight has to change for at least this amount (in g) to update the last stable weight
 
 
@@ -103,6 +107,14 @@ class Scale(QObject):  # pyright:ignore[reportGeneralTypeIssues] # error: Argume
 
     def is_connected(self) -> bool: # pylint: disable=no-self-use
         return False
+
+    # weight in g
+    def max_weight(self) -> float: # pylint: disable=no-self-use
+        return 0
+
+    # readability in g
+    def readability(self) -> float: # pylint: disable=no-self-use
+        return 0
 
 
 
@@ -195,6 +207,14 @@ class ScaleManager(QObject): # pyright:ignore[reportGeneralTypeIssues] # error: 
                 stable_only=False, decimals=0)
         return None
 
+    # returns readability of the connected scale_nr (0 or 1) if connected and otherwise 0
+    def readability(self, scale_nr:int) -> float:
+        if scale_nr == 1 and self.scale1 is not None:
+            return self.scale1.readability()
+        if scale_nr == 2 and self.scale2 is not None:
+            return self.scale2.readability()
+        return 0
+
 #- scale 1
 
     def is_scale1_connected(self) -> bool:
@@ -284,6 +304,7 @@ class ScaleManager(QObject): # pyright:ignore[reportGeneralTypeIssues] # error: 
         self.scale1_disconnected_signal.emit()
 
     ## try to catch a last non weight change and send as stable state
+    # weight in g
     @pyqtSlot(float, bool)
     def scale1_weight_changed_slot(self, weight:float, stable:bool) -> None:
         weight = int(round(weight))
@@ -392,6 +413,7 @@ class ScaleManager(QObject): # pyright:ignore[reportGeneralTypeIssues] # error: 
         self.scale2_disconnected_signal.emit()
 
     ## try to catch a last non weight change and send as stable state
+    # weight in g
     @pyqtSlot(float, bool)
     def scale2_weight_changed_slot(self, weight:float, stable:bool) -> None:
         weight = int(round(weight))
@@ -409,7 +431,7 @@ class ScaleManager(QObject): # pyright:ignore[reportGeneralTypeIssues] # error: 
     @pyqtSlot()
     def scale2_stable_reading_timer_slot(self) -> None:
         if self.scale2_last_weight is not None:
-            self.scale2_stable_weight_changed_signal.emit(self.scale1_last_weight)
+            self.scale2_stable_weight_changed_signal.emit(self.scale2_last_weight)
 
 #--
 
