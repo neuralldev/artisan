@@ -33,14 +33,15 @@ LEBREW_DEVICES_NAMES = [
 ]
 
 
+# LebrewBLE class for BLE communication with the Lebrew RoastSee C1 device
 class LebrewBLE(ClientBLE): # pyright: ignore [reportGeneralTypeIssues] # Argument to class must be a base class
 
     # ColorTrack RT service and characteristics UUIDs
-    C1_NAME:Final[str] = 'RoastSee C1'
-    C1_SERVICE_UUID:Final[str] = 'bc41e50b-91cd-4916-9152-02d52446ac3a'
-    C1_READ_NOTIFY_UUID:Final[str] = '0000ff03-0000-1000-8000-00805f9b34fb'    # Laser Measurements
-    C1_DEVICE_UUID:Final[str] = 'F084AA8F-3836-B9AA-2896-BD451B7579AF'
-    HEADER1:Final[bytes]      = b'\x01'
+    C1_NAME:Final[str] = 'RoastSee C1' # Name of the RoastSee C1 device    
+    C1_SERVICE_UUID:Final[str] = 'bc41e50b-91cd-4916-9152-02d52446ac3a' # Service UUID for RoastSee C1
+    C1_READ_NOTIFY_UUID:Final[str] = '0000ff03-0000-1000-8000-00805f9b34fb' #  Measurement
+#    C1_DEVICE_UUID:Final[str] = 'F084AA8F-3836-B9AA-2896-BD451B7579AF'
+    HEADER1:Final[bytes]      = b'\x01' # Type of message expected
 
     connected_signal = pyqtSignal()     # issued on connect
     disconnected_signal = pyqtSignal()  # issued on disconnect

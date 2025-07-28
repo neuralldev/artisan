@@ -1960,7 +1960,9 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
         _log.info('Scan for Lebrew BLE devices')
         self.lebrewble = LebrewBLE( )
         self.lebrew_devices: List[Tuple[str, str]] = []
+        self.lebrewRoastSeeC1ComboBox.setEnabled(False)  # Désactive la combo box pendant le scan 
         self.devices = self.lebrewble.scan()
+        self.lebrewRoastSeeC1ComboBox.setEnabled(True)  # Réactive la combo box après le scan
         for d in self.devices:
             ble_device = d[0]
             adv_data = d[1]

@@ -17887,7 +17887,13 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.mugmaPort = toInt(settings.value('mugmaPort',self.mugmaPort))
             self.colorTrack_mean_window_size = toInt(settings.value('ctMean',self.colorTrack_mean_window_size))
             self.colorTrack_median_window_size = toInt(settings.value('ctMedian',self.colorTrack_median_window_size))
-            self.bleRoastSeeDeviceName = toString(settings.value('lbrsc1',self.bleRoastSeeDeviceName))
+            # restore the BLE device name if it is a valid UUID
+            uuid_ble_pattern = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+            ble_name = toString(settings.value('lbrsc1',self.bleRoastSeeDeviceName)) if uuid_ble_pattern.match(toString(settings.value('lbrsc1',self.bleRoastSeeDeviceName))) else ""
+            self.bleRoastSeeDeviceName = ble_name
+            if (ble_name is not None and ble_name !=''): #populate combo box list with device name
+                self.bleRoastSeeDevicesList = [ble_name]
+            _log.info('bleRoastSeeDeviceName: %s',self.bleRoastSeeDeviceName)
             # activate CONTROL BUTTON
             self.showControlButton()
             self.ser.controlETpid = [toInt(x) for x in toList(settings.value('controlETpid',self.ser.controlETpid))]
@@ -19928,7 +19934,11 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.settingsSetValue(settings, default_settings, 'mugmaPort',self.mugmaPort, read_defaults)
             self.settingsSetValue(settings, default_settings, 'ctMean',self.colorTrack_mean_window_size, read_defaults)
             self.settingsSetValue(settings, default_settings, 'ctMedian',self.colorTrack_median_window_size, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'lbrsc1',self.bleRoastSeeDeviceName, read_defaults)
+            # save BLE device name
+            # we use a regex to check if the name is a valid BLE UUID
+            uuid_ble_pattern = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+            ble_name = self.bleRoastSeeDeviceName if uuid_ble_pattern.match(str(self.bleRoastSeeDeviceName)) else ""
+            self.settingsSetValue(settings, default_settings, 'lbrsc1', ble_name, read_defaults)
             settings.endGroup()
 #--- END GROUP System
 
