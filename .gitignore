@@ -35,6 +35,9 @@ artisan_plus.log
 outbox/
 *flycheck_*.py
 
+#specific local dev
+tail.sh
+
 #Keeps derived files out of the Artisan repository
 #   To remove these files from the repository a commit must first be made
 #   with the these files deleted, then this section should be uncommented.
