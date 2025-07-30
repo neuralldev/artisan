@@ -1986,7 +1986,7 @@ class editGraphDlg(ArtisanResizeablDialog):
         return v_formatted, unit
 
     def ble_ReadColorC1(self) -> None:
-        if self.roastsee.is_new_color():
+        if self.roastsee is not None and self.roastsee.is_new_color():
             self.whole_color_edit.setText(str(self.roastsee.getColor()))
 
     def ble_c1_connected(self) -> None:
@@ -1998,7 +1998,7 @@ class editGraphDlg(ArtisanResizeablDialog):
     def ble_c1_disconnected(self) -> None:
         if self.roastsee is not None and self.roastsee.isconnected():
             self.roastsee.disconnect()
-        self.roastsee.set_color(0)
+            self.roastsee.set_color(0)
         self.ground_color_trackinglabel.setText('(Roastsee C1 disconnected)')
 
     @pyqtSlot()
@@ -2842,7 +2842,7 @@ class editGraphDlg(ArtisanResizeablDialog):
             except Exception as e: # pylint: disable=broad-except
                 _log.exception(e)
             self.acaia = None
-        if self.roastsee.connected:
+        if self.roastsee is not None and self.roastsee.connected:
             try:
                 self.roastsee.disconnect()
             except Exception as e:
@@ -4387,7 +4387,7 @@ class editGraphDlg(ArtisanResizeablDialog):
 
     @pyqtSlot(bool)
     def scanWholeColor(self, _:bool = False) -> None:
-        if self.roastsee.isconnected():
+        if self.roastsee is not None and self.roastsee.isconnected():
             v = self.roastsee.getColor()
         else:
             v = self.aw.color.readColor()
@@ -4397,7 +4397,7 @@ class editGraphDlg(ArtisanResizeablDialog):
 
     @pyqtSlot(bool)
     def scanGroundColor(self, _:bool = False) -> None:
-        if self.roastsee.isconnected():
+        if self.roastsee is not None and self.roastsee.isconnected():
             v = self.roastsee.getColor()
         else:
             v = self.aw.color.readColor()

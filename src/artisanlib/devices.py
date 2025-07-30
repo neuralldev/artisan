@@ -1240,7 +1240,7 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
         self.bleScanForRoastSeeC1 = QPushButton('Scan')
         self.bleScanForRoastSeeC1.clicked.connect(self.ScanForLebrewBLEDevices)
         self.bleScanForRoastSeeC1.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.bleScanForRoastSeeC1.setToolTip(QApplication.translate('Tooltip','Scan for BLE devices'))
+        self.bleScanForRoastSeeC1.setToolTip(QApplication.translate('Tooltip','Click scan to discover for Lebrew devices'))
 
         santokerNetworkGrid = QGridLayout()
         santokerNetworkGrid.addWidget(self.santokerNetworkFlag,0,0)
@@ -1959,24 +1959,26 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
         from artisanlib.lebrewroastsee import LebrewBLE
         _log.info('Scan for Lebrew BLE devices')
         self.lebrewble = LebrewBLE( )
-        self.lebrew_devices: List[Tuple[str, str]] = []
-        self.lebrewRoastSeeC1ComboBox.setEnabled(False)  # Désactive la combo box pendant le scan 
-        self.devices = self.lebrewble.scan()
-        self.lebrewRoastSeeC1ComboBox.setEnabled(True)  # Réactive la combo box après le scan
-        for d in self.devices:
-            ble_device = d[0]
-            adv_data = d[1]
-            if ble_device.name == 'RoastSee C1':
-                self.lebrew_devices.append((ble_device.name, ble_device.address))
-                break
-        self.lebrewRoastSeeC1ComboBox.clear()
-        self.aw.bleRoastSeeDevicesList = [address for _, address in self.lebrew_devices]
-        if self.lebrew_devices is not None and len(self.lebrew_devices) > 0:
-            for name, address in self.lebrew_devices:
-                self.lebrewRoastSeeC1ComboBox.addItem(f"{name}({address})")
+        if self.lebrew_devices is not None:
+            self.lebrew_devices: List[Tuple[str, str]] = []
+            self.lebrewRoastSeeC1ComboBox.setEnabled(False)  # Désactive la combo box pendant le scan 
+            self.devices = self.lebrewble.scan()
+            self.lebrewRoastSeeC1ComboBox.setEnabled(True)  # Réactive la combo box après le scan
+            for d in self.devices:
+                ble_device = d[0]
+                adv_data = d[1]
+                if ble_device.name == 'RoastSee C1':
+                    self.lebrew_devices.append((ble_device.name, ble_device.address))
+                    break
+            self.lebrewRoastSeeC1ComboBox.clear()
+            self.aw.bleRoastSeeDevicesList = [address for _, address in self.lebrew_devices]
+            if self.lebrew_devices is not None and len(self.lebrew_devices) > 0:
+                for name, address in self.lebrew_devices:
+                    self.lebrewRoastSeeC1ComboBox.addItem(f"{name}({address})")
+            else:
+                self.lebrewRoastSeeC1ComboBox.addItem('No Lebrew BLE devices found')
         else:
-            self.lebrewRoastSeeC1ComboBox.addItem('No Lebrew BLE devices found')
-
+                self.lebrewRoastSeeC1ComboBox.addItem('No Lebrew BLE devices found')
     @pyqtSlot()
     def changeTaskWebDisplayGreenPort(self) -> None:
         try:
