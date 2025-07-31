@@ -1294,17 +1294,18 @@ class editGraphDlg(ArtisanResizeablDialog):
         self.updateWeightOutDefectsLabel()
 
         # scan whole button
-        scanWholeButton = QPushButton(QApplication.translate('Button', 'scan'))
-        scanWholeButton.clicked.connect(self.scanWholeColor)
-        scanWholeButton.setMinimumWidth(80)
+        self.scanWholeButton = QPushButton(QApplication.translate('Button', 'Whole'))
+        self.scanWholeButton.clicked.connect(self.scanWholeColor)
+        self. scanWholeButton.setMinimumWidth(80)
         #the size of Buttons on the Mac is too small with 70,30 and ok with sizeHint/minimumSizeHint
-        scanWholeButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.scanWholeButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         # scan ground button
-        scanGroundButton = QPushButton(QApplication.translate('Button', 'scan'))
-        scanGroundButton.setMinimumWidth(80)
-        scanGroundButton.clicked.connect(self.scanGroundColor)
+        self.scanGroundButton = QPushButton(QApplication.translate('Button', 'Ground'))
+        self.scanGroundButton.setMinimumWidth(80)
+        self. scanGroundButton.clicked.connect(self.scanGroundColor)
         #the size of Buttons on the Mac is too small with 70,30 and ok with sizeHint/minimumSizeHint
-        scanGroundButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.scanGroundButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        
         # Ambient Temperature Source Selector
         self.ambientComboBox = QComboBox()
         self.ambientComboBox.addItems(self.buildAmbientTemperatureSourceList())
@@ -1540,7 +1541,7 @@ class editGraphDlg(ArtisanResizeablDialog):
             elif self.aw.scale.device in {'KERN NDE','Shore 930'}:
                 self.connectScaleSignal.connect(self.connectScaleLoop)
                 QTimer.singleShot(2,lambda : self.connectScaleSignal.emit()) # pylint: disable= unnecessary-lambda
-        #try to connect Lebrew RoastSee C1 in addition to Acaia which is catching the BLE connection
+        #try to connect Lebrew RoastSee C1
         try:
             from artisanlib.lebrewroastsee import LebrewBLE
             self.roastsee = LebrewBLE(
@@ -1551,11 +1552,15 @@ class editGraphDlg(ArtisanResizeablDialog):
             self.roastsee.disconnected_signal.connect(self.colorRead_disconnected)
             self.roastsee.connected_signal.connect(self.colorRead_connected)
             self.roastsee.start(address=self.aw.bleRoastSeeDeviceName)
+            # by default hide buttons and show them pnly if connected to a device
+            self.scanWholeButton.setVisible(False)
+            self.scanGroundButton.setVisible(False)
+            self.scanWholeButton.setEnabled(False)
+            self.scanGroundButton.setEnabled(False)
             if self.roastsee.isconnected():
                 self.ble_c1_connected()
         except Exception as e:
              _log.exception(e)
-
 
         propGrid.setRowMinimumHeight(3,volumeCalcButton.minimumSizeHint().height())
         propGrid.addWidget(volumelabel,3,0,Qt.AlignmentFlag.AlignVCenter)
@@ -1594,20 +1599,24 @@ class editGraphDlg(ArtisanResizeablDialog):
         propGrid.addWidget(greens_temp_unit_label,5,9,Qt.AlignmentFlag.AlignCenter|Qt.AlignmentFlag.AlignVCenter)
 
         propGrid.setRowMinimumHeight(7,30)
+        propGrid.addWidget(color_label,7,0,Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
         propGrid.addWidget(whole_color_label,7,1,Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
         propGrid.addWidget(ground_color_label,7,2,Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
 
-        propGrid.addWidget(color_label,7,0,Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
-        propGrid.addWidget(self.whole_color_edit,8,0,Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
-        propGrid.addWidget(self.ground_color_edit,8,1,Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
-        propGrid.addWidget(self.colorSystemComboBox,8,2,1,2) # rowSpan=1, columnSpan=2
+        propGrid.addWidget(self.whole_color_edit,8,1,Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
+        propGrid.addWidget(self.ground_color_edit,8,2,Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
+        propGrid.addWidget(self.colorSystemComboBox,8,3,1,2) # rowSpan=1, columnSpan=2
 
         if (self.aw.color.device is not None and self.aw.color.device != '' and self.aw.color.device not in ['None','Tiny Tonino', 'Classic Tonino']):
-            propGrid.addWidget(scanWholeButton,8,6)
+            propGrid.addWidget(self.scanWholeButton,8,6)
         if self.aw.color.device not in (None, '', 'None'):
-            propGrid.addWidget(scanGroundButton,8,7)
+            propGrid.addWidget(self.scanGroundButton,8,7)
         if self.roastsee is not None:
-            propGrid.addWidget(self.ground_color_trackinglabel,8,4, Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+            # add status field which also holds readings of color)
+            propGrid.addWidget(self.ground_color_trackinglabel,8,5, Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+            # add two buttons to redirect readings into fields (green, whole)
+            propGrid.addWidget(self.scanWholeButton,8,6)
+            propGrid.addWidget(self.scanGroundButton,8,7)
 
         propGrid.addWidget(ambientSourceLabel,8,8,1,2,Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
 
@@ -1985,39 +1994,58 @@ class editGraphDlg(ArtisanResizeablDialog):
                 unit = self.aw.qmc.weight[2]
         return v_formatted, unit
 
+    # read BLE device and store color 
     def ble_ReadColorC1(self) -> None:
         if self.roastsee is not None and self.roastsee.is_new_color():
-            self.whole_color_edit.setText(str(self.roastsee.getColor()))
+            v = self.roastsee.getColor()
+            t = QApplication.translate('Label','Acquired color ')+f' {v}'
+            self.ground_color_trackinglabel.setText(t)
+#            self.whole_color_edit.setText(str(self.roastsee.getColor()))
 
+    # adjust label upon receiving a positive alive device connection
     def ble_c1_connected(self) -> None:
         if self.roastsee is not None and self.roastsee.isconnected():
-            self.ground_color_trackinglabel.setText('(Roastsee C1 connected)')
+            self.ground_color_trackinglabel.setText(QApplication.translate('Label', '(Roastsee C1 connected)'))
+            self.scanWholeButton.setVisible(True)
+            self.scanGroundButton.setVisible(True)
+            self.scanWholeButton.setEnabled(True)
+            self.scanGroundButton.setEnabled(True)
+            
         else:
             self.ground_color_trackinglabel.setText('')
+            self.scanWholeButton.setEnabled(False)
+            self.scanGroundButton.setEnabled(False)
 
+    # remove label and gray buttons upon receiving a disconnect
     def ble_c1_disconnected(self) -> None:
         if self.roastsee is not None and self.roastsee.isconnected():
             self.roastsee.disconnect()
             self.roastsee.set_color(0)
         self.ground_color_trackinglabel.setText('(Roastsee C1 disconnected)')
+        self.scanWholeButton.setEnabled(False)
+        self.scanGroundButton.setEnabled(False)
 
+    # BLE handling of Lebrew RoastSee C1
     @pyqtSlot()
     def colorRead_connected(self) -> None:
         self.colorRead_value = None
         self.ble_c1_connected()
 
+    # BLE handling of Lebrew RoastSee C1
     @pyqtSlot()
     def colorRead_disconnected(self) -> None:
         self.colorRead_value = None
         self.ble_c1_disconnected()
 
+    # BLE handling of Lebrew RoastSee C1
     @pyqtSlot(float)
     def colorRead_changed(self, w:float) -> None:
         if w is not None:
             self.colorRead_value = w
-            self.whole_color_edit.setText(str(w))
+#            self.whole_color_edit.setText(str(w))
+            t = QApplication.translate('Label','Acquired color ')+f' {w}'
+            self.ground_color_trackinglabel.setText(t)
             self.colorSystemComboBox.setCurrentIndex(5) # set Agtron
-
 
     @pyqtSlot()
     def ble_disconnected(self) -> None:
@@ -4387,23 +4415,15 @@ class editGraphDlg(ArtisanResizeablDialog):
 
     @pyqtSlot(bool)
     def scanWholeColor(self, _:bool = False) -> None:
-        if self.roastsee is not None and self.roastsee.isconnected():
-            v = self.roastsee.getColor()
-        else:
-            v = self.aw.color.readColor()
-        if isinstance(v, int) and v > -1 and 0 <= v <= 250:
-            self.aw.qmc.whole_color = v
-            self.whole_color_edit.setText(str(v))
+        if  self.colorRead_value is not None and self.colorRead_value > -1 and 0 <= self.colorRead_value <= 250:
+            self.aw.qmc.whole_color = int(round(self.colorRead_value,0))
+            self.whole_color_edit.setText(str(self.aw.qmc.whole_color))
 
     @pyqtSlot(bool)
     def scanGroundColor(self, _:bool = False) -> None:
-        if self.roastsee is not None and self.roastsee.isconnected():
-            v = self.roastsee.getColor()
-        else:
-            v = self.aw.color.readColor()
-        if isinstance(v, int) and v > -1 and 0 <= v <= 250:
-            self.aw.qmc.ground_color = v
-            self.ground_color_edit.setText(str(v))
+        if  self.colorRead_value is not None and self.colorRead_value > -1 and 0 <= self.colorRead_value <= 250:
+            self.aw.qmc.ground_color = int(round(self.colorRead_value,0))
+            self.ground_color_edit.setText(str(self.aw.qmc.ground_color))
 
     @pyqtSlot(bool)
     def volumeCalculatorTimer(self, _:bool = False) -> None:

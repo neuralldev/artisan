@@ -17893,7 +17893,9 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.bleRoastSeeDeviceName = ble_name
             if (ble_name is not None and ble_name !=''): #populate combo box list with device name
                 self.bleRoastSeeDevicesList = [ble_name]
-            _log.info('bleRoastSeeDeviceName: %s',self.bleRoastSeeDeviceName)
+            else:
+                self.bleRoasSeeDevicesLust = None
+#            _log.info('bleRoastSeeDeviceName: %s',self.bleRoastSeeDeviceName)
             # activate CONTROL BUTTON
             self.showControlButton()
             self.ser.controlETpid = [toInt(x) for x in toList(settings.value('controlETpid',self.ser.controlETpid))]
