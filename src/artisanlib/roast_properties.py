@@ -4416,14 +4416,14 @@ class editGraphDlg(ArtisanResizeablDialog):
     @pyqtSlot(bool)
     def scanWholeColor(self, _:bool = False) -> None:
         if  self.colorRead_value is not None and self.colorRead_value > -1 and 0 <= self.colorRead_value <= 250:
-            self.aw.qmc.whole_color = int(round(self.colorRead_value,0))
-            self.whole_color_edit.setText(str(self.aw.qmc.whole_color))
+            #self.aw.qmc.whole_color = int(round(self.colorRead_value,0))
+            self.whole_color_edit.setText(str(self.colorRead_value))
 
     @pyqtSlot(bool)
     def scanGroundColor(self, _:bool = False) -> None:
         if  self.colorRead_value is not None and self.colorRead_value > -1 and 0 <= self.colorRead_value <= 250:
-            self.aw.qmc.ground_color = int(round(self.colorRead_value,0))
-            self.ground_color_edit.setText(str(self.aw.qmc.ground_color))
+            #self.aw.qmc.ground_color = int(round(self.colorRead_value,0))
+            self.ground_color_edit.setText(str(self.colorRead_value ))
 
     @pyqtSlot(bool)
     def volumeCalculatorTimer(self, _:bool = False) -> None:

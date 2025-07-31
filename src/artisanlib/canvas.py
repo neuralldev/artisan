@@ -124,6 +124,8 @@ try:
 except Exception: # pylint: disable=broad-except
     pass
 
+from wakepy import keep
+import asyncio 
 
 
 _log: Final[logging.Logger] = logging.getLogger(__name__)
@@ -2032,12 +2034,16 @@ class tgraphcanvas(FigureCanvas):
         # create an object time to measure and record time (in milliseconds)
 
         self.timeclock:ArtisanTime = ArtisanTime()
-
+        
         ############################  Thread Server #################################################
         #server that spawns a thread dynamically to sample temperature (press button ON to make a thread press OFF button to kill it)
         self.threadserver:Athreadserver = Athreadserver(self.aw)
-
-
+        self.ssbserver:ssbController = ssbController(self.aw)
+        
+        ############################  Wakepy #################################################
+        #monitors screen saver preventer execution
+        self.onoffPreventSleep:bool= False
+        
         ##########################     Designer variables       #################################
         self.designerflag:bool = False
         self.designerconnections:List[Optional[int]] = [None,None,None,None]   #mouse event ids
@@ -2443,6 +2449,7 @@ class tgraphcanvas(FigureCanvas):
         self.showBackgroundEventsSignal.connect(self.showBackgroundEvents)
         self.redrawSignal.connect(self.redraw, type=Qt.ConnectionType.QueuedConnection) # type: ignore
         self.redrawKeepViewSignal.connect(self.redraw_keep_view, type=Qt.ConnectionType.QueuedConnection) # type: ignore
+
 
     #NOTE: empty Figure is initially drawn at the end of self.awsettingsload()
     #################################    FUNCTIONS    ###################################
@@ -13302,6 +13309,10 @@ class tgraphcanvas(FigureCanvas):
 
             if not bool(self.aw.simulator):
                 QTimer.singleShot(300,self.StartAsyncSamplingAction)
+
+            # start the screen saver preventer
+            self.ssbserver.start()
+
             _log.info('MODE: ON MONITOR (sampling @%ss)', float2float(self.delay/1000))
         except Exception as ex: # pylint: disable=broad-except
             _log.exception(ex)
@@ -13511,6 +13522,9 @@ class tgraphcanvas(FigureCanvas):
                 self.flagon = False
 
                 self.getMeterReads()
+
+                # finish screen locking task
+                self.ssbserver.terminatingSignal.emit()
 
             except Exception as ex: # pylint: disable=broad-except
                 _log.exception(ex)
@@ -13942,6 +13956,7 @@ class tgraphcanvas(FigureCanvas):
                     return
                 self.aw.soundpopSignal.emit()
                 self.OnMonitor()
+
         #turn OFF
         else:
             try:
@@ -19185,3 +19200,64 @@ class Athreadserver(QWidget): # pylint: disable=too-few-public-methods # pyright
     @pyqtSlot()
     def terminating(self) -> None:
         self.terminatingSignal.emit()
+
+########################################################################################
+###     Screen Saver thread
+########################################################################################
+
+class WorkerThread(QObject): # pylint: disable=too-few-public-methods # pyright: ignore [reportGeneralTypeIssues] # Argument to class must be a base class
+    finished = pyqtSignal()
+#    progress = pyqtSignal(int)
+    
+    def __init__(self, aw:'ApplicationWindow') -> None:
+        super().__init__()
+        self.aw = aw
+        
+    def do_work(self):
+        i:int = 0
+        with keep.presenting() as k:
+            a = k.activation_result.success
+            fl = 1 if self.aw.qmc.onoffPreventSleep else 0
+            while self.aw.qmc.onoffPreventSleep:
+                libtime.sleep(5)
+                i = i+1
+                # self.progress.emit(i)
+
+    def run(self):
+        self.do_work()
+        
+class ssbController(QWidget): # pylint: disable=too-few-public-methods # pyright: ignore [reportGeneralTypeIssues] # Argument to class must be a base class
+    terminatingSignal = pyqtSignal()
+    
+    def __init__(self, aw:'ApplicationWindow') -> None:
+        super().__init__()
+        self.aw = aw
+        self.terminatingSignal.connect(self.finish)
+
+    # defines and run the screen saver loop 
+    def runlongtaskl(self):
+        self.thread = QThread()
+        self.worker = WorkerThread(self.aw)
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+#        self.worker.progress.connect(self.reportProgress)
+        self.thread.start()
+    
+    def start(self):
+        _log.debug("Prevent screen saver")
+        self.aw.qmc.onoffPreventSleep = True
+        self.runlongtaskl() # main actions to setup the loop
+
+#    @pyqtSlot()
+#    def reportProgress(self):
+#        _log.info(f'looping iteration')
+        
+    @pyqtSlot()
+    def finish(self):
+        self.aw.qmc.onoffPreventSleep = False # clear flag
+        if self.thread.isRunning or not self.thread.isFinished: # if thread is still running kill it
+            self.thread.quit()
+        _log.debug("Releasing screen saver lock")
