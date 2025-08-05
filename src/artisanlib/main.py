@@ -1571,7 +1571,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         'sliderFrame', 'sliderDock', 'lcdFrame', 'midlayout', 'editgraphdialog', 'html_loader', 'QtWebEngineSupport', 'artisanviewerFirstStart',
         'buttonpalette', 'extraeventbuttontextcolor', 'extraeventsactions', 'extraeventsdescriptions', 'extraeventstypes', 'extraeventsvalues',
         'extraeventsvisibility', 'fileSaveAsAction', 'keyboardButtonStyles', 'language_menu_actions', 'loadThemeAction', 'main_button_min_width_str',
-        'minieventleft', 'minieventright', 'nLCDS', 'notificationManager', 'notificationsflag', 'ntb', 'pdf_page_layout', 'pdf_rendering', 'productionPDFAction',
+        'minieventleft', 'minieventright', 'notificationManager', 'notificationsflag', 'ntb', 'pdf_page_layout', 'pdf_rendering', 'productionPDFAction',
         'rankingPDFAction', 'roastReportMenu', 'roastReportPDFAction', 'saveAsThemeAction', 'sliderGrp12', 'sliderGrp34', 'sliderGrpBox1x', 'sliderGrpBox2x', 'sliderGrpBox3x', 'sliderGrpBox4x',
         'small_button_min_width_str', 'standard_button_min_width_px', 'tiny_button_min_width_str', 'recording_version', 'recording_revision', 'recording_build',
         'lastIOResult', 'lastArtisanResult', 'max_palettes', 'palette_entries', 'eventsliders', 'defaultSettings', 'zoomInShortcut', 'zoomOutShortcut',
@@ -1580,6 +1580,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         'bbp_dropevents', 'bbp_dropbt', 'bbp_dropet', 'bbp_drop_to_end', 'schedule_day_filter', 'schedule_user_filter', 'schedule_machine_filter',
         'schedule_visible_filter', 'scheduler_tasks_visible', 'scheduler_completed_details_visible', 'scheduler_filters_visible', 'scheduler_auto_open']
 
+    nLCDS: Final[int] = 10 # maximum number of LCDs and extra devices (2x10 => 20 in total!)
 
     def __init__(self, parent:Optional[QWidget] = None, *, locale:str, WebEngineSupport:bool, artisanviewerFirstStart:bool) -> None:
 
@@ -1788,8 +1789,6 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                     self.dpi = dpi
             except Exception: # pylint: disable=broad-except
                 pass
-
-        self.nLCDS: Final[int] = 10 # maximum number of LCDs and extra devices (2x10 => 20 in total!)
 
         self.qmc:tgraphcanvas = tgraphcanvas(self.main_widget, self.dpi, locale, self)
         self.qmc.setMinimumHeight(150)
@@ -7607,23 +7606,6 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
     # trims arabic strings to be rendered correctly with unicode fonts if arabic locale is active
     # if s is a string with one {0} placeholder and a is an argument, the argument is reversed, and then the whole string result is reversed
     # if it contains any arabic characters
-#    def arabicReshape(self, s:str, a:Optional[str]=None) -> str:
-#        if self.locale_str in {'ar', 'fa'}:
-#            st = str(s)
-#            if artisanlib.arabic_reshaper.has_arabic_letters(st):
-#                if a:
-#                    return str(artisanlib.arabic_reshaper.reshape(str(s.format(a[::-1])))[::-1])
-#                return str(artisanlib.arabic_reshaper.reshape(st)[::-1])
-#            if a:
-#                return s.format(a)
-#            return s
-#        if self.locale_str == 'he':
-#            if a:
-#                return (s.format(a[::-1]))[::-1]
-#            return s[::-1]
-#        if a:
-#            return s.format(a)
-#        return s
     def arabicReshape(self, s:str, a:Optional[str] = None) -> str:
         if self.locale_str in {'ar', 'fa'}:
             if a:
@@ -11906,7 +11888,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 self.minieventsflags[0] = 1
 
     def toggleForegroundShowfullFlag(self) -> None:
-        if not self.qmc.designerflag and not self.qmc.flagon and self.curFile is not None:
+        if not self.qmc.designerflag and not self.qmc.flagon:
             # only if not recording
             self.qmc.foregroundShowFullflag = not self.qmc.foregroundShowFullflag
             self.autoAdjustAxis(background=self.qmc.background and (not len(self.qmc.timex) > 3), deltas=False)
@@ -13998,141 +13980,8 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         if time == 0.0:
             return ''
         di,mo = divmod(time,60)
-#        return '%02d:%02d'% divmod(time,60)
         return f'{di:02.0f}:{mo:02.0f}'
 
-
-    #read Artisan CSV
-    def importCSV(self, filename:str) -> None:
-        import csv
-        try:
-            with open(filename, newline='', encoding='utf-8') as csvFile:
-                data = csv.reader(csvFile,delimiter='\t')
-                #read file header
-                header = next(data)
-                date = QDate.fromString(header[0].split('Date:')[1],"dd'.'MM'.'yyyy")
-                if len(header) > 11:
-                    try:
-                        tm = QTime.fromString(header[11].split('Time:')[1])
-                        self.qmc.roastdate = QDateTime(date,tm)
-                    except Exception: # pylint: disable=broad-except
-                        self.qmc.roastdate = QDateTime(date, QTime())
-                else:
-                    self.qmc.roastdate = QDateTime(date, QTime())
-                self.qmc.roastepoch = self.qmc.roastdate.toSecsSinceEpoch()
-                self.qmc.roasttzoffset = 0
-                unit = header[1].split('Unit:')[1]
-                #set temperature mode
-                if unit == 'F' and self.qmc.mode == 'C':
-                    self.qmc.fahrenheitMode()
-                if unit == 'C' and self.qmc.mode == 'F':
-                    self.qmc.celsiusMode()
-                #read column headers
-                fields = next(data)
-                extra_fields = fields[5:] # columns after 'Event'
-                # add devices if needed
-                for _ in range(max(0,(len(extra_fields) // 2) - len(self.qmc.extradevices))):
-                    self.addDevice()
-                # set extra device names # NOTE: eventuelly we want to set/change the names only for devices that were just added in the line above!?
-                for i, ef in enumerate(extra_fields):
-                    if i % 2 == 1:
-                        # odd
-                        self.qmc.extraname2[int(i/2)] = ef
-                    else:
-                        # even
-                        self.qmc.extraname1[int(i/2)] = ef
-                #read data
-                last_time:Optional[float] = None
-
-                i = 0
-                for row in data:
-                    i = i + 1
-                    try:
-                        items = list(zip(fields, row))
-                        item = {}
-                        for (name, value) in items:
-                            item[name] = value.strip()
-                        #add one measurement
-                        timez = float(stringtoseconds(item['Time1']))
-                        if not last_time or last_time < timez:
-                            self.qmc.timex.append(timez)
-                            self.qmc.temp1.append(float(item['ET']))
-                            self.qmc.temp2.append(float(item['BT']))
-                            for j, ef in enumerate(extra_fields):
-                                if j % 2 == 1:
-                                    # odd
-                                    self.qmc.extratemp2[int(j/2)].append(float(item[ef]))
-                                else:
-                                    # even
-                                    self.qmc.extratimex[int(j/2)].append(timez)
-                                    self.qmc.extratemp1[int(j/2)].append(float(item[ef]))
-                        last_time = timez
-                    except Exception: # pylint: disable=broad-except
-                        pass # invalid input can make stringtoseconds fail thus this row is ignored
-            #set events
-            CHARGE_entry = header[2].split('CHARGE:')
-            if len(CHARGE_entry)>1:
-                try:
-                    CHARGE = stringtoseconds(CHARGE_entry[1])
-                except Exception:  # pylint: disable=broad-except
-                    CHARGE = -1
-                if CHARGE >= 0:
-                    self.qmc.timeindex[0] = max(-1, self.qmc.time2index(CHARGE))
-                else:
-                    self.qmc.timeindex[0] = -1
-            else:
-                self.qmc.timeindex[0] = -1
-            try:
-                DRYe = stringtoseconds(header[4].split('DRYe:')[1])
-            except Exception:  # pylint: disable=broad-except
-                DRYe = 0
-            if DRYe > 0:
-                self.qmc.timeindex[1] = max(0, self.qmc.time2index(DRYe))
-            try:
-                FCs = stringtoseconds(header[5].split('FCs:')[1])
-            except Exception:  # pylint: disable=broad-except
-                FCs = 0
-            if FCs > 0:
-                self.qmc.timeindex[2] = max(0, self.qmc.time2index(FCs))
-            try:
-                FCe = stringtoseconds(header[6].split('FCe:')[1])
-            except Exception:  # pylint: disable=broad-except
-                FCe = 0
-            if FCe > 0:
-                self.qmc.timeindex[3] = max(0, self.qmc.time2index(FCe))
-            try:
-                SCs = stringtoseconds(header[7].split('SCs:')[1])
-            except Exception:  # pylint: disable=broad-except
-                SCs = 0
-            if SCs > 0:
-                self.qmc.timeindex[4] = max(0, self.qmc.time2index(SCs))
-            try:
-                SCe = stringtoseconds(header[8].split('SCe:')[1])
-            except Exception:  # pylint: disable=broad-except
-                SCe = 0
-            if SCe> 0:
-                self.qmc.timeindex[5] = max(0, self.qmc.time2index(SCe))
-            try:
-                DROP = stringtoseconds(header[9].split('DROP:')[1])
-            except Exception:  # pylint: disable=broad-except
-                DROP = 0
-            if DROP > 0:
-                self.qmc.timeindex[6] = max(0, self.qmc.time2index(DROP))
-            try:
-                COOL = stringtoseconds(header[10].split('COOL:')[1])
-            except Exception:  # pylint: disable=broad-except
-                COOL = 0
-            if COOL > 0:
-                self.qmc.timeindex[7] = max(0, self.qmc.time2index(COOL))
-            self.qmc.endofx = self.qmc.timex[-1]
-            self.sendmessage(f"{QApplication.translate('Message','Artisan CSV file loaded successfully')} ({filename})")
-            self.qmc.fileDirtySignal.emit()
-            self.autoAdjustAxis()
-            self.qmc.redraw()
-        except Exception as ex: # pylint: disable=broad-except
-            _log.exception(ex)
-            _, _, exc_tb = sys.exc_info()
-            self.qmc.adderror((QApplication.translate('Error Message','Exception:') + ' importCSV() {0}').format(str(ex)),getattr(exc_tb, 'tb_lineno', '?'))
 
     def addSerialPort(self) -> None:
         n = len(self.qmc.extradevices) - 1
@@ -14486,6 +14335,140 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             _log.exception(ex)
             _, _, exc_tb = sys.exc_info()
             self.qmc.adderror((QApplication.translate('Error Message','Exception:') + ' importJSON() {0}').format(str(ex)),getattr(exc_tb, 'tb_lineno', '?'))
+
+    @staticmethod
+    def csv_load(csvFile:io.TextIOWrapper) -> 'ProfileData':
+        import csv
+        profile = ProfileData()
+
+        data = csv.reader(csvFile,delimiter='\t')
+        #read file header
+        header = next(data)
+        date = QDate.fromString(header[0].split('Date:')[1],"dd'.'MM'.'yyyy")
+        if len(header) > 11:
+            try:
+                tm = QTime.fromString(header[11].split('Time:')[1])
+                roastdate = QDateTime(date,tm)
+            except Exception: # pylint: disable=broad-except
+                roastdate = QDateTime(date, QTime())
+        else:
+            roastdate = QDateTime(date, QTime())
+        profile['roastdate'] = encodeLocalStrict(roastdate.toString())
+        profile['roastepoch'] = int(roastdate.toSecsSinceEpoch())
+        profile['roasttzoffset'] = 0
+        unit = header[1].split('Unit:')[1]
+        if unit in {'F', 'C'}:
+            profile['mode'] = unit
+        #read column headers
+        fields = next(data)
+        extra_fields = fields[5:] # columns after 'Event'
+
+        timex:List[float] = []
+        temp1:List[float] = []
+        temp2:List[float] = []
+
+        # add extra devices
+        number_extra_devices = min(ApplicationWindow.nLCDS, int(len(extra_fields)/2))
+        extradevices:List[int] = [50]*number_extra_devices # type dummy
+        extratimex:List[List[float]] = [[]]*number_extra_devices
+        extratemp1:List[List[float]] = [[]]*number_extra_devices
+        extratemp2:List[List[float]] = [[]]*number_extra_devices
+        extraname1:List[str] = ['']*number_extra_devices
+        extraname2:List[str] = ['']*number_extra_devices
+        extramathexpression1:List[str] = ['']*number_extra_devices
+        extramathexpression2:List[str] = ['']*number_extra_devices
+
+        # set extra device names # NOTE: eventuelly we want to set/change the names only for devices that were just added in the line above!?
+        for i, ef in enumerate(extra_fields):
+            if i % 2 == 1:
+                # odd
+                extraname2[int(i/2)] = ef
+            else:
+                # even
+                extraname1[int(i/2)] = ef
+
+        #read data
+        last_time:Optional[float] = None
+
+        i = 0
+        for row in data:
+            i = i + 1
+            try:
+                items = list(zip(fields, row))
+                item = {}
+                for (name, value) in items:
+                    item[name] = value.strip()
+                #add one measurement
+                timez = float(stringtoseconds(item['Time1']))
+                if not last_time or last_time < timez:
+                    timex.append(timez)
+                    temp1.append(float(item['ET']))
+                    temp2.append(float(item['BT']))
+                    for j, ef in enumerate(extra_fields):
+                        if j % 2 == 1:
+                            # odd
+                            extratemp2[int(j/2)].append(float(item[ef]))
+                        else:
+                            # even
+                            extratimex[int(j/2)].append(timez)
+                            extratemp1[int(j/2)].append(float(item[ef]))
+                last_time = timez
+            except Exception: # pylint: disable=broad-except
+                pass # invalid input can make stringtoseconds fail thus this row is ignored
+
+        timeindex:List[int] = [-1,0,0,0,0,0,0,0] #CHARGE index init set to -1 as 0 could be an actual index used
+
+        #set events
+        CHARGE_entry = header[2].split('CHARGE:')
+        if len(CHARGE_entry)>1:
+            try:
+                CHARGE = stringtoseconds(CHARGE_entry[1])
+                if CHARGE >= 0:
+                    timeindex[0] = max(-1, tgraphcanvas.timearray2index(timex, CHARGE, True))
+            except Exception:  # pylint: disable=broad-except
+                pass
+
+        for i, l in enumerate(['DRYe:', 'FCs:', 'FCe:', 'SCs:', 'SCe:', 'DROP:', 'COOL:']):
+            try:
+                label = stringtoseconds(header[i+4].split(l)[1])
+                if label > 0:
+                    timeindex[i+1] = max(0, tgraphcanvas.timearray2index(timex, label, True))
+            except Exception:  # pylint: disable=broad-except
+                pass
+
+        profile['timex'] = timex
+        profile['temp1'] = temp1
+        profile['temp2'] = temp2
+        profile['extradevices'] = extradevices
+        profile['extraname1'] = extraname1
+        profile['extraname2'] = extraname2
+        profile['extratimex'] = extratimex
+        profile['extratemp1'] = extratemp1
+        profile['extratemp2'] = extratemp2
+        profile['extramathexpression1'] = extramathexpression1
+        profile['extramathexpression2'] = extramathexpression2
+        profile['timeindex'] = timeindex
+
+        return profile
+
+    #read Artisan CSV
+    def importCSV(self, filename:str) -> None:
+        try:
+            with open(filename, encoding='utf-8') as infile:
+                obj = self.csv_load(infile)
+                res = self.setProfile(filename,obj)
+            if res:
+                #update etypes combo box
+                self.etypeComboBox.clear()
+                self.etypeComboBox.addItems(self.qmc.etypes)
+                self.qmc.fileDirtySignal.emit()
+                self.autoAdjustAxis()
+                self.qmc.redraw()
+                self.sendmessage(f"{QApplication.translate('Message','Artisan JSON file loaded successfully')} ({filename})")
+        except Exception as ex: # pylint: disable=broad-except
+            _log.exception(ex)
+            _, _, exc_tb = sys.exc_info()
+            self.qmc.adderror((QApplication.translate('Error Message','Exception:') + ' importCSV() {0}').format(str(ex)),getattr(exc_tb, 'tb_lineno', '?'))
 
     def importRoastLogger(self, filename:str) -> None:
         self.resetExtraDevices()
@@ -15599,13 +15582,13 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                     self.qmc.extractimex2 = [[]]*len(self.qmc.extratemp2)
                 # d) set other extra curve attribute lists
                 if 'extraname1' in profile:
-                    self.qmc.extraname1 = [decodeLocalStrict(x) for x in profile['extraname1']]
+                    self.qmc.extraname1 = [decodeLocalStrict(x) for x in profile['extraname1'][:self.nLCDS]]
                 if 'extraname2' in profile:
-                    self.qmc.extraname2 = [decodeLocalStrict(x) for x in profile['extraname2']]
+                    self.qmc.extraname2 = [decodeLocalStrict(x) for x in profile['extraname2'][:self.nLCDS]]
                 if 'extramathexpression1' in profile:
-                    self.qmc.extramathexpression1 = [decodeLocalStrict(x) for x in profile['extramathexpression1']]
+                    self.qmc.extramathexpression1 = [decodeLocalStrict(x) for x in profile['extramathexpression1'][:self.nLCDS]]
                 if 'extramathexpression2' in profile:
-                    self.qmc.extramathexpression2 = [decodeLocalStrict(x) for x in profile['extramathexpression2']]
+                    self.qmc.extramathexpression2 = [decodeLocalStrict(x) for x in profile['extramathexpression2'][:self.nLCDS]]
 
                 if updateRender:
                     if 'extradevicecolor1' in profile:
@@ -15982,8 +15965,8 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             if self.qmc.loadalarmsfromprofile and filename is not None:
                 self.loadAlarmsFromProfile(filename, profile)
 
-            self.qmc.extraNoneTempHint1 = profile.get('extraNoneTempHint1', [])
-            self.qmc.extraNoneTempHint2 = profile.get('extraNoneTempHint2', [])
+            self.qmc.extraNoneTempHint1 = profile.get('extraNoneTempHint1', [])[:self.nLCDS]
+            self.qmc.extraNoneTempHint2 = profile.get('extraNoneTempHint2', [])[:self.nLCDS]
 
             m = str(profile['mode']) if 'mode' in profile else self.qmc.mode
             if 'ambientTemp' in profile:
@@ -16120,31 +16103,6 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                     # we still need to adjust startx as it depends on timeindex[0] to keep x-axis min limit as is
                     # we assume here that the previous reset did initialize timeindex[0] and adjusted startx correctly
                     self.qmc.startofx += self.qmc.timex[self.qmc.timeindex[0]]
-#            elif len(profile) > 0 and ('startend' in profile or 'dryend' in profile or 'cracks' in profile):
-#                ###########      OLD PROFILE FORMAT
-#                if 'startend' in profile:
-#                    startend = [float(fl) for fl in profile['startend']]
-#                else:
-#                    startend = [0.,0.,0.,0.]
-#                if 'dryend' in profile:
-#                    dryend = profile['dryend']
-#                else:
-#                    dryend = [0.,0.]
-#                if 'cracks' in profile:
-#                    varC = [float(fl) for fl in profile['cracks']]
-#                else:
-#                    varC = [0.,0.,0.,0.,0.,0.,0.,0.]
-#                times = []
-#                times.append(startend[0])
-#                times.append(dryend[0])
-#                times.append(varC[0])
-#                times.append(varC[2])
-#                times.append(varC[4])
-#                times.append(varC[6])
-#                times.append(startend[2])
-#                #convert to new profile
-#                self.qmc.timeindexupdate(times)
-#                ###########      END OLD PROFILE FORMAT
             # update phases if phases are set to auto adjusted
             if self.qmc.phasesbuttonflag:
                 # adjust phases by DryEnd and FCs events
@@ -16332,7 +16290,8 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 output = 'Metrics not available: profile is zero length.'
 
             # Find some BBP data
-            if ( ( self.qmc.timex[self.qmc.timeindex[0]] > 0 ) and ( self.qmc.timex[self.qmc.timeindex[0]] - self.qmc.timex[0] >= 60 ) ):  #greater than 1 minute
+            if ( len(self.qmc.timeindex)>0 and self.qmc.timeindex[0]>-1 and len(self.qmc.timex)>self.qmc.timeindex[0] and
+                    ( self.qmc.timex[self.qmc.timeindex[0]] > 0 ) and ( self.qmc.timex[self.qmc.timeindex[0]] - self.qmc.timex[0] >= 60 ) ):  #greater than 1 minute
                 try:
                     # fake the events
                     bbp_timeindex = [0, 0, self.qmc.timeindex[0], 0, 0, 0, self.qmc.timeindex[0], 0]
@@ -17194,7 +17153,15 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.fileConvertFrom('*.xlsx', extractProfileStrongholdXLSX)
 
 
-    def fileConvertFrom(self, ext:str, extractor: Callable[[str, 'ApplicationWindow'], Optional['ProfileData']]) -> None:
+    # extractor expects the following arguments
+    #   file:str
+    #   etypesdefault:List[str]               # translated to current locale
+    #   alt_etypesdefault:List[str]           # translated to current locale
+    #   artisanflavordefaultlabels:List[str]  # translated to current locale
+    #   eventsExternal2InternalValue: Callable[[int],float]
+    def fileConvertFrom(self,
+            ext:str,
+            extractor: Callable[[str, List[str], List[str], List[str], Callable[[int],float]],Optional['ProfileData']]) -> None:
         files = self.ArtisanOpenFilesDialog(ext=ext)
         if files and len(files) > 0:
             loaded_profile = self.curFile
@@ -17216,7 +17183,11 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                         fconv = str(QDir(outdir).filePath(f'{fname}.alog'))
                         if not os.path.exists(fconv):
                             self.qmc.reset(redraw=False,soundOn=False)
-                            pd = extractor(f, self)
+                            pd = extractor(f,
+                                    self.qmc.etypesdefault,
+                                    self.qmc.alt_etypesdefault,
+                                    self.qmc.artisanflavordefaultlabels,
+                                    self.qmc.eventsExternal2InternalValue)
                             if pd is not None:
                                 self.serialize(fconv, cast(Dict[str,Any], pd))
                             else:
@@ -17522,7 +17493,11 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.qmc.adderror((QApplication.translate('Error Message', 'Exception:') + ' fileImport(): {0}').format(str(ex)),getattr(exc_tb, 'tb_lineno', '?'))
 
     @staticmethod
-    def artisanURLextractor(url:QUrl, _aw:'ApplicationWindow') -> Optional['ProfileData']:
+    def artisanURLextractor(url:QUrl,
+            _etypesdefault:List[str],
+            _alt_etypesdefault:List[str],
+            _artisanflavordefaultlabels:List[str],
+            _artisanURLextractor:Callable[[int],float]) -> Optional['ProfileData']:
         try:
             import requests
             r = requests.get(url.toString(),
@@ -25707,7 +25682,15 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.importExternalURL(self.artisanURLextractor, url=url)
 
     # url a QUrl
-    def importExternalURL(self, extractor: Callable[[QUrl, 'ApplicationWindow'], Optional['ProfileData']], message:str='', url:Optional[QUrl] = None) -> None:
+    # extractor expects the following arguments
+    #   url:QUrl
+    #   etypesdefault:List[str]               # translated to current locale
+    #   alt_etypesdefault:List[str]           # translated to current locale
+    #   artisanflavordefaultlabels:List[str]  # translated to current locale
+    #   eventsExternal2InternalValue: Callable[[int],float]
+    def importExternalURL(self,
+            extractor: Callable[[QUrl, List[str], List[str], List[str], Callable[[int],float]], Optional['ProfileData']],
+            message:str='', url:Optional[QUrl] = None) -> None:
         try:
             res:bool = self.qmc.reset(redraw=True,soundOn=False)
             if not res:
@@ -25718,7 +25701,11 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 if url is None:
                     return
                 try:
-                    obj = extractor(url, self)
+                    obj = extractor(url,
+                                    self.qmc.etypesdefault,
+                                    self.qmc.alt_etypesdefault,
+                                    self.qmc.artisanflavordefaultlabels,
+                                    self.qmc.eventsExternal2InternalValue)
                     res = self.setProfile(None, obj) if obj else False
                 except Exception as e: # pylint: disable=broad-except
                     _log.exception(e)
@@ -25746,7 +25733,14 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             _, _, exc_tb = sys.exc_info()
             self.qmc.adderror((QApplication.translate('Error Message','Exception:') + ' {1} {0}').format(str(ex),message),getattr(exc_tb, 'tb_lineno', '?'))
 
-    def importExternal(self, extractor: Callable[[str, 'ApplicationWindow'], 'ProfileData'], message:str, extension:str, filename:Optional[str] = None) -> None:
+    # extractor expects the following arguments
+    #   file:str
+    #   etypesdefault:List[str]               # translated to current locale
+    #   alt_etypesdefault:List[str]           # translated to current locale
+    #   artisanflavordefaultlabels:List[str]  # translated to current locale
+    #   eventsExternal2InternalValue: Callable[[int],float]
+    def importExternal(self, extractor:  Callable[[str, List[str], List[str], List[str], Callable[[int],float]],
+            'ProfileData'], message:str, extension:str, filename:Optional[str] = None) -> None:
         try:
             if filename is None:
                 filename = self.ArtisanOpenFileDialog(msg=message,ext=extension)
@@ -25754,7 +25748,11 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 return
             res = self.qmc.reset(redraw=False,soundOn=False)
             if res:
-                obj:ProfileData = extractor(filename, self)
+                obj:ProfileData = extractor(filename,
+                                        self.qmc.etypesdefault,
+                                        self.qmc.alt_etypesdefault,
+                                        self.qmc.artisanflavordefaultlabels,
+                                        self.qmc.eventsExternal2InternalValue)
                 res = self.setProfile(filename, obj)
 
             if res:
@@ -26305,32 +26303,30 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
         # hidden buttons at the top of the table are for actions and don't count in the first row
         # find the index of the first visible button
-        first_counted_idx = 0
+        first_visible_idx = 0
         for i, _ in enumerate(self.extraeventstypes):
-            if self.extraeventsvisibility[i] or (
-                    self.extraeventstypes[i] == 4 and
-                    self.extraeventsactions[i] == 0):
-                first_counted_idx = i
+            if self.extraeventsvisibility[i]:
+                first_visible_idx = i
                 break
 
         for i, eet in enumerate(self.extraeventstypes):
             # next button in this group is hidden
-            next_hidden = ((i - first_counted_idx)%self.buttonlistmaxlen < self.buttonlistmaxlen -1 and  # at least one more places in the group
+            next_hidden = ((i - first_visible_idx)%self.buttonlistmaxlen < self.buttonlistmaxlen -1 and  # at least one more places in the group
                     i+1 < len(self.extraeventstypes) and # there is one more button
                     not self.extraeventsvisibility[i+1]) # and the next one is hidden
             # previous button in this group is hidden
-            prev_hidden = ((i - first_counted_idx)%self.buttonlistmaxlen > 0 and # at least one previous place in this group
+            prev_hidden = ((i - first_visible_idx)%self.buttonlistmaxlen > 0 and # at least one previous place in this group
                     i > 0 and # there is more than one button in total
                     not self.extraeventsvisibility[i-1]) # and the previous one is hidden
 
-            if (i - first_counted_idx)%self.buttonlistmaxlen == 0: # left-most button in the row
+            if (i - first_visible_idx)%self.buttonlistmaxlen == 0: # left-most button in the row
                 if i == len(self.extraeventstypes)-1 or next_hidden:
                     # a singleton button in a one element bar
                     self.extraeventbuttonround.append(3)
                 else:
                     # the left-most button in this bar
                     self.extraeventbuttonround.append(1)
-            elif ((i - first_counted_idx)%self.buttonlistmaxlen < self.buttonlistmaxlen-1) and i != len(self.extraeventstypes)-1:
+            elif ((i - first_visible_idx)%self.buttonlistmaxlen < self.buttonlistmaxlen-1) and i != len(self.extraeventstypes)-1:
                 # a button in the middle of this bar
                 if prev_hidden and next_hidden:
                     # we round both sides
@@ -26362,7 +26358,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.buttonlist.append(p)
             self.buttonStates.append(0)
             #add button to row
-            if i < first_counted_idx:
+            if i < first_visible_idx:
                 pass
             elif row1count < self.buttonlistmaxlen:
                 self.e1buttonbarLayout.addWidget(self.buttonlist[i])

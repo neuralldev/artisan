@@ -358,7 +358,7 @@ class tgraphcanvas(FigureCanvas):
 
 
         # standard math functions allowed in symbolic formulas
-        self.mathdictionary_base = {
+        self.mathdictionary_base:Dict[str,Any] = {
             'min':min,'max':max,'sin':math.sin,'cos':math.cos,'tan':math.tan,
             'pow':math.pow,'exp':math.exp,'pi':math.pi,'e':math.e,
             'abs':abs,'acos':math.acos,'asin':math.asin,'atan':math.atan,
@@ -8549,7 +8549,10 @@ class tgraphcanvas(FigureCanvas):
     # with window size wsize=1 the RoR is computed over succeeding readings; tx and temp assumed to be of type numpy.array
     def arrayRoR(tx:'npt.NDArray[numpy.double]', temp:'npt.NDArray[numpy.double]', wsize:int) -> 'npt.NDArray[numpy.double]': # with wsize >=1
         # length compensation done downstream, not necessary here!
-        return cast('npt.NDArray[numpy.double]', (temp[wsize:] - temp[:-wsize]) / ((tx[wsize:] - tx[:-wsize])/60.))
+        with warnings.catch_warnings():
+            # suppress warning if time difference is 0 which leads to a div by zero resulting in a warning and an inf value
+            warnings.simplefilter('ignore')
+            return cast('npt.NDArray[numpy.double]', (temp[wsize:] - temp[:-wsize]) / ((tx[wsize:] - tx[:-wsize])/60.))
 
 
     # returns deltas and linearized timex;  both results can be None
@@ -11520,7 +11523,7 @@ class tgraphcanvas(FigureCanvas):
                 pattern = re.compile(r'([0-9]+)([A-Za-z]+[A-Za-z 0-9]+)',_ignorecase)
                 matches = pattern.split(matched.group('nominalstr'))
                 #example form of the matches list ['', '20', 'Fresh Cut Grass', '|', '50', 'Hay', '|', '80', 'Baking Bread', '']
-                replacestring = ''
+                replacestring:str = ''
                 j = 1
                 while j < len(matches):
                     if fields[0][1] == matches[j]:
@@ -11529,7 +11532,7 @@ class tgraphcanvas(FigureCanvas):
                     j += 3
 #                pattern = re.compile(r'({ndo}[^{ndc}]+{ndc})'.format(ndo=nominalDelimopen,ndc=nominalDelimclose))
                 pattern = re.compile(fr'({nominalDelimopen}[^{nominalDelimclose}]+{nominalDelimclose})')
-                eventanno = pattern.sub(replacestring,eventanno)
+                eventanno = pattern.sub(replacestring,eventanno) # pyrefly: ignore
 
             # make all the remaining substitutions
             for field in fields:
@@ -11935,7 +11938,7 @@ class tgraphcanvas(FigureCanvas):
 
         try:
             newline = '\n'
-            statstr_segments = []
+            statstr_segments:List[str] = []
             cp = self.aw.computedProfileInformation()  # get all the computed profile information
 
             # build the summary stats string
