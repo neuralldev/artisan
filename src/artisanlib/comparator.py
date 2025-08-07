@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from PyQt6.QtCore import QMimeData # pylint: disable=unused-import
 
 from artisanlib.util import (deltaLabelUTF8, decodeLocal, decodeLocalStrict, stringfromseconds, fromFtoCstrict,
-        fromCtoFstrict, fill_gaps, float2float)
+        fromCtoFstrict, fill_gaps, float2float, deserialize)
 from artisanlib.suppress_errors import suppress_stdout_stderr
 from artisanlib.dialogs import ArtisanDialog
 from artisanlib.widgets import MyQComboBox
@@ -2004,10 +2004,16 @@ class roastCompareDlg(ArtisanDialog):
         self.profileTable.setRowCount(len(self.profiles))
         self.setProfileTableRow(len(self.profiles)-1)
 
-    def addProfileFromURL(self, extractor:Callable[[QUrl, 'ApplicationWindow'], Optional['ProfileData']], url:QUrl) -> None:
+    def addProfileFromURL(self,
+            extractor:Callable[[QUrl, List[str], List[str], List[str], Callable[[int],float]], Optional['ProfileData']],
+            url:QUrl) -> None:
         _log.info('addProfileFromURL(%s)', url)
         try:
-            obj:Optional[ProfileData] = extractor(url, self.aw)
+            obj:Optional[ProfileData] = extractor(url,
+                                            self.aw.qmc.etypesdefault,
+                                            self.aw.qmc.alt_etypesdefault,
+                                            self.aw.qmc.artisanflavordefaultlabels,
+                                            self.aw.qmc.eventsExternal2InternalValue)
             if obj:
                 self.addProfile(str(url), obj)
                 self.updateMenus()
@@ -2030,8 +2036,9 @@ class roastCompareDlg(ArtisanDialog):
                 firstChar = stream.read(1)
                 if firstChar == '{':
                     f.close()
-                    obj = cast('ProfileData', self.aw.deserialize(filename))
-                    self.addProfile(filename,obj)
+                    obj = deserialize(filename)
+                    self.aw.plusAddPath(obj, filename)
+                    self.addProfile(filename,cast('ProfileData', obj))
         except Exception as ex: # pylint: disable=broad-except
             _log.exception(ex)
 

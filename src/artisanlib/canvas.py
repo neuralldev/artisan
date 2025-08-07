@@ -36,7 +36,6 @@ import logging
 import re
 import textwrap
 import functools
-from bisect import bisect_right
 import psutil
 from psutil._common import bytes2human # pyright:ignore[reportPrivateImportUsage]
 
@@ -61,7 +60,7 @@ if TYPE_CHECKING:
 from artisanlib.util import (uchr, fill_gaps, deltaLabelPrefix, deltaLabelUTF8, deltaLabelMathPrefix, stringfromseconds,
         fromFtoC, fromFtoCstrict, fromCtoF, fromCtoFstrict, RoRfromFtoC, RoRfromFtoCstrict, RoRfromCtoF, toInt, toString,
         toFloat, application_name, getResourcePath, getDirectory, convertWeight, right_to_left,
-        abbrevString, scaleFloat2String, is_proper_temp, weight_units, render_weight, volume_units, float2float)
+        abbrevString, scaleFloat2String, is_proper_temp, weight_units, render_weight, volume_units, float2float, timearray2index)
 from artisanlib import pid
 from artisanlib.time import ArtisanTime
 from artisanlib.filters import LiveMedian
@@ -358,7 +357,7 @@ class tgraphcanvas(FigureCanvas):
 
 
         # standard math functions allowed in symbolic formulas
-        self.mathdictionary_base = {
+        self.mathdictionary_base:Dict[str,Any] = {
             'min':min,'max':max,'sin':math.sin,'cos':math.cos,'tan':math.tan,
             'pow':math.pow,'exp':math.exp,'pi':math.pi,'e':math.e,
             'abs':abs,'acos':math.acos,'asin':math.asin,'atan':math.atan,
@@ -6626,7 +6625,8 @@ class tgraphcanvas(FigureCanvas):
     # the index is computed w.r.t. the foreground and then mapped to the corresponding index in the given background readings w.r.t. its time array timeb
     # result is clipped w.r.t. foreground data thus data beyond foreground cannot be accessed in the background
     # returns val, evalsign
-    def shiftValueEvalsignBackground(self, timex:List[float], timeb:List[float], readings:Sequence[Optional[float]], index:int, sign:str, shiftval:int) -> Tuple[float, str]:
+    @staticmethod
+    def shiftValueEvalsignBackground(timex:List[float], timeb:List[float], readings:Sequence[Optional[float]], index:int, sign:str, shiftval:int) -> Tuple[float, str]:
         if sign == '-': #  ie. original [1,2,3,4,5,6]; shift right 2 = [1,1,1,2,3,4]
             evalsign = '0'      # "-" becomes digit "0" for python eval compatibility
             shiftedindex = index - shiftval
@@ -6645,7 +6645,7 @@ class tgraphcanvas(FigureCanvas):
             else:
                 tx = timex[shiftedindex]
             if timeb[0] <= tx <= timeb[-1]:
-                idx = self.timearray2index(timeb, tx)
+                idx = timearray2index(timeb, tx)
                 if -1 < idx < len(readings):
                     r = readings[idx]
                     return (-1 if r is None else r), evalsign
@@ -7030,7 +7030,7 @@ class tgraphcanvas(FigureCanvas):
                                                         tx = sample_timex[index]
                                                 else:
                                                     tx = sample_timex[index]
-                                                idx = self.timearray2index(self.timeB, tx)
+                                                idx = timearray2index(self.timeB, tx)
                                                 if -1 < idx < len(self.delta1B):
                                                     res = self.delta1B[idx]
                                                 else:
@@ -7056,7 +7056,7 @@ class tgraphcanvas(FigureCanvas):
                                                         tx = sample_timex[index]
                                                 else:
                                                     tx = sample_timex[index]
-                                                idx = self.timearray2index(self.timeB, tx)
+                                                idx = timearray2index(self.timeB, tx)
                                                 if -1 < idx < len(self.delta2B):
                                                     res = self.delta2B[idx]
                                                 else:
@@ -7272,7 +7272,7 @@ class tgraphcanvas(FigureCanvas):
                                         else:
                                             tx = sample_timex[index]
                                         # the index is resolved relative to the time of the foreground profile if available
-                                        idx = self.timearray2index(self.timeB, tx)
+                                        idx = timearray2index(self.timeB, tx)
                                         if -1 < idx < len(readings):
                                             val = readings[idx]
                                         else:
@@ -8603,7 +8603,10 @@ class tgraphcanvas(FigureCanvas):
     # with window size wsize=1 the RoR is computed over succeeding readings; tx and temp assumed to be of type numpy.array
     def arrayRoR(tx:'npt.NDArray[numpy.double]', temp:'npt.NDArray[numpy.double]', wsize:int) -> 'npt.NDArray[numpy.double]': # with wsize >=1
         # length compensation done downstream, not necessary here!
-        return cast('npt.NDArray[numpy.double]', (temp[wsize:] - temp[:-wsize]) / ((tx[wsize:] - tx[:-wsize])/60.))
+        with warnings.catch_warnings():
+            # suppress warning if time difference is 0 which leads to a div by zero resulting in a warning and an inf value
+            warnings.simplefilter('ignore')
+            return cast('npt.NDArray[numpy.double]', (temp[wsize:] - temp[:-wsize]) / ((tx[wsize:] - tx[:-wsize])/60.))
 
 
     # returns deltas and linearized timex;  both results can be None
@@ -11574,7 +11577,7 @@ class tgraphcanvas(FigureCanvas):
                 pattern = re.compile(r'([0-9]+)([A-Za-z]+[A-Za-z 0-9]+)',_ignorecase)
                 matches = pattern.split(matched.group('nominalstr'))
                 #example form of the matches list ['', '20', 'Fresh Cut Grass', '|', '50', 'Hay', '|', '80', 'Baking Bread', '']
-                replacestring = ''
+                replacestring:str = ''
                 j = 1
                 while j < len(matches):
                     if fields[0][1] == matches[j]:
@@ -11583,7 +11586,7 @@ class tgraphcanvas(FigureCanvas):
                     j += 3
 #                pattern = re.compile(r'({ndo}[^{ndc}]+{ndc})'.format(ndo=nominalDelimopen,ndc=nominalDelimclose))
                 pattern = re.compile(fr'({nominalDelimopen}[^{nominalDelimclose}]+{nominalDelimclose})')
-                eventanno = pattern.sub(replacestring,eventanno)
+                eventanno = pattern.sub(replacestring,eventanno) # pyrefly: ignore
 
             # make all the remaining substitutions
             for field in fields:
@@ -11989,7 +11992,7 @@ class tgraphcanvas(FigureCanvas):
 
         try:
             newline = '\n'
-            statstr_segments = []
+            statstr_segments:List[str] = []
             cp = self.aw.computedProfileInformation()  # get all the computed profile information
 
             # build the summary stats string
@@ -17239,32 +17242,17 @@ class tgraphcanvas(FigureCanvas):
             offset = 0
         return self.timetemparray2temp(self.timeB,self.delta1B,seconds + offset)
 
-    # fast variant based on binary search on lists using bisect (using numpy.searchsorted is slower)
-    # side-condition: values in self.timex in linear order
-    # time: time in seconds
-    # nearest: if nearest is True the closest index is returned (slower), otherwise the previous (faster)
-    # returns
-    #   -1 on empty timex
-    #    0 if time smaller than first entry of timex
-    #  len(timex)-1 if time larger than last entry of timex (last index)
-    @staticmethod
-    def timearray2index(timearray:List[float], time:float, nearest:bool = True) -> int:
-        i = bisect_right(timearray, time)
-        if i:
-            if nearest and i>0 and (i == len(timearray) or abs(time - timearray[i]) > abs(time - timearray[i-1])):
-                return i-1
-            return i
-        return -1
+
 
     #selects closest time INDEX in self.timex from a given input float seconds
     def time2index(self, seconds:float, nearest:bool=True) -> int:
         #find where given seconds crosses self.timex
-        return self.timearray2index(self.timex, seconds, nearest)
+        return timearray2index(self.timex, seconds, nearest)
 
     #selects closest time INDEX in self.timeB from a given input float seconds
     def backgroundtime2index(self, seconds:float, nearest:bool=True) -> int:
         #find where given seconds crosses self.timeB
-        return self.timearray2index(self.timeB, seconds, nearest)
+        return timearray2index(self.timeB, seconds, nearest)
 
     #updates list self.timeindex when found an _OLD_ profile without self.timeindex (new version)
     def timeindexupdate(self, times:List[float]) -> None:
