@@ -198,6 +198,7 @@ if TYPE_CHECKING:
     from artisanlib.scale import ScaleSpec
     from artisanlib.roast_properties import editGraphDlg # pylint: disable=unused-import
     from artisanlib.comparator import roastCompareDlg # pylint: disable=unused-import
+    from artisanlib.beancave import BeancaveDlg # pylint: disable=unused-import
     from artisanlib.wheels import WheelDlg # pylint: disable=unused-import
     from artisanlib.hottop import Hottop # pylint: disable=unused-import
     from artisanlib.weblcds import WebLCDs, WebGreen, WebRoasted # pylint: disable=unused-import
@@ -1518,7 +1519,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         'WebLCDsAlerts', 'EventsDlg_activeTab', 'graphColorDlg_activeTab', 'PID_DlgControl_activeTab', 'CurveDlg_activeTab', 'editGraphDlg_activeTab',
         'backgroundDlg_activeTab', 'DeviceAssignmentDlg_activeTab', 'AlarmDlg_activeTab', 'schedule_activeTab', 'StatisticsDlg_activeTab', 'resetqsettings', 'settingspath', 'wheelpath', 'profilepath',
         'userprofilepath', 'printer', 'main_widget', 'defaultdpi', 'dpi', 'qmc', 'HottopControlActive', 'AsyncSamplingTimer', 'wheeldialog',
-        'simulator', 'simulatorpath', 'comparator', 'stack', 'eventsbuttonflag', 'minieventsflags', 'seriallogflag',
+        'simulator', 'simulatorpath', 'beancave', 'comparator', 'stack', 'eventsbuttonflag', 'minieventsflags', 'seriallogflag',
         'seriallog', 'ser', 'modbus', 'extraMODBUStemps', 'extraMODBUStx', 's7', 'extraS7tx', 'ws', 'scale', 'color', 'extraser', 'extracomport', 'extrabaudrate',
         'extrabytesize', 'extraparity', 'extrastopbits', 'extratimeout', 'hottop', 'santokerHost', 'santokerPort', 'santokerSerial', 'santokerBLE', 'santoker', 'santokerR', 'fujipid', 'dtapid', 'pidcontrol', 'soundflag', 'recentRoasts', 'maxRecentRoasts',
         'mugmaHost','mugmaPort', 'mugma', 'mugma_default_host',
@@ -1540,7 +1541,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         'eventsAction', 'alarmAction', 'phasesGraphAction', 'StatisticsAction', 'WindowconfigAction', 'colorsAction', 'themeMenu', 'autosaveAction',
         'batchAction', 'temperatureConfMenu', 'FahrenheitAction', 'CelsiusAction', 'languageMenu', 'analyzeMenu', 'fitIdealautoAction',
         'analyzeMenu', 'fitIdealx2Action', 'fitIdealx3Action', 'fitIdealx0Action', 'fitBkgndAction', 'clearresultsAction', 'roastCompareAction',
-        'designerAction', 'simulatorAction', 'wheeleditorAction', 'transformAction', 'temperatureMenu', 'ConvertToFahrenheitAction',
+        'designerAction', 'simulatorAction', 'beanCaveMenuAction', 'wheeleditorAction', 'transformAction', 'temperatureMenu', 'ConvertToFahrenheitAction',
         'ConvertToCelsiusAction', 'controlsAction', 'readingsAction', 'eventsEditorAction', 'buttonsAction', 'slidersAction', 'scheduleAction', 'lcdsAction', 'deltalcdsAction',
         'pidlcdsAction', 'scalelcdsAction', 'extralcdsAction', 'phaseslcdsAction', 'fullscreenAction', 'loadSettingsAction', 'openRecentSettingMenu',
         'saveAsSettingsAction', 'resetAction', 'messagelabel', 'button_font_size_pt', 'button_font_size', 'button_font_size_small', 'button_font_size_small_selected',
@@ -1809,6 +1810,8 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.simulatorpath:str = '' # points to the last profile used by the simulator
 
         self.comparator:Optional[roastCompareDlg] = None # holds the profile comparator dialog
+
+        self.beancave:Optional[BeancaveDlg] = None # bean cave management
 
         self.qmc.setContentsMargins(0,0,0,0)
         #events config
@@ -2698,6 +2701,12 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.simulatorAction.setCheckable(True)
             self.simulatorAction.setChecked(bool(self.simulator))
             self.ToolkitMenu.addAction(self.simulatorAction)
+            
+            self.beanCaveMenuAction:QAction = QAction(QApplication.translate('Menu', 'BeanCave'), self)
+            self.beanCaveMenuAction.triggered.connect(self.handleBeancave)
+            self.beanCaveMenuAction.setCheckable(True)
+            self.beanCaveMenuAction.setChecked(bool(self.beancave))
+            self.ToolkitMenu.addAction(self.beanCaveMenuAction)
 
             self.wheeleditorAction: QAction = QAction(QApplication.translate('Menu', 'Wheel Graph'), self)
             self.wheeleditorAction.triggered.connect(self.graphwheel)
@@ -11707,6 +11716,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         if self.analyzeMenu is not None:
             self.analyzeMenu.setEnabled(True)
         self.roastCompareAction.setEnabled(True)
+        self.beanCaveMenuAction.setEnabled(True)
         self.designerAction.setEnabled(True)
         self.simulatorAction.setEnabled(True)
         self.wheeleditorAction.setEnabled(True)
@@ -27389,6 +27399,13 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                         self.comparator.addProfiles(filenames)
                         self.comparator.show()
             self.roastCompareAction.setChecked(bool(self.comparator))
+
+    @pyqtSlot()
+    @pyqtSlot(bool)
+    def handleBeancave(self, _:bool = False) -> None:
+        from artisanlib.beancave import BeancaveDlg
+        dialog = BeancaveDlg(self,self)
+        dialog.show()
 
     @pyqtSlot()
     @pyqtSlot(bool)

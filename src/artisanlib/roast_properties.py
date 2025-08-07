@@ -74,7 +74,6 @@ except ImportError:
 #    except ImportError:
 #        import sip  # type: ignore # @Reimport @UnresolvedImport @UnusedImport
 
-
 ########################################################################################
 #####################  Volume Calculator DLG  ##########################################
 ########################################################################################
@@ -320,7 +319,7 @@ class volumeCalculatorDlg(ArtisanDialog):
         self.parent_dialog.scaleWeightUpdated.connect(self.update_scale_weight)
 
         if self.aw.largeScaleLCDs_dialog is not None:
-            self.aw.largeScaleLCDs_dialog.updateWeightUnit('g')
+            self.aw.largeScaleLCDs_dialog.updateWeightUnit('g')            
 
     @pyqtSlot()
     def acaia_disconnected(self) -> None:
@@ -498,6 +497,14 @@ class RoastsComboBox(QComboBox): # pyright: ignore [reportGeneralTypeIssues] # A
         self.installEventFilter(self)
         self.selection:Optional[str] = selection # just the roast title
         self.edited:Optional[str] = selection
+        # *** beancave custom
+        from artisanlib.beancave import BeanHelper, GreenBean
+        self.green_beans_list = BeanHelper()
+        self.green_beans_list.load_green_beans(selection)
+        self.green_bean_list_current_index:int = 0
+        self.gbean:dict[str,Any]
+        
+        # *** beancave custom
         self.updateMenu()
         self.editTextChanged.connect(self.textEdited)
         self.setEditable(True)
@@ -535,7 +542,11 @@ class RoastsComboBox(QComboBox): # pyright: ignore [reportGeneralTypeIssues] # A
     def updateMenu(self) -> None:
         self.blockSignals(True)
         try:
-            roasts = self.aw.recentRoastsMenuList()
+            if not self.green_beans_list.isbeancave():
+                roasts = self.aw.recentRoastsMenuList() 
+            else:        
+                roasts = self.green_beans_list.get_bean_list_for_combobox()
+#            roasts = self.aw.recentRoastsMenuList()
             self.clear()
             if self.edited is None:
                 self.addItems(roasts)
@@ -844,7 +855,6 @@ class editGraphDlg(ArtisanResizeablDialog):
         self.copydataTableButton.setMaximumSize(self.copydataTableButton.sizeHint())
         self.copydataTableButton.setMinimumSize(self.copydataTableButton.minimumSizeHint())
         self.copydataTableButton.clicked.connect(self.copyDataTabletoClipboard)
-        #TITLE
         titlelabel = QLabel('<b>' + QApplication.translate('Label', 'Title') + '</b>')
         self.titleedit = RoastsComboBox(self,self.aw, selection = self.aw.qmc.title)
         self.titleedit.setMinimumWidth(100)
@@ -2565,6 +2575,31 @@ class editGraphDlg(ArtisanResizeablDialog):
     # recentRoast activated from within RoastProperties dialog
     def recentRoastActivated(self, n:int) -> None:
         # note, the first item is the edited text!
+        # *** bean cave custom
+        if n>0 and self.titleedit.green_beans_list.isbeancave() and self.titleedit.green_beans_list.get_bean_data_by_index(n-1) is not None:
+            gbean = self.titleedit.green_beans_list.get_bean_data_by_index(n-1) 
+            # dump important fields in edit zone
+            if gbean is not None:
+                self.titleedit.textEdited(str(gbean.get('name')))
+                s = f"Origin: {gbean.get('farm')} ({gbean.get('country')})\nProcess: {gbean.get('process')}, SCA: {gbean.get('sca')}\nAltitude: {gbean.get('altitude')}, density: {gbean.get('density')}g/l\nFlavour notes: {gbean.get('flavour_notes')}\n"
+                self.beansedit.setPlainText(s)
+                if float2float(gbean.get('last_humidity')) > 0.0: # type: ignore
+                    self.moisture_greens_edit.setText(f"{float2float(gbean.get('last_humidity')):g}") # type: ignore
+                density_txt ='0'
+                try:
+                    if gbean.get('density') is not None:
+                        density_txt = f"{float2float(gbean.get('density')):g}" # type: ignore
+                except Exception: # pylint: disable=broad-except
+                    pass
+                self.bean_density_in_edit.setText(density_txt)
+                self.modified_density_in_text = density_txt
+                self.template_file = None
+                self.template_name = None
+                self.template_uuid = None
+                self.template_batchnr = None
+                self.template_batchprefix = None
+            #avoid the following
+            n = -1
         if 0 < n <= len(self.aw.recentRoasts):
             rr:RecentRoast = self.aw.recentRoasts[n-1]
             if 'title' in rr and rr['title'] is not None:
