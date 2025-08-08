@@ -5260,6 +5260,7 @@ class tgraphcanvas(FigureCanvas):
                     except Exception: # pylint: disable=broad-except
                         pass
                 self.aw.lcd1.display(timestr)
+                self.aw.phaseslcd1.display(timestr)
                 if self.aw.largeLCDs_dialog is not None:
                     self.updateLargeLCDsTimeSignal.emit(timestr)
 
@@ -5631,6 +5632,7 @@ class tgraphcanvas(FigureCanvas):
 
     def setLCDtimestr(self, timestr:str) -> None:
         self.aw.lcd1.display(timestr)
+        self.aw.phaseslcd1.display(timestr)
         # update connected WebLCDs
         if self.aw.WebLCDs is not None:
             self.updateWebLCDs(time=timestr)
@@ -7630,6 +7632,7 @@ class tgraphcanvas(FigureCanvas):
             self.beepedBackgroundEvents=set()
             self.clearEvents() # clear special events
             self.aw.lcd1.display('00:00')
+            self.aw.phaseslcd1.display('00:00')
             if self.aw.WebLCDs:
                 self.updateWebLCDs(time='00:00')
             if self.aw.largeLCDs_dialog is not None:
@@ -13954,6 +13957,7 @@ class tgraphcanvas(FigureCanvas):
             if not self.flagsamplingthreadrunning:
                 if not self.checkSaved():
                     return
+                self.aw.ntb.hide()
                 self.aw.soundpopSignal.emit()
                 self.OnMonitor()
 
@@ -13964,6 +13968,7 @@ class tgraphcanvas(FigureCanvas):
             except Exception: # pylint: disable=broad-except
                 pass
             self.OffMonitor()
+            self.aw.ntb.show()
 
     @pyqtSlot()
     def fireChargeTimer(self) -> None:

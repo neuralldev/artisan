@@ -1563,7 +1563,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         'e7buttonbarLayout', 'e7buttondialog', 'e8buttonbarLayout', 'e8buttondialog', 'e9buttonbarLayout', 'e9buttondialog', 'e10buttonbarLayout', 'e10buttondialog',
         'keyboardmove', 'keyboardButtonList', 'keyboardmoveindex',
         'keyboardmoveflag', 'lastkeyboardcmd', 'error_dlg', 'serial_dlg', 'message_dlg', 'ETname', 'BTname', 'level1frame', 'level1layout', 'qpc', 'splitter', 'scroller', 'EventsGroupLayout',
-        'LCD2frame', 'LCD3frame', 'LCD4frame', 'LCD5frame', 'LCD6frame', 'LCD7frame', 'TPlabel', 'TPlcd', 'TPlcdFrame', 'TP2DRYlabel', 'TP2DRYframe',
+        'LCD2frame', 'LCD3frame', 'LCD4frame', 'LCD5frame', 'LCD6frame', 'LCD7frame', 'TPlabel', 'TPlcd', 'PhaseBTlcdFrame', 'TPlcdFrame', 'TP2DRYlabel', 'TP2DRYframe',
         'DRYlabel', 'DRYlcd', 'DRYlcdFrame', 'DRY2FCslabel', 'DRY2FCsframe', 'FCslabel', 'FCslcd', 'FCslcdFrame', 'AUClabel', 'AUClcd', 'AUClcdFrame',
         'AUCLCD', 'phasesLCDs', 'extrabuttonsLayout', 'extrabuttondialogs', 'slider1', 'slider2', 'slider3', 'slider4', 'sliderLCD1', 'sliderLCD2', 'sliderLCD3',
         'sliderLCD4', 'sliderGrpBox1', 'sliderGrpBox2', 'sliderGrpBox3', 'sliderGrpBox4', 'sliderSV', 'sliderLCDSV', 'sliderGrpBoxSV', 'leftlayout',
@@ -3918,6 +3918,61 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
         # phases LCDs
 
+        self.phaseslcd1: MyQLCDNumber = MyQLCDNumber() # time
+        self.phaseslcd1.setSegmentStyle(QLCDNumber.SegmentStyle.Flat)
+        self.phaseslcd1.setMinimumHeight(40)
+        self.phaseslcd1.setMinimumWidth(100)
+        self.phaseslcd1.setFrameStyle(QFrame.Shadow.Plain)
+        self.phaseslcd1.clicked.connect(self.superusermodeLeftClicked)
+        self.phaseslcd1.display('00:00')
+        self.phaseslcd1.setStyleSheet(f"QLCDNumber {{ border-radius: 4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF['timer'])}; background-color: {rgba_colorname2argb_colorname(self.lcdpaletteB['timer'])};}}")
+        self.phaseslcd1.setToolTip(QApplication.translate('Tooltip', 'Timer'))
+ 
+        # DET
+   
+        self.PhaseDETlabel: QLabel = QLabel()
+        self.PhaseDETlabel.setText(f"<big><b>{deltaLabelBigPrefix}{self.ETname}</b></big>")
+        self.PhaseDETlcd = QLCDNumber()
+        self.PhaseDETlcd.display(' - ')
+        self.PhaseDETlcdFrame = self.makePhasesLCDbox(self.PhaseDETlabel,self.PhaseDETlcd)
+        self.PhaseDETlcd.setNumDigits(5)
+        self.PhaseDETlcd.setMinimumWidth(100)
+        self.PhaseDETlcd.setStyleSheet('QLCDNumber{border-radius:4; border-width: 0; border-color: black; border-style:solid; color: black; background-color: #e6e6e6;}')
+        self.setLabelColor(self.PhaseDETlabel,self.qmc.palette['deltaet'])     
+
+        # BT
+        self.PhaseBTlabel: QLabel = QLabel()
+        self.PhaseBTlabel.setText(f'<big><b>{self.BTname}</b></big>')
+        self.PhaseBTlcd = QLCDNumber()
+        self.PhaseBTlcd.display(' - ')
+        self.PhaseBTlcdFrame = self.makePhasesLCDbox(self.PhaseBTlabel,self.PhaseBTlcd)
+        self.PhaseBTlcd.setNumDigits(5)
+        self.PhaseBTlcd.setMinimumWidth(100)
+        self.PhaseBTlcd.setStyleSheet('QLCDNumber{border-radius:4; border-width: 0; border-color: black; border-style:solid; color: black; background-color: #e6e6e6;}')
+        self.setLabelColor(self.PhaseBTlabel,self.qmc.palette['bt'])     
+
+        # DeltaBT
+        self.PhaseDBTlabel: QLabel = QLabel()
+        self.PhaseDBTlabel.setText(f'<big><b>{deltaLabelBigPrefix}{self.BTname}</b></big>')
+        self.PhaseDBTlcd = QLCDNumber()
+        self.PhaseDBTlcd.display(' - ')
+        self.PhaseDBTlcdFrame = self.makePhasesLCDbox(self.PhaseDBTlabel,self.PhaseDBTlcd)
+        self.PhaseDBTlcd.setNumDigits(5)
+        self.PhaseDBTlcd.setMinimumWidth(100)
+        self.PhaseDBTlcd.setStyleSheet('QLCDNumber{border-radius:4; border-width: 0; border-color: black; border-style:solid; color: black; background-color: #e6e6e6;}')
+        self.setLabelColor(self.PhaseDBTlabel,self.qmc.palette['deltabt'])     
+
+        # ET
+        self.PhaseETlabel: QLabel = QLabel()
+        self.PhaseETlabel.setText(f'<big><b>{self.ETname}</b></big>')
+        self.PhaseETlcd = QLCDNumber()
+        self.PhaseETlcd.display(' - ')
+        self.PhaseETlcdFrame = self.makePhasesLCDbox(self.PhaseETlabel,self.PhaseETlcd)
+        self.PhaseETlcd.setNumDigits(5)
+        self.PhaseETlcd.setMinimumWidth(100)
+        self.PhaseETlcd.setStyleSheet('QLCDNumber{border-radius:4; border-width: 0; border-color: black; border-style:solid; color: black; background-color: #e6e6e6;}')
+        self.setLabelColor(self.PhaseETlabel,self.qmc.palette['et'])     
+
         # TP
         self.TPlabel: QLabel = QLabel()
         self.TPlabel.setText('<small><b>' + QApplication.translate('Label', 'TP') + '&raquo;</b></small>')
@@ -3987,24 +4042,39 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.AUCLCD.setLayout(AUCLayout)
         self.AUCLCD.hide()
 
-
+        # extension des LCD de phase
+        
         self.phasesLCDs: QFrame = QFrame()
         self.phasesLCDs.setContentsMargins(0, 0, 0, 0)
-        phasesLCDlayout = QHBoxLayout()
-        phasesLCDlayout.addWidget(self.TPlcdFrame)
-        phasesLCDlayout.addWidget(self.TP2DRYframe)
-        phasesLCDlayout.addWidget(self.DRYlcdFrame)
-        phasesLCDlayout.addWidget(self.DRY2FCsframe)
-        phasesLCDlayout.addWidget(self.FCslcdFrame)
-        phasesLCDlayout.setContentsMargins(0, 0, 0, 0)
-        phasesLCDlayout.setSpacing(0)
-        self.phasesLCDs.setLayout(phasesLCDlayout)
+        self.phasesLCDlayout = QHBoxLayout()
+        self.phasesLCDlayout.setContentsMargins(0, 0, 0, 0)
+        self.phasesLCDlayout.setSpacing(10)
+#        phasesLCDlayout.addStretch()
+
+        self.phasesLCDlayout.addWidget(self.phaseslcd1)
+        self.phasesLCDlayout.addSpacing(30)
+        self.phasesLCDlayout.addWidget(self.PhaseDETlcdFrame)
+        self.phasesLCDlayout.addSpacing(5)
+        self.phasesLCDlayout.addWidget(self.PhaseBTlcdFrame)
+        self.phasesLCDlayout.addSpacing(5)
+        self.phasesLCDlayout.addWidget(self.PhaseDBTlcdFrame)
+        self.phasesLCDlayout.addSpacing(5)
+        self.phasesLCDlayout.addWidget(self.PhaseETlcdFrame)
+        self.phasesLCDlayout.addSpacing(5)
+        self.phasesLCDlayout.addWidget(self.TPlcdFrame)
+        self.phasesLCDlayout.addWidget(self.TP2DRYframe)
+        self.phasesLCDlayout.addWidget(self.DRYlcdFrame)
+        self.phasesLCDlayout.addWidget(self.DRY2FCsframe)
+        self.phasesLCDlayout.addWidget(self.FCslcdFrame)        
+        self.phasesLCDlayout.addSpacing(50)
+        self.phasesLCDs.setLayout(self.phasesLCDlayout)
         self.phasesLCDs.hide()
         self.phasesLCDs.setToolTip(QApplication.translate('Tooltip','Phase LCDs: right-click to cycle through TIME, PERCENTAGE and TEMP MODE'))
 
         #level 1
         self.level1layout.addStretch()
         self.level1layout.addWidget(self.phasesLCDs)
+        self.level1layout.addSpacing(10)
         self.level1layout.addWidget(self.AUCLCD)
         self.level1layout.addSpacing(20)
         self.level1layout.addWidget(self.buttonRESET)
@@ -4017,7 +4087,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.level1layout.addSpacing(10)
         self.level1layout.addWidget(self.lcd1)
         self.level1layout.setSpacing(0)
-        self.level1layout.setContentsMargins(0,7,7,12) # left, top, right, bottom
+        self.level1layout.setContentsMargins(0,7,7,7) # left, top, right, bottom
 
         #level 3
         level3layout.addLayout(pidbuttonLayout,0)
@@ -4543,6 +4613,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
     # timer_color one of "timer" (black), "slowcoolingtimer" (red), "rstimer" (blue)
     def setTimerColor(self, timer_color:str) -> None:
         self.lcd1.setStyleSheet(f'QLCDNumber {{ border-radius: 4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF[timer_color])}; background-color: {rgba_colorname2argb_colorname(self.lcdpaletteB[timer_color])};}}')
+        self.phaseslcd1.setStyleSheet(f'QLCDNumber {{ border-radius: 4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF[timer_color])}; background-color: {rgba_colorname2argb_colorname(self.lcdpaletteB[timer_color])};}}')
         self.qmc.setTimerLargeLCDcolorSignal.emit(self.lcdpaletteF[timer_color], self.lcdpaletteB[timer_color])
         # HACK: PID/CONTROL button changes shape/shadow on setTimerColor() as triggered by RESET
         # there reason remains unclear
@@ -7745,6 +7816,31 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             _, _, exc_tb = sys.exc_info()
             self.qmc.adderror((QApplication.translate('Error Message', 'Exception:') + ' updateAUCLCD(): {0}').format(str(ex)),getattr(exc_tb, 'tb_lineno', '?'))
 
+    def getPhasesLCDsGeneralData(self) -> Tuple[Optional[str],Optional[str],Optional[str],Optional[str]]:
+        ET:Optional[str] = None
+        DET:Optional[str] = None
+        DBT:Optional[str] = None
+        BT:Optional[str] = None
+        try:
+            if self.qmc.timex: # requires at least some recordings
+                BT = str(float2float(self.qmc.temp2[-1]))
+                ET = str(float2float(self.qmc.temp1[-1]))
+                # check at least CHARGE time
+                if self.qmc.flagon:
+                    TP_index = self.qmc.TPalarmtimeindex
+                else:
+                    TP_index = self.findTP()
+                if TP_index and TP_index < len(self.qmc.timex) and TP_index > 0:
+                    if self.qmc.delta2[-1] is not None:
+                        DBT = str(float2float(self.qmc.delta2[-1]))
+                    if self.qmc.delta1[-1] is not None:
+                        DET = str(float2float(self.qmc.delta1[-1]))  
+        except Exception as e: # pylint: disable=broad-except
+            _log.exception(e)
+            _, _, exc_tb = sys.exc_info()
+            self.qmc.adderror((QApplication.translate('Error Message','Exception:') + ' updateGeneralPhasesLCDs() {0}').format(str(e)),getattr(exc_tb, 'tb_lineno', '?'))
+        return ET,DET,BT,DBT
+            
     # returns multiple results on the current state of the phases:
     #  TP, TPlabel, DRY, DRY, FCs, FCslabel
     #  TP2DRYlabel, DRY2FCslabel
@@ -8047,13 +8143,50 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
 
     def updatePhasesLCDs(self) -> None:
+        # Stylesheet pour la couleur rouge
+        red_style = "QLCDNumber { color: red; }"
+        # Stylesheet pour la couleur verte
+        green_style = "QLCDNumber { color: green; }"
         try:
             if self.qmc.phasesLCDflag or self.LargePhasesLCDsFlag:
                 TP,TPlabel,DRY,DRYlabel,FCs,FCslabel,TP2DRYlabel,DRY2FCslabel,TP2DRYframeTooltip,DRY2FCsframeTooltip,phasesLCDsTooltip = self.getPhasesLCDsData()
-
+                ET,DET,BT,DBT = self.getPhasesLCDsGeneralData()
                 if self.qmc.phasesLCDflag:
-                    label_fmt = '<small><b>{}</b></small>'
-                    #
+                    label_fmt = '<small><b>{}</b></small>'                    
+                    if ET is not None:
+                        fET = float(ET)
+                        if fET < 140 or fET > 200 :
+                            self.PhaseETlcd.setStyleSheet("QLCDNumber { color: red; }")
+                        else:
+                            if fET < 150 or fET > 190 :
+                                self.PhaseETlcd.setStyleSheet("QLCDNumber { color: orange; }")
+                            else:
+                                self.PhaseETlcd.setStyleSheet("QLCDNumber { color: green; }")
+                        self.PhaseETlcd.display(ET)
+                    if DET is not None:
+                        fET = float(DET)
+                        if fET > 8 :
+                            self.PhaseDETlcd.setStyleSheet("QLCDNumber { color: red; }")
+                        else:
+                            self.PhaseDETlcd.setStyleSheet("QLCDNumber { color: green; }")
+                        self.PhaseDETlcd.display(DET)
+                    if BT is not None:
+                        fBT = float(BT)
+                        if fBT < 120 or fBT > 210 :
+                            self.PhaseBTlcd.setStyleSheet("QLCDNumber { color: red; }")
+                        else:
+                            if fBT > 190 :
+                                self.PhaseBTlcd.setStyleSheet("QLCDNumber { color: orange; }")
+                            else:
+                                self.PhaseBTlcd.setStyleSheet("QLCDNumber { color: green; }")
+                        self.PhaseBTlcd.display(BT)
+                    if DBT is not None:
+                        fBT = float(DBT)
+                        if fBT > 15 or fBT < 4:
+                            self.PhaseDBTlcd.setStyleSheet("QLCDNumber { color: red; }")
+                        else:
+                            self.PhaseDBTlcd.setStyleSheet("QLCDNumber { color: green; }")
+                        self.PhaseDBTlcd.display(DBT)
                     if TP is not None:
                         self.TPlcd.display(TP)
                     if DRY is not None:
@@ -13354,6 +13487,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
                 self.qmc.redraw()
                 self.updatePhasesLCDs()
+                
                 message = QApplication.translate('Message','{0}  loaded ').format(filename)
                 self.sendmessage(message)
                 _log.info('profile loaded: %s', filename)
@@ -18076,12 +18210,16 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                     self.setLabelColor(self.messagelabel,self.qmc.palette['messages'])
                 if 'et' in self.qmc.palette:
                     self.setLabelColor(self.label2,self.qmc.palette['et'])
+                    self.setLabelColor(self.PhaseETlabel,self.qmc.palette['et'])
                 if 'bt' in self.qmc.palette:
                     self.setLabelColor(self.label3,self.qmc.palette['bt'])
+                    self.setLabelColor(self.PhaseBTlabel,self.qmc.palette['bt'])
                 if 'deltaet' in self.qmc.palette:
                     self.setLabelColor(self.label4,self.qmc.palette['deltaet'])
+                    self.setLabelColor(self.PhaseDETlabel,self.qmc.palette['deltaet'])
                 if 'deltabt' in self.qmc.palette:
                     self.setLabelColor(self.label5,self.qmc.palette['deltabt'])
+                    self.setLabelColor(self.PhaseDBTlabel,self.qmc.palette['deltabt'])
                 if 'canvas' in self.qmc.palette:
                     if len(self.qmc.palette['canvas']) == 0:  #revert the canvas element to default if it is blank in the settings.
                         self.qmc.palette['canvas'] = '#f8f8f8'
@@ -18105,6 +18243,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                     self.qmc.alpha[str(k)] = v
             #restore colors
             self.lcd1.setStyleSheet(f"QLCDNumber {{ border-radius:4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF['timer'])}; background: {rgba_colorname2argb_colorname(self.lcdpaletteB['timer'])};}}")
+            self.phaseslcd1.setStyleSheet(f"QLCDNumber {{ border-radius:4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF['timer'])}; background: {rgba_colorname2argb_colorname(self.lcdpaletteB['timer'])};}}")
             self.lcd2.setStyleSheet(f"QLCDNumber {{ border-radius:4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF['et'])}; background: {rgba_colorname2argb_colorname(self.lcdpaletteB['et'])};}}")
             self.lcd3.setStyleSheet(f"QLCDNumber {{ border-radius:4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF['bt'])}; background: {rgba_colorname2argb_colorname(self.lcdpaletteB['bt'])};}}")
             self.lcd4.setStyleSheet(f"QLCDNumber {{ border-radius:4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF['deltaet'])}; background: {rgba_colorname2argb_colorname(self.lcdpaletteB['deltaet'])};}}")
