@@ -592,6 +592,11 @@ class tgraphcanvas(FigureCanvas):
         self.AUCguideTime:float = 0 # the expected time in seconds the AUC target is reached (calculated by the AUC guide mechanism)
         self.AUCshowFlag:bool = False
 
+        # intersection between BT projection and pDry/pFCs
+        self.intersection_point:Line2D = None                   # point of intersection with BT projection
+        self.intersection_point_annotation:Annotation = None     # legend on intersection point
+        self.intersection_point_line:Line2D = None              # vertical line on intesection
+         
         # timing statistics on loaded profile
         self.statisticstimes:List[float] = [0,0,0,0,0] # total, dry phase, mid phase, finish phase  and cooling phase times
 
@@ -4312,7 +4317,113 @@ class tgraphcanvas(FigureCanvas):
         except Exception as e: # pylint: disable=broad-except
             _log.exception(e)
 
+    def DrawIntersection_remove_artist(self, obj):
+        if obj is None:
+            return
+        # liste/tuple/array of artists ?
+        if isinstance(obj, (list, tuple, numpy.ndarray)):
+            for art in obj:
+                if hasattr(art, "remove"):
+                    try:
+                        art.remove()
+                    except Exception:
+                        pass
+        # single artist
+        elif hasattr(obj, "remove"):
+            try:
+                obj.remove()
+            except Exception:
+                pass
+            
+    def DrawIntersectionBetweenCurveandProjection(self, l_projection:Line2D):
+        
+        if l_projection is None:
+            return
 
+        xdata= numpy.asarray(l_projection.get_xdata(), dtype=float)
+        ydata = numpy.asarray(l_projection.get_ydata(), dtype=float)
+        
+        if len(xdata)==0 or len(ydata)==0:
+            return
+        
+        target:float = 0.0 # temperature target of the current phase
+        display_postFC:bool = False
+       
+        if self.timeindex[1] > 0 and self.timeindex[2] > 0:
+            # display current temperature and % development
+            if self.timeindex[6]: # after drop don't display
+                    return
+            else: # before drop DEV% = (current time - time of FC) / (time of charge-time of start) %
+                charge = self.timex[self.timeindex[0]]
+                tx = self.timex[-1]
+                de = self.timex[self.timeindex[1]]
+                fc = self.timex[self.timeindex[2]]
+                dev = (tx - fc) * 100. / (tx-charge)
+                dry = (de-charge) * 100. / (tx-charge)
+                maillard = (fc-de) * 100. / (tx-charge)
+                target = self.temp2[-1] # BT
+                display_postFC = True
+                #_log.debug(f"tx={tx:.1f} charge={charge:.1f} dev={dev:.1f} dry={dry:.1f} maillard={maillard:.1f}")
+        else:
+            if self.timeindex[1] == 0 and self.timeindex[2] == 0:
+                index="DE"
+                target:float = self.phases[0] 
+                if target == 0.0 : 
+                    target = self.phases_celsius_defaults[0] if self.mode=="C" else self.phases_fahrenheit_defaults[0]
+            else:
+                index="FC"
+                target:float = self.phases[2]
+                if target == 0.0 : 
+                    target = self.phases_celsius_defaults[2] if self.mode=="C" else self.phases_fahrenheit_defaults[2]
+        diff = ydata - target
+        indices = numpy.where(numpy.diff(numpy.sign(diff)))[0]
+        x_intersect = None
+        for i in indices:
+            x1, y1 = xdata[i], ydata[i]
+            x2, y2 = xdata[i+1], ydata[i+1]
+            slope = y2 - y1
+            if slope > 0:  # pente ascendante
+                x_intersect = float(x1 + (target - y1) * (x2 - x1) / (y2 - y1))
+                break  # on garde seulement le premier croisement en pente ascendante
+        if x_intersect is not None:
+            minutes = int((x_intersect-self.timex[self.timeindex[0]]) // 60) # counter must display from charge mm:ss
+            seconds = int((x_intersect-self.timex[self.timeindex[0]]) % 60)
+            time_str = f"{minutes:02d}:{seconds:02d}"
+            if display_postFC:
+                text = f"\nDEV {dev:.1f}%\n{target:.1f}°{self.mode}\nMAILLARD {maillard:.1f}%\nDRY {dry:.1f}%"
+            else:
+                text = f"\n{index} at {time_str}\n{target:.1f}°{self.mode}\n"
+                
+            if self.aw.qmc.intersection_point is None or self.aw.qmc.intersection_point_annotation is None or self.aw.qmc.intersection_point_line is None: # drawfor the first time and store the variables
+                self.aw.qmc.intersection_point, = self.ax.plot(x_intersect, target, 'ro')
+                self.aw.qmc.intersection_point_annotation = self.ax.annotate(
+                    text,               # text
+                    xy=(x_intersect, 230),         # reference point
+                    xytext=(5, 5),                 # shift (pixels)
+                    textcoords="offset points",    # shift in points points
+                    ha='left', va='top',               # alignment
+                    fontsize=9,
+                    color='black',
+                    bbox=dict(facecolor='white', alpha=0.6, edgecolor='none', boxstyle='round,pad=0.3') 
+                )
+                self.aw.qmc.intersection_point_line = self.ax.axvline(
+                    x=x_intersect,
+                    color='yellow',
+                    linestyle='--',
+                    linewidth=1,
+                    alpha=0.3 
+                )
+            else: # update information only to avoid redrawing all 
+                self.aw.qmc.intersection_point.set_data([x_intersect], [target])
+                self.aw.qmc.intersection_point_line.set_xdata([x_intersect])
+                self.aw.qmc.intersection_point_annotation.set_text(text)
+                self.aw.qmc.intersection_point_annotation.xy = (x_intersect, 230)
+                
+            self.ax.draw_artist(self.aw.qmc.intersection_point)
+            self.ax.draw_artist(self.aw.qmc.intersection_point_line)
+            self.ax.draw_artist(self.aw.qmc.intersection_point_annotation)
+            #self.DrawIntersection_remove_artist(self.aw.qmc.intersection_point_annotation)
+            
     # ADD DEVICE:
 
     # returns True if the extra device n, channel c, is of type MODBUS or S7, has no factor defined, nor any math formula, and is of type int
@@ -4370,7 +4481,8 @@ class tgraphcanvas(FigureCanvas):
             if self.BTprojectFlag:
                 if self.l_BTprojection is not None and self.BTcurve:
                     # show only if either the DeltaBT curve or LCD is shown (allows to suppress projects for cases where ET channel is used for other signals)
-                    self.ax.draw_artist(self.l_BTprojection)
+                    # self.ax.draw_artist(self.l_BTprojection)
+                    self.DrawIntersectionBetweenCurveandProjection(self.l_BTprojection)
                 if self.projectDeltaFlag and self.l_DeltaBTprojection is not None and self.DeltaBTflag:
                     self.ax.draw_artist(self.l_DeltaBTprojection)
             if self.l_AUCguide is not None and self.AUCguideFlag and self.AUCguideTime > 0 and self.AUCguideTime < self.endofx:

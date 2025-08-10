@@ -4043,33 +4043,39 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.AUCLCD.hide()
 
         # extension des LCD de phase
-        
+
         self.phasesLCDs: QFrame = QFrame()
-        self.phasesLCDs.setContentsMargins(0, 0, 0, 0)
+        policy = self.phasesLCDs.sizePolicy()
+        policy.setHorizontalPolicy(QSizePolicy.Policy.Expanding)  # s'étire horizontalement
+        self.phasesLCDs.setSizePolicy(policy)
+        self.phasesLCDs.setMinimumWidth(400)
+        self.phasesLCDs.setContentsMargins(0, 0, 0, 0)        
+#        self.phasesLCDs.setStyleSheet("""
+#    QFrame {
+#        border: 2px solid blue;
+#        border-radius: 4px; /* coins arrondis facultatif */
+#    }
+#""")
         self.phasesLCDlayout = QHBoxLayout()
         self.phasesLCDlayout.setContentsMargins(0, 0, 0, 0)
-        self.phasesLCDlayout.setSpacing(10)
-#        phasesLCDlayout.addStretch()
-
+        self.phasesLCDlayout.setSpacing(1)
+#        self.phasesLCDlayout.addStretch()
+        self.phasesLCDlayout.setDirection(QHBoxLayout.Direction.LeftToRight)
         self.phasesLCDlayout.addWidget(self.phaseslcd1)
-        self.phasesLCDlayout.addSpacing(30)
-        self.phasesLCDlayout.addWidget(self.PhaseDETlcdFrame)
-        self.phasesLCDlayout.addSpacing(5)
+        self.phasesLCDlayout.addSpacing(10)
         self.phasesLCDlayout.addWidget(self.PhaseBTlcdFrame)
-        self.phasesLCDlayout.addSpacing(5)
-        self.phasesLCDlayout.addWidget(self.PhaseDBTlcdFrame)
-        self.phasesLCDlayout.addSpacing(5)
         self.phasesLCDlayout.addWidget(self.PhaseETlcdFrame)
-        self.phasesLCDlayout.addSpacing(5)
-        self.phasesLCDlayout.addWidget(self.TPlcdFrame)
-        self.phasesLCDlayout.addWidget(self.TP2DRYframe)
-        self.phasesLCDlayout.addWidget(self.DRYlcdFrame)
-        self.phasesLCDlayout.addWidget(self.DRY2FCsframe)
-        self.phasesLCDlayout.addWidget(self.FCslcdFrame)        
-        self.phasesLCDlayout.addSpacing(50)
+        self.phasesLCDlayout.addWidget(self.PhaseDETlcdFrame)
+        self.phasesLCDlayout.addWidget(self.PhaseDBTlcdFrame)
+#         self.phasesLCDlayout.addWidget(self.TPlcdFrame)
+#        self.phasesLCDlayout.addWidget(self.TP2DRYframe)
+#        self.phasesLCDlayout.addWidget(self.DRYlcdFrame)
+#        self.phasesLCDlayout.addWidget(self.DRY2FCsframe)
+#        self.phasesLCDlayout.addWidget(self.FCslcdFrame)        
+        self.phasesLCDlayout.addSpacing(400)
         self.phasesLCDs.setLayout(self.phasesLCDlayout)
         self.phasesLCDs.hide()
-        self.phasesLCDs.setToolTip(QApplication.translate('Tooltip','Phase LCDs: right-click to cycle through TIME, PERCENTAGE and TEMP MODE'))
+#        self.phasesLCDs.setToolTip(QApplication.translate('Tooltip','Phase LCDs: right-click to cycle through TIME, PERCENTAGE and TEMP MODE'))
 
         #level 1
         self.level1layout.addStretch()
