@@ -1,5 +1,5 @@
 # simple bean cave management 
-# mod programmed by Tilau (2025)
+# mod programmed by Tilau (2025) 
 # manage a json file with a list of green beans and associate roasts to them by name
 # manage stock in grams and use them in roast properties to enter basic information on beans
 # decrease stock in g when they are selected from roast properties

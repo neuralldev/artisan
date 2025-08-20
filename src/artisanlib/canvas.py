@@ -13,7 +13,7 @@
 # the GNU General Public License for more details.
 
 # AUTHOR
-# Marko Luther, 2023
+# Marko Luther, 2023, updated by TILAU
 
 from artisanlib import __version__
 from artisanlib import __revision__
