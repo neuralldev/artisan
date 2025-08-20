@@ -227,7 +227,7 @@ class tgraphcanvas(FigureCanvas):
         'oncpick_cid', 'ondraw_cid', 'onmove_cid', 'rateofchange1', 'rateofchange2', 'flagon', 'flagstart', 'flagKeepON', 'flagOpenCompleted', 'flagsampling', 'flagsamplingthreadrunning',
         'manuallogETflag', 'zoom_follow', 'alignEvent', 'compareAlignEvent', 'compareEvents', 'compareET', 'compareBT', 'compareDeltaET', 'compareDeltaBT', 'compareMainEvents', 'compareBBP', 'compareRoast', 'compareExtraCurves1', 'compareExtraCurves2',
         'replayType', 'replayDropType', 'replayedBackgroundEvents', 'last_replayed_events', 'beepedBackgroundEvents', 'roastpropertiesflag', 'roastpropertiesAutoOpenFlag', 'roastpropertiesAutoOpenDropFlag',
-        'title', 'title_show_always', 'ambientTemp', 'ambientTempSource', 'ambient_temperature_device', 'ambient_pressure', 'ambient_pressure_device', 'ambient_humidity',
+        'title', 'title_show_always', 'ambientTemp', 'ambientTempSource', 'ambientHumiditySource', 'ambientPressureSource', 'ambient_temperature_device', 'ambient_pressure', 'ambient_pressure_device', 'ambient_humidity',
         'ambient_humidity_device', 'elevation', 'temperaturedevicefunctionlist', 'humiditydevicefunctionlist', 'pressuredevicefunctionlist', 'moisture_greens', 'moisture_roasted',
         'greens_temp', 'beansize', 'beansize_min', 'beansize_max', 'whole_color', 'ground_color', 'color_systems', 'color_system_idx', 'heavyFC_flag', 'lowFC_flag', 'lightCut_flag',
         'darkCut_flag', 'drops_flag', 'oily_flag', 'uneven_flag', 'tipping_flag', 'scorching_flag', 'divots_flag', 'timex',
@@ -255,7 +255,7 @@ class tgraphcanvas(FigureCanvas):
         'xextrabuttonactions', 'xextrabuttonactionstrings', 'chargeTimerFlag', 'autoChargeFlag', 'autoDropFlag', 'autoChargeMode', 'autoDropMode', 'autoChargeIdx', 'autoDropIdx', 'markTPflag',
         'autoDRYflag', 'autoFCsFlag', 'autoCHARGEenabled', 'autoDRYenabled', 'autoFCsenabled', 'autoDROPenabled', 'autoDryIdx', 'projectionconstant',
         'projectionmode', 'transMappingMode', 'weight', 'volume', 'density', 'density_roasted', 'volumeCalcUnit', 'volumeCalcWeightInStr',
-        'volumeCalcWeightOutStr', 'container_names', 'container_weights', 'container_idx', 'specialevents', 'etypes', 'etypesdefault',
+        'volumeCalcWeightOutStr', 'container_names', 'container_weights', 'specialevents', 'etypes', 'etypesdefault',
         'alt_etypesdefault', 'default_etypes_set', 'specialeventstype',
         'specialeventsStrings', 'specialeventsvalue', 'eventsGraphflag', 'clampEvents', 'renderEventsDescr', 'eventslabelschars', 'eventsshowflag',
         'annotationsflag', 'showeventsonbt', 'showEtypes', 'E1timex', 'E2timex', 'E3timex', 'E4timex', 'E1values', 'E2values', 'E3values', 'E4values',
@@ -1245,6 +1245,10 @@ class tgraphcanvas(FigureCanvas):
         self.ambientTemp_sampled:float = 0. # keeps the measured ambientTemp over a restart
         self.ambientTempSource:int = 0 # indicates the temperature curve that is used to automatically fill the ambient temperature on DROP
 #                                  # 0 : None; 1 : ET, 2 : BT, 3 : 0xT1, 4 : 0xT2,
+        self.ambientHumiditySource:int = 0 # indicates the temperature curve that is used to automatically fill the ambient temperature on DROP
+#                                  # 0 : None; 1 : ET, 2 : BT, 3 : 0xT1, 4 : 0xT2,
+        self.ambientPressureSource:int = 0 # indicates the temperature curve that is used to automatically fill the ambient temperature on DROP
+#                                  # 0 : None; 1 : ET, 2 : BT, 3 : 0xT1, 4 : 0xT2,
         self.ambient_temperature_device:int = 0
         self.ambient_pressure:float = 0.
         self.ambient_pressure_sampled:float = 0. # keeps the measured ambient_pressure over a restart/reset
@@ -1491,9 +1495,9 @@ class tgraphcanvas(FigureCanvas):
         self.roastepoch:int = self.roastdate.toSecsSinceEpoch() # in seconds
         self.roastepoch_timeout:Final[int] = 90*60  # in seconds; period after last roast which starts a new roasting session
         self.lastroastepoch:int = self.roastepoch - self.roastepoch_timeout - 1 # the epoch of the last roast in seconds, initialized such that a new roast session can start
-        self.batchcounter:int = -1 # global batch counter; if batchcounter is -1, batchcounter system is inactive
+        self.batchcounter:int = 0  # global batch counter; if batchcounter is -1, batchcounter system is inactive
         self.batchsequence:int = 1 # global counter of position in sequence of batches of one session
-        self.batchprefix:str = ''
+        self.batchprefix:str = 'A'
         self.neverUpdateBatchCounter:bool = False
         # profile batch nr
         self.roastbatchnr:int = 0 # batch number of the roast; if roastbatchnr=0, prefix/counter is hidden/inactiv (initialized to 0 on roast START)
@@ -1648,7 +1652,6 @@ class tgraphcanvas(FigureCanvas):
         # container scale tare
         self.container_names:List[str] = []
         self.container_weights:List[float] = [] # all weights in g
-        self.container_idx:int = -1 # default points to the empty field in the container menu (as -1 + 2 = 1)
 
         #stores _indexes_ of self.timex to record events.
         # Use as self.timex[self.specialevents[x]] to get the time of an event
@@ -1903,11 +1906,11 @@ class tgraphcanvas(FigureCanvas):
         self.statisticslower:int = 617
 
         # autosave
-        self.autosaveflag:int = 0
+        self.autosaveflag:int = 1
         self.autosaveprefix:str = ''
-        self.autosavepath:str = ''
-        self.autosavealsopath:str = ''
-        self.autosaveaddtorecentfilesflag:bool = False
+        self.autosavepath:str = ''      # default is set on app initialization to users Documents folder (end of main.py)
+        self.autosavealsopath:str = ''  # default is set on app initialization to users Documents folder (end of main.py)
+        self.autosaveaddtorecentfilesflag:bool = True
 
         self.autosaveimage:bool = False # if true save an image along alog files
 
@@ -2729,9 +2732,9 @@ class tgraphcanvas(FigureCanvas):
     def etypeAbbrev(etype_name:str) -> str:
         return etype_name[:1]
 
-    def ambientTempSourceAvg(self) -> Optional[float]:
+    def ambientSourceAvg(self, curve_source:int) -> Optional[float]:
         res:Optional[float] = None
-        if self.ambientTempSource:
+        if curve_source:
             try:
                 start = 0
                 end = len(self.temp1) - 1
@@ -2739,16 +2742,16 @@ class tgraphcanvas(FigureCanvas):
                     start = self.timeindex[0]
                 if self.timeindex[6] > 0: # DROP
                     end = self.timeindex[6]
-                if self.ambientTempSource == 1: # from ET
+                if curve_source == 1: # from ET
                     res = float(numpy.mean([e for e in self.temp1[start:end] if e is not None and e != -1]))
-                elif self.ambientTempSource == 2: # from BT
+                elif curve_source == 2: # from BT
                     res = float(numpy.mean([e for e in self.temp2[start:end] if e is not None and e != -1]))
-                elif self.ambientTempSource > 2 and ((self.ambientTempSource - 3) < (2*len(self.extradevices))):
+                elif curve_source > 2 and ((curve_source - 3) < (2*len(self.extradevices))):
                     # from an extra device
-                    if (self.ambientTempSource)%2==0:
-                        res = float(numpy.mean([e for e in self.extratemp2[(self.ambientTempSource - 3)//2][start:end] if e is not None and e != -1]))
+                    if (curve_source)%2==0:
+                        res = float(numpy.mean([e for e in self.extratemp2[(curve_source - 3)//2][start:end] if e is not None and e != -1]))
                     else:
-                        res = float(numpy.mean([e for e in self.extratemp1[(self.ambientTempSource - 3)//2][start:end] if e is not None and e != -1]))
+                        res = float(numpy.mean([e for e in self.extratemp1[(curve_source - 3)//2][start:end] if e is not None and e != -1]))
             except Exception as ex: # pylint: disable=broad-except # the array to average over might get empty and mean thus invoking an exception
                 _log.exception(ex)
         if res is not None:
@@ -2801,12 +2804,27 @@ class tgraphcanvas(FigureCanvas):
                             ambient.close()
                 except Exception as e: # pylint: disable=broad-except
                     _log.exception(e)
-        res = self.ambientTempSourceAvg()
+        res = self.ambientSourceAvg(self.ambientTempSource)
         if res is not None and (isinstance(res, (float,int))) and not math.isnan(res):
             self.ambientTemp = float2float(float(res))
 
+    def updateAmbientHumidity(self) -> None:
+        res = self.ambientSourceAvg(self.ambientHumiditySource)
+        if res is not None and (isinstance(res, (float,int))) and not math.isnan(res):
+            self.ambient_humidity = float2float(float(res))
+
+    def updateAmbientPressure(self) -> None:
+        res = self.ambientSourceAvg(self.ambientPressureSource)
+        if res is not None and (isinstance(res, (float,int))) and not math.isnan(res):
+            self.ambient_pressure = float2float(float(res))
+
     def updateAmbientTemp(self) -> None:
+        # take ambient temp for Phidget 1048/1101 TC AT channel or from the selected ambient temperature curve
         self.updateAmbientTempFromPhidgetModulesOrCurve()
+        # take the ambient humidity from the selected ambient humidity curve
+        self.updateAmbientHumidity()
+        # take the ambient pressure from the selected ambient pressure curve
+        self.updateAmbientPressure()
         try:
             self.startPhidgetManager()
             self.getAmbientData()
@@ -4086,6 +4104,16 @@ class tgraphcanvas(FigureCanvas):
                 try:
                     # update ambient temperature if a ambient temperature source is configured and no value yet established
                     self.updateAmbientTempFromPhidgetModulesOrCurve()
+                except Exception: # pylint: disable=broad-except
+                    pass
+                try:
+                    # update ambient humidity if a ambient humidity source is configured and no value yet established
+                    self.updateAmbientHumidity()
+                except Exception: # pylint: disable=broad-except
+                    pass
+                try:
+                    # update ambient pressure if a ambient pressure source is configured and no value yet established
+                    self.updateAmbientPressure()
                 except Exception: # pylint: disable=broad-except
                     pass
 #PLUS
@@ -12681,6 +12709,7 @@ class tgraphcanvas(FigureCanvas):
                         ha = 'right'
                     anno = self.ax1.annotate(self.flavorChartLabelText(i),xy =(self.flavorchart_angles[i],.9),  # pyrefly: ignore[unsupported-operation]
                                         fontproperties=fontprop_small,
+                                        color=self.palette['ylabel'],
                                         xytext=(self.flavorchart_angles[i],1.1),horizontalalignment=ha,verticalalignment='center')  # pyrefly: ignore[unsupported-operation]
                     try:
                         anno.set_in_layout(False)  # remove text annotations from tight_layout calculation
@@ -12691,7 +12720,10 @@ class tgraphcanvas(FigureCanvas):
                 # total score
                 score = self.calcFlavorChartScore()
                 txt = f'{score:.2f}'.rstrip('0').rstrip('.')
-                self.flavorchart_total = self.ax1.text(0.,0.,txt,fontsize='x-large',fontproperties=self.aw.mpl_fontproperties,color='#FFFFFF',horizontalalignment='center',bbox={'facecolor':'#212121', 'alpha':0.5, 'pad':10})
+                self.flavorchart_total = self.ax1.text(0.,0.,txt,fontsize='x-large',
+                        fontproperties=self.aw.mpl_fontproperties,color='#FFFFFF',
+                        horizontalalignment='center',
+                        bbox={'facecolor':'#212121', 'alpha':0.5, 'pad':10})
 
                 #add background to plot if found
                 if self.background and self.flavorbackgroundflag:
@@ -13090,7 +13122,7 @@ class tgraphcanvas(FigureCanvas):
 
             # ADD DEVICE:
             if not bool(self.aw.simulator):
-                if self.device == 53:
+                if self.device == 53 and self.aw.hottop is None: # only start Hottop connection if there is not already one
                     # connect HOTTOP
                     from artisanlib.hottop import Hottop
                     hottop_serial = SerialSettings(
@@ -13676,6 +13708,7 @@ class tgraphcanvas(FigureCanvas):
 
     # close serial port, Phidgets and Yocto ports
     def disconnectProbesFromSerialDevice(self, ser:'serialport') -> None:
+        _log.debug('disconnectProbesFromSerialDevice')
         try:
             self.samplingSemaphore.acquire(1)
 
@@ -15005,6 +15038,16 @@ class tgraphcanvas(FigureCanvas):
                         try:
                             # update ambient temperature if a ambient temperature source is configured and no value yet established
                             self.updateAmbientTempFromPhidgetModulesOrCurve()
+                        except Exception as e: # pylint: disable=broad-except
+                            _log.exception(e)
+                        try:
+                            # update ambient humidity if a ambient humidity source is configured and no value yet established
+                            self.updateAmbientHumidity()
+                        except Exception as e: # pylint: disable=broad-except
+                            _log.exception(e)
+                        try:
+                            # update ambient pressure if a ambient pressure source is configured and no value yet established
+                            self.updateAmbientPressure()
                         except Exception as e: # pylint: disable=broad-except
                             _log.exception(e)
     #PLUS

@@ -9,6 +9,7 @@ Receives data in the shape of
     subtitle:str
     batchsize:str | max ~6 characters
     weight:str | max 6 characters
+    final_weight:str | max 6 characters
     percent: float
     state:int (0:disconnected, 1:connected, 2:weighing, 3:done, 4:canceled)
     bucket: int (0,1,2)
@@ -152,7 +153,7 @@ Receives data in the shape of
                 'percent', 'zoom', 'zoom2', 'scale_for_clipping',
                 'scale_icon_done', 'scale_icon_initial',
                 'blend_percent', 'buckets_grid_part',
-                'weight', 'scale_icon_image', 'bucket_on_scale',
+                'weight', 'final_weight', 'scale_icon_image', 'bucket_on_scale',
                 'coffee_svg', 'roast_svg', 'done_svg', 'cancel_svg',
                 'dialog_cancel_svg', 'dialog_close_icon', 'dialog_fullscreen_svg',
                 'dialog_text', 'dialog_svg',
@@ -182,6 +183,7 @@ Receives data in the shape of
             elements.bucket_on_scale.style.backgroundColor = BACKGROUND;
             elements.bucket_on_scale.style.color = PERCENTCOLOR;
             elements.percent.style.color = PERCENTCOLOR;
+            elements.weight.style.color = PERCENTCOLOR;
             elements.bucket_on_scale.style.border = BORDER;
             elements.bucket_on_scale.style.top = BUCKETPOSITION;
             elements.bucket_on_scale.style.left = BUCKETPOSITION;
@@ -215,10 +217,13 @@ Receives data in the shape of
             elements.zoom2.style.display = 'none';
             elements.scale_for_clipping.style.display = 'none';
             elements.outer_frame.style.background = '#b5b5b5';
+            elements.percent.style.color = 'black';
+            elements.weight.style.color = 'black';
+            elements.percent.style.top = '-10%';
         }
 
         function setTexts() {
-            for (const prop of ['id', 'batchsize', 'weight', 'blend_percent']) {
+            for (const prop of ['id', 'batchsize', 'weight', 'final_weight', 'blend_percent']) {
                 elements[prop].textContent = parsedData[prop] || '';
             }
             for (const prop of ['title', 'subtitle',]) {
@@ -315,11 +320,13 @@ Receives data in the shape of
                             elements.bucket_on_scale.style.display = 'none';
                             elements.bucket_on_scale.style.border = BORDER;
                             elements.percent.style.color = 'black';
+                            elements.weight.style.color = 'black';
                         } else {
-                            elements.bucket_on_scale.style.display = 'flex';
+                            elements.bucket_on_scale.style.display = 'block';
                             elements.bucket_on_scale.style.backgroundColor = ABLUE;
                             elements.bucket_on_scale.style.border = '1.2vmin solid white';
                             elements.percent.style.color = 'white';
+                            elements.weight.style.color = 'white';
                         }
                         closeTimerDialog();
                         if (parsedData.timer) {
@@ -348,22 +355,24 @@ Receives data in the shape of
                             if (parsedData.timer) {
                                 openTimerDialog(parsedData.timer);
                             }
-                            elements.percent.classList.remove('big-font-roasted');
-                            elements.percent.classList.add('big-font');
+                            elements.percent.classList.replace('big-font-roasted', 'big-font');
                             // main scale
                             if (parsedData.percent >= 0) {
                                 // display bucket on scale and %
                                 elements.scale_rect.style.display = 'block';
-                                elements.bucket_on_scale.style.display = 'flex';
+                                elements.bucket_on_scale.style.display = 'block';
                                 elements.percent.style.display = 'block';
                                 elements.percent.innerHTML = parsedData.percent.toFixed(0) + '%';
                                 elements.percent.style.color = PERCENTCOLOR;
+                                elements.weight.style.color = PERCENTCOLOR;
                                 elements.bucket_on_scale.style.border = BORDER;
                                 elements.bucket_on_scale.style.top = BUCKETPOSITION;
                                 elements.bucket_on_scale.style.left = BUCKETPOSITION;
-                                elements.percent.style.fontSize = '32cqmin';
+                                elements.percent.style.fontSize = '26cqmin';
                                 elements.percent.style.fontWeight = '400';
+                                elements.weight.style.display = 'block';
 
+                                elements.weight.classList.remove('zoom-weight');
                                 if (parsedData.percent <= 99) {
                                     // normal count until 99%
                                     elements.scale_rect.style.background = `linear-gradient(0deg, ${ABLUE} 0 ${parsedData.percent}%, #b5b5b5 ${parsedData.percent}% 100%)`;
@@ -380,13 +389,17 @@ Receives data in the shape of
                                     elements.bucket_on_scale.style.top = 'calc(12% - 2vmin)';
                                     elements.bucket_on_scale.style.left = 'calc(12% - 2vmin)';
                                     elements.percent.style.color = 'white';
-                                    elements.percent.style.fontSize = '25cqmin';
-                                    elements.percent.style.fontWeight = 'bold';
+                                    elements.weight.style.color = 'white';
+                                    elements.percent.style.fontSize = '22cqmin';
+                                    elements.percent.style.fontWeight = '400';
+                                    elements.weight.style.display = 'none';
+                                    elements.percent.style.top = '0';
                                 } else {
                                     // zoom for >99% (and != 100)
                                     elements.scale_rect.style.backgroundColor = ABLUE;
                                     elements.timer_progress.style.setProperty('--progress-color', 'white');
                                     elements.percent.style.display = 'none';
+                                    elements.weight.classList.add('zoom-weight');
                                     if (parsedData.percent < 100) {
                                         const zoomsize = (100 * (parsedData.percent - 99)).toFixed(2);
                                         elements.zoom.style.display = 'block';
@@ -404,28 +417,33 @@ Receives data in the shape of
                                         const zoomperc = (100 - zoomsize) / 2;
                                         elements.zoom2.style.top = `${zoomperc.toFixed(2)}%`;
                                         elements.zoom2.style.left = elements.zoom2.style.top;
+                                        elements.percent.style.color = 'white';
+                                        elements.weight.style.color = 'white';
                                     } else {
                                         // overflow max
                                         elements.bucket_on_scale.style.backgroundColor = ABLUE;
                                         elements.scale_for_clipping.style.display = 'block';
                                         elements.scale_for_clipping.style.backgroundColor = ARED;
                                         elements.zoom2.style.display = 'none';
+                                        elements.percent.style.color = 'white';
+                                        elements.weight.style.color = 'white';
                                     }
                                 }
                             } else {
                                 elements.bucket_on_scale.style.display = 'none';
                                 elements.percent.style.display = 'none';
+                                elements.weight.style.display = 'none';
                             }
                         } else if (parsedData.type === 1) {
                             elements.percent.innerHTML = parsedData.loss;
-                            elements.percent.classList.add('big-font-roasted');
-                            elements.percent.classList.remove('big-font');
+                            elements.percent.classList.replace('big-font', 'big-font-roasted');
                             elements.percent.style.color = 'white';
+                            elements.weight.style.color = 'white';
                             elements.percent.style.display = 'block';
                             elements.scale_rect.style.display = 'block';
                             elements.scale_rect.style.backgroundColor = ABLUE;
                             elements.timer_progress.style.setProperty('--progress-color', 'white');
-                            elements.bucket_on_scale.style.display = 'flex';
+                            elements.bucket_on_scale.style.display = 'block';
                             elements.bucket_on_scale.style.backgroundColor = ABLUE;
                             elements.bucket_on_scale.style.border = '3vmin solid white';
                             elements.bucket_on_scale.style.top = 'calc(12% - 3vmin)';
@@ -643,7 +661,7 @@ Receives data in the shape of
             fitty(elements.id, { minSize: 14, multiLine: false }, elements.batchsize);
 
             // initial state before anything is received
-            usedata({ data: '{"type":0,"state":0,"id":"","title":"","subtitle":"","batchsize":"","weight":"","percent":0,"bucket":0,"blend_percent":"","total_percent":0}' });
+            usedata({ data: '{"type":0,"state":0,"id":"","title":"","subtitle":"","batchsize":"","weight":"","final_weight":"","percent":0,"bucket":0,"blend_percent":"","total_percent":0}' });
 
             if (CLICK_FOR_FULLSCREEN_DISPLAY_TIME_MS && !document.fullscreenElement && (navigator['userAgentData']?.mobile || isTouchEventsEnabled())) {
                 elements.dialog_fullscreen_svg.addEventListener("click", enterFullScreen);
@@ -907,14 +925,25 @@ Receives data in the shape of
             font-weight: 300;
         }
 
+        .big-font-weight {
+            /* fallback if container query not supported */
+            font-size: calc(max(min(11vw, 20vh), 11px));
+            text-align: center;
+            font-weight: 300;
+        }
+
         @container scale (min-width: 0px) {
             .big-font {
                 font-size: 32cqmin;
             }
 
+            .big-font-weight {
+                font-size: 12cqmin;
+            }
+
             .big-font-roasted {
                 font-size: 19cqmin;
-                font-weight: bold;
+                font-weight: 400;
             }
         }
 
@@ -925,15 +954,24 @@ Receives data in the shape of
             border: 0.5vmin solid #515151;
             border-radius: 100%;
             align-content: center;
-            display: flex;
+            display: block;
             align-items: center;
-            justify-content: center;
         }
 
         .percent {
             margin-top: auto;
             margin-bottom: auto;
+            top: -10%;
+            position: relative;
             background: none;
+            z-index: 4;
+        }
+
+        .zoom-weight {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
 
@@ -1140,6 +1178,7 @@ Receives data in the shape of
                                 <span class="zoom2" id="zoom2"></span>
                             </div>
                             <span class="bucket-on-scale" id="bucket_on_scale">
+                                <span class="percent big-font-weight" id="weight"></span>
                                 <span class="percent big-font" id="percent"></span>
                                 <span class="zoom" id="zoom"></span>
                             </span>
@@ -1215,7 +1254,7 @@ Receives data in the shape of
                     <div class="subtitlerow" id="subtitlerow">
                         <span class="blend-percent" id="blend_percent"></span>
                         <span class="subtitle title-top" id="subtitle1" name="subtitle"></span>
-                        <span class="weight" id="weight"></span>
+                        <span class="weight" id="final_weight"></span>
                     </div>
                 </div>
             </div>

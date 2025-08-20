@@ -234,7 +234,7 @@ from artisanlib.util import (appFrozen, uchr, decodeLocal, decodeLocalStrict, en
         fromFtoCstrict, fromCtoFstrict, RoRfromFtoCstrict, RoRfromCtoFstrict,
         convertRoR, convertRoRstrict, convertTemp, path2url, toInt, toString, toList, toFloat,
         toBool, toStringList, removeAll, application_name, application_viewer_name, application_organization_name,
-        application_organization_domain, application_desktop_file_name, getDataDirectory, getAppPath, getResourcePath, debugLogLevelToggle,
+        application_organization_domain, application_desktop_file_name, getDataDirectory, getDocumentsDirectory, getAppPath, getResourcePath, debugLogLevelToggle,
         debugLogLevelActive, setDebugLogLevel, createGradient, natsort, setDeviceDebugLogLevel,
         comma2dot, is_proper_temp, weight_units, volume_units, float2float,
         convertWeight, convertVolume, rgba_colorname2argb_colorname, render_weight, serialize, deserialize, csv_load, exportProfile2CSV, findTPint,
@@ -582,38 +582,10 @@ class Artisan(QtSingleApplication):
                 _log.exception(e)
         return True
 
-# configure multiprocessing
-#if sys.platform.startswith('darwin'):
-#    try:
-#        # start method can only be set once!
-##        if 'forkserver' in multiprocessing.get_all_start_methods(): # pylint: disable=condition-evals-to-constant,using-constant-test
-##            # signed app with forkserver option fails with a MemoryError
-##            multiprocessing.set_start_method('forkserver') # only available on Python3 on Unix, currently (Python 3.8) not supported by frozen executables generated with pyinstaller
-#        if 'fork' in multiprocessing.get_all_start_methods():
-#            multiprocessing.set_start_method('fork') # default on Python3.7 for macOS (and on Unix also under Python3.8), but considered unsafe,
-#            # not available on Windows, on Python3.8 we have to explicitly set this
-#            # https://bugs.python.org/issue33725
-#            # this is the only option that works (Hottop communication & WebLCDs) in signed macOS apps
-##        if 'spawn' in multiprocessing.get_all_start_methods():
-##            multiprocessing.set_start_method('spawn') # default on Python3.8 for macOS (always default on Windows)
-##            # this breaks on starting WebLCDs in macOS (and linux) builds with py2app, pyinstaller
-##            # https://bugs.python.org/issue32146
-##            # https://github.com/pyinstaller/pyinstaller/issues/4865
-#    except Exception: # pylint: disable=broad-except
-#        pass
-
 app_args = sys.argv
 if sys.platform.startswith('linux'):
     # avoid a GTK bug in Ubuntu Unity
     app_args = app_args + ['-style','Fusion']
-#if platform.system() == 'Windows':
-#    # highDPI support must be set before creating the Application instance
-#    try:
-#        # activate scaling for hiDPI screen support on Windows
-#        QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
-#        QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
-#    except Exception as e: # pylint: disable=broad-except
-#        pass
 app = Artisan(app_args)
 
 
@@ -750,13 +722,6 @@ if platform.system().startswith('Windows'):
     # on Windows we use the Fusion style per default which supports the dark mode
     app.setStyle('Fusion')
     app.setWindowIcon(QIcon(os.path.join(getAppPath(),'artisan.png')))
-#    try:
-#        # activate scaling for hiDPI screen support on Windows
-#        app.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)
-#        if hasattr(QStyleFactory, 'AA_UseHighDpiPixmaps'):
-#            app.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
-#    except Exception as e: # pylint: disable=broad-except
-#        pass
 
 from artisanlib.s7port import s7port
 from artisanlib.wsport import wsport
@@ -767,7 +732,7 @@ from artisanlib.simulator import Simulator
 from artisanlib.dialogs import HelpDlg, ArtisanInputDialog, ArtisanComboBoxDialog, ArtisanPortsDialog, ArtisanSliderLCDinputDlg
 from artisanlib.large_lcds import (LargeMainLCDs, LargeDeltaLCDs, LargePIDLCDs, LargeExtraLCDs, LargePhasesLCDs, LargeScaleLCDs)
 from artisanlib.logs import (serialLogDlg, errorDlg, messageDlg)
-from artisanlib.comm import serialport, colorport, scaleport
+from artisanlib.comm import serialport
 from artisanlib.pid_dialogs import (PXRpidDlgControl, PXG4pidDlgControl,
     PID_DlgControl, DTApidDlgControl)
 from artisanlib.pid_control import FujiPID, PIDcontrol, DtaPID
@@ -793,19 +758,6 @@ import plus.blend
 import plus.stock
 import plus.schedule
 
-
-
-#######################################################################################
-#####   temporary hack for windows till better solution found about toolbar icon problem with py2exe and svg
-#######################################################################################
-
-
-#def my_get_icon(name:str) -> Optional[QIcon]:
-#    basedir = os.path.join(mpl.rcParams['datapath'], 'images')
-#    p = os.path.join(basedir, name.replace('.svg','.png'))
-#    if os.path.exists(p):
-#        return QIcon(p)
-#    return None
 
 
 
@@ -1130,14 +1082,6 @@ class VMToolbar(NavigationToolbar): # pylint: disable=abstract-method
                 pm = self.recolorIcon(pm, QColor('#dfdfdf'))
             else:
                 pm = self.recolorIcon(pm,QColor('#424242'))
-#        if hasattr(pm, 'setDevicePixelRatio'):
-#            if mpl_version[0] > 2 and mpl_version[1] > 2:
-#                if mpl_version[1] > 3:
-#                    _setDevicePixelRatio(pm, _devicePixelRatioF(self)) # pylint: disable=protected-access
-#                else:
-#                    _setDevicePixelRatioF(pm, _devicePixelRatioF(self)) # pylint: disable=protected-access
-#            else:
-#                pm.setDevicePixelRatio(self.canvas._dpi_ratio) # pylint: disable=protected-access
         if hasattr(pm, 'setDevicePixelRatio'):
             pm.setDevicePixelRatio(self.devicePixelRatioF() or 1)
 
@@ -1854,10 +1798,6 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.extraS7tx:float = 0.
         #create an WebSocket port object (main device eg Probat Sample)
         self.ws:wsport = wsport(self)
-        #create scale port object
-        self.scale:scaleport = scaleport(self)
-        #create color port object
-        self.color:colorport = colorport(self)
         #list with extra serial ports (extra devices)
         self.extraser:List[serialport] = []
         #extra comm port settings
@@ -2125,11 +2065,16 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.newRoastMenu: Optional[QMenu] = self.fileMenu.addMenu(QApplication.translate('Menu', 'New'))
 
             self.fileLoadAction = QAction(QApplication.translate('Menu', 'Open...'),self)
+            self.fileLoadAction.setMenuRole(QAction.MenuRole.NoRole)
             self.fileLoadAction.setShortcut(QKeySequence.StandardKey.Open)
             self.fileLoadAction.triggered.connect(self.fileLoad)
             self.fileMenu.addAction(self.fileLoadAction)
 
             self.openRecentMenu = self.fileMenu.addMenu(QApplication.translate('Menu', 'Open Recent'))
+            if self.openRecentMenu is not None:
+                orm_action = self.openRecentMenu.menuAction()
+                if orm_action is not None:
+                    orm_action.setMenuRole(QAction.MenuRole.NoRole)
             if self.openRecentMenu is not None:
                 for i in range(self.MaxRecentFiles):
                     self.openRecentMenu.addAction(self.recentFileActs[i])
@@ -2641,6 +2586,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         # use s.encode("ascii", 'backslashreplace').decode("utf-8") and remove the duplicate \\
         for iso, name in [
                 ('ar', '\u0627\u0644\u0639\u0631\u0628\u064a\u0629'),
+                ('cs', '\u010d\u0065\u0161\u0074\u0069\u006e\u0061'),
                 ('da', 'Dansk'),
                 ('de', 'Deutsch'),
                 ('en', 'English'),
@@ -2654,7 +2600,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 ('id', 'Indonesia'),
                 ('it', 'Italiano'),
                 ('ja', '\u65e5\u672c\u8a9e'),
-                ('ko', '\ud55c\uad6d\uc758'),
+                ('ko', '\ud55c\uad6d\uc5b4'),
                 ('lv', 'Latviete'),
                 ('hu', 'Magyar'),
                 ('nl', 'Nederlands'),
@@ -2928,6 +2874,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.helpMenu.addAction(self.saveAsSettingsAction)
             self.helpMenu.addSeparator()
             self.resetAction = QAction(QApplication.translate('Menu', 'Factory Reset'), self)
+            self.resetAction.setMenuRole(QAction.MenuRole.NoRole)
             self.resetAction.triggered.connect(self.resetApplication)
             self.helpMenu.addAction(self.resetAction)
 
@@ -6805,7 +6752,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                                 indexes_to_be_removed.append(i)
                             else:
                                 time_diff = se - self.qmc.specialevents[last_event_idx]
-                                if time_diff < 2*min_span:
+                                if time_diff < 2*min_span: # pyrefly: ignore
                                     indexes_to_be_removed.append(i)
                                     if last_index_not_removed is not None:
                                         self.qmc.specialeventsvalue[last_index_not_removed] = self.qmc.specialeventsvalue[i]
@@ -7550,32 +7497,41 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 rcParams['axes.unicode_minus'] = True
                 rcParams['font.size'] = 12.0
                 if platform.system() == 'Darwin':
-                    mpl.rcParams['font.family'] = 'Arial Unicode MS'
+                    if self.locale_str == 'zh_CN':
+                        mpl.rcParams['font.family'] = ['Heiti SC', 'Arial Unicode MS', 'DejaVu Sans', 'sans-serif']
+                    elif self.locale_str == 'zh_TW':
+                        mpl.rcParams['font.family'] = ['Heiti TC', 'Arial Unicode MS', 'DejaVu Sans', 'sans-serif']
+                    else:
+                        mpl.rcParams['font.family'] = ['Arial Unicode MS', 'DejaVu Sans', 'sans-serif']
                     self.mpl_fontproperties = FontProperties()
                 elif platform.system() == 'Linux':
-                    mpl.rcParams['font.family'] = ['DejaVu Sans','DejaVu Sans Mono'] # default; works for Greek
+                    mpl.rcParams['font.family'] = ['DejaVu Sans','DejaVu Sans Mono', 'sans-serif'] # default; works for Greek
                     if self.locale_str == 'ar':
-                        mpl.rcParams['font.family'] = ['DejaVu Sans','DejaVu Sans Mono','Times New Roman']
+                        mpl.rcParams['font.family'] = ['DejaVu Sans','DejaVu Sans Mono','Times New Roman', 'sans-serif']
                     elif self.locale_str == 'ja':
-                        mpl.rcParams['font.family'] = ['TakaoPGothic']
+                        mpl.rcParams['font.family'] = ['TakaoPGothic', 'DejaVu Sans', 'sans-serif']
                     elif self.locale_str in {'zh_CN', 'zh_TW'}:
-                        mpl.rcParams['font.family'] = ['NanumGothic','DejaVu Sans Mono']
+                        mpl.rcParams['font.family'] = ['NanumGothic', 'DejaVu Sans', 'DejaVu Sans Mono', 'sans-serif']
                     self.mpl_fontproperties = FontProperties()
                 else: # Windows:
-                    mpl.rcParams['font.family'] = ['Microsoft Sans Serif', 'Arial'] # works for Greek and Arabic
+                    mpl.rcParams['font.family'] = ['Microsoft Sans Serif', 'DejaVu Sans', 'Arial', 'sans-serif'] # works for Greek and Arabic
                     self.mpl_fontproperties = FontProperties()
-                    # for asian languages on Windows we have to set the parameters directly to *.ttc fonts (mpl supports only *.ttf)
+                    # OUTDATED: for asian languages on Windows we have to set the parameters directly to *.ttc fonts (mpl supports only *.ttf)
                     if self.locale_str == 'ja':
-                        self.set_mpl_fontproperties('C:\\Windows\\Fonts\\MSGOTHIC.ttc')
+#                        self.set_mpl_fontproperties('C:\\Windows\\Fonts\\MSGOTHIC.ttc')
+                        mpl.rcParams['font.family'] = ['Arial Unicode MS', 'DejaVu Sans', 'Meiryo', 'MS Gothic', 'Source Han Sans JP', 'Noto Sans CJK JP', 'Noto Sans JP', 'sans-serif']
                     elif self.locale_str == 'zh_CN':
-                        self.set_mpl_fontproperties('C:\\Windows\\Fonts\\simsun.ttc')
+#                        self.set_mpl_fontproperties('C:\\Windows\\Fonts\\simsun.ttc')
+                        mpl.rcParams['font.family'] = ['Arial Unicode MS', 'DejaVu Sans', 'Microsoft YaHei', 'SimHei', 'Noto Sans CJK SC', 'Noto Sans SC', 'sans-serif']
                     elif self.locale_str == 'zh_TW':
-                        self.set_mpl_fontproperties('C:\\Windows\\Fonts\\mingliu.ttc')
+#                        self.set_mpl_fontproperties('C:\\Windows\\Fonts\\mingliu.ttc')
+                        mpl.rcParams['font.family'] = ['Arial Unicode MS', 'DejaVu Sans', 'Microsoft JhengHei', 'MingLiU', 'Noto Sans CJK TC', 'Noto Sans TC', 'sans-serif']
                     elif self.locale_str == 'ko':
-                        self.set_mpl_fontproperties('C:\\Windows\\Fonts\\batang.ttc')
-#                    elif self.locale_str == "ar":
-#                        mpl.rcParams['font.family'] = "TraditionalArabic"
-#                        self.mpl_fontproperties = FontProperties()
+#                        self.set_mpl_fontproperties('C:\\Windows\\Fonts\\batang.ttc')
+                        mpl.rcParams['font.family'] = ['Arial Unicode MS', 'DejaVu Sans', 'Malgun Gothic', 'sans-serif']
+                    elif self.locale_str == 'ar':
+                        mpl.rcParams['font.family'] = ['DejaVu Sans', 'TraditionalArabic', 'Arial Unicode MS', 'sans-serif']
+                    self.mpl_fontproperties = FontProperties()
             except Exception as e: # pylint: disable=broad-except
                 _log.exception(e)
         elif self.qmc.graphfont == 3: # WenQuanYi Zen Hei
@@ -11107,7 +11063,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
     # n=0 : slider1; n=1 : slider2; n=2 : slider3; n=3 : slider4
     # updates corresponding eventslidervalues
     def moveslider(self, n:int, v:float, forceLCDupdate:bool = False) -> None:
-        v = min(max(int(round(v)),self.eventslidermin[n]),self.eventslidermax[n])
+        v = int(min(max(int(round(v)),self.eventslidermin[n]),self.eventslidermax[n]))
         self.eventslidervalues[n] = v
         # first update slider LCDs if needed
         if n == 0 and (forceLCDupdate or self.slider1.value() != v):
@@ -17848,6 +17804,8 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.qmc.AUCshowFlag = toBool(settings.value('AUCshowFlag',self.qmc.AUCshowFlag))
             self.keyboardmoveflag = toInt(settings.value('keyboardmoveflag',int(self.keyboardmoveflag)))
             self.qmc.ambientTempSource = toInt(settings.value('AmbientTempSource',int(self.qmc.ambientTempSource)))
+            self.qmc.ambientHumiditySource = toInt(settings.value('AmbientHumiditySource',int(self.qmc.ambientHumiditySource)))
+            self.qmc.ambientPressureSource = toInt(settings.value('AmbientPressureSource',int(self.qmc.ambientPressureSource)))
             self.setSamplingRate(toInt(settings.value('Delay',int(self.qmc.delay))))
             self.qmc.flagKeepON = toBool(settings.value('KeepON',self.qmc.flagKeepON))
             self.qmc.flagOpenCompleted = toBool(settings.value('flagOpenCompleted',self.qmc.flagOpenCompleted))
@@ -17919,9 +17877,6 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.qmc.weight = (self.qmc.weight[0],self.qmc.weight[1], (weight_unit if weight_unit in weight_units else weight_units[1]))
             volume_unit:str = s2a(toString(settings.value('volume',self.qmc.volume[2])))
             self.qmc.volume = (self.qmc.volume[0],self.qmc.volume[1], (volume_unit if volume_unit in volume_units else volume_units[0]))
-# density units are now fixed to g/l
-#                self.qmc.density[1] = s2a(toString(settings.value("densityweight",self.qmc.density[1])))
-#                self.qmc.density[3] = s2a(toString(settings.value("densityvolume",self.qmc.density[3])))
             self.qmc.volumeCalcUnit = float2float(toFloat(settings.value('volumeCalcUnit',self.qmc.volumeCalcUnit)))
             self.qmc.roasted_defects_mode = toBool(settings.value('roasted_defects_mode',self.qmc.roasted_defects_mode))
             settings.endGroup()
@@ -17931,7 +17886,6 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             settings.beginGroup('Tare')
             self.qmc.container_names = list(map(str,list(toStringList(settings.value('names',self.qmc.container_names)))))
             self.qmc.container_weights = [toFloat(x) for x in toList(settings.value('weights',self.qmc.container_weights))]
-            self.qmc.container_idx = toInt(settings.value('idx',int(self.qmc.container_idx)))
             settings.endGroup()
 #--- END GROUP Tare
 
@@ -18033,7 +17987,13 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.modbus.IP_timeout = float2float(toFloat(settings.value('IP_timeout',self.modbus.IP_timeout)))
             self.modbus.IP_retries = toInt(settings.value('IP_retries',self.modbus.IP_retries))
             for i in range(self.modbus.channels):
-                self.modbus.inputDeviceIds[i] = toInt(settings.value(f'input{i + 1}slave', self.modbus.inputDeviceIds[i]))
+                if settings.contains(f'input{i + 1}slave'):
+                    # setting 'inputXslave' was changed in Artisan >3.2.0 to 'inputXdeviceId'
+                    # to stay compatible with older settings we still keep this around for a moment:
+                    # we still read from both, but write only to the new
+                    # TODO: remove this in v3.4
+                    self.modbus.inputDeviceIds[i] = toInt(settings.value(f'input{i + 1}slave', self.modbus.inputDeviceIds[i]))
+                self.modbus.inputDeviceIds[i] = toInt(settings.value(f'input{i + 1}deviceId', self.modbus.inputDeviceIds[i]))
                 self.modbus.inputRegisters[i] = toInt(settings.value(f'input{i+1}register',self.modbus.inputRegisters[i]))
                 self.modbus.inputFloats[i] = toBool(settings.value(f'input{i+1}float',self.modbus.inputFloats[i]))
                 self.modbus.inputBCDs[i] = toBool(settings.value(f'input{i+1}bcd',self.modbus.inputBCDs[i]))
@@ -18050,7 +18010,13 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.modbus.SVmultiplier = toInt(settings.value('SVmultiplier',self.modbus.SVmultiplier))
             self.modbus.SVwriteLong = toBool(settings.value('SVwriteLong',self.modbus.SVwriteLong))
             self.modbus.SVwriteFloat = toBool(settings.value('SVwriteFloat',self.modbus.SVwriteFloat))
-            self.modbus.PID_slave_ID = toInt(settings.value('PID_slave_ID',self.modbus.PID_slave_ID))
+            if settings.contains('PID_slave_ID'):
+                # setting 'PID_slave_ID' was changed in Artisan >3.2.0 to 'PID_device_ID'
+                # to stay compatible with older settings we still keep this around for a moment:
+                # we still read from both, but write only to the new
+                # TODO: remove this in v3.4
+                self.modbus.PID_device_ID = toInt(settings.value('PID_slave_ID', self.modbus.PID_device_ID))
+            self.modbus.PID_device_ID = toInt(settings.value('PID_device_ID', self.modbus.PID_device_ID))
             self.modbus.PID_SV_register = toInt(settings.value('PID_SV_register',self.modbus.PID_SV_register))
             self.modbus.PID_p_register = toInt(settings.value('PID_p_register',self.modbus.PID_p_register))
             self.modbus.PID_i_register = toInt(settings.value('PID_i_register',self.modbus.PID_i_register))
@@ -18063,32 +18029,6 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.modbus.port = toInt(settings.value('port',self.modbus.port))
             settings.endGroup()
 #--- END GROUP Modbus
-
-#--- BEGIN GROUP Scale
-            #restore scale port
-            settings.beginGroup('Scale')
-            self.scale.device = settings.value('device',self.scale.device)
-            self.scale.comport = s2a(toString(settings.value('comport',self.scale.comport)))
-            self.scale.baudrate = toInt(settings.value('baudrate',int(self.scale.baudrate)))
-            self.scale.bytesize = toInt(settings.value('bytesize',self.scale.bytesize))
-            self.scale.stopbits = toInt(settings.value('stopbits',self.scale.stopbits))
-            self.scale.parity = s2a(toString(settings.value('parity',self.scale.parity)))
-            self.scale.timeout = float2float(toFloat(settings.value('timeout',self.scale.timeout)))
-            settings.endGroup()
-#--- END GROUP Scale
-
-#--- BEGIN GROUP Color
-            #restore color port
-            settings.beginGroup('Color')
-            self.color.device = settings.value('device',self.color.device)
-            self.color.comport = s2a(toString(settings.value('comport',self.color.comport)))
-            self.color.baudrate = toInt(settings.value('baudrate',int(self.color.baudrate)))
-            self.color.bytesize = toInt(settings.value('bytesize',self.color.bytesize))
-            self.color.stopbits = toInt(settings.value('stopbits',self.color.stopbits))
-            self.color.parity = s2a(toString(settings.value('parity',self.color.parity)))
-            self.color.timeout = float2float(toFloat(settings.value('timeout',self.color.timeout)))
-            settings.endGroup()
-#--- END GROUP Color
 
 #--- BEGIN GROUP Alarms
             #restore alarms
@@ -19837,6 +19777,8 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
             #save ambient temperature source
             self.settingsSetValue(settings, default_settings, 'AmbientTempSource',self.qmc.ambientTempSource, read_defaults)
+            self.settingsSetValue(settings, default_settings, 'AmbientHumiditySource',self.qmc.ambientHumiditySource, read_defaults)
+            self.settingsSetValue(settings, default_settings, 'AmbientPressureSource',self.qmc.ambientPressureSource, read_defaults)
             #save delay (sampling interval)
             self.settingsSetValue(settings, default_settings, 'Delay',self.qmc.delay, read_defaults)
             # save keepON flag
@@ -19871,7 +19813,6 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             settings.beginGroup('Tare')
             self.settingsSetValue(settings, default_settings, 'names',self.qmc.container_names, read_defaults)
             self.settingsSetValue(settings, default_settings, 'weights',self.qmc.container_weights, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'idx',self.qmc.container_idx, read_defaults)
             settings.endGroup()
 #--- END GROUP Tare
 
@@ -19963,7 +19904,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.settingsSetValue(settings, default_settings, 'serial_readRetries',self.modbus.serial_readRetries, read_defaults)
             self.settingsSetValue(settings, default_settings, 'IP_timeout',self.modbus.IP_timeout, read_defaults)
             self.settingsSetValue(settings, default_settings, 'IP_retries',self.modbus.IP_retries, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'PID_slave_ID',self.modbus.PID_slave_ID, read_defaults)
+            self.settingsSetValue(settings, default_settings, 'PID_device_ID', self.modbus.PID_device_ID, read_defaults)
             self.settingsSetValue(settings, default_settings, 'PID_SV_register',self.modbus.PID_SV_register, read_defaults)
             self.settingsSetValue(settings, default_settings, 'PID_p_register',self.modbus.PID_p_register, read_defaults)
             self.settingsSetValue(settings, default_settings, 'PID_i_register',self.modbus.PID_i_register, read_defaults)
@@ -19971,7 +19912,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.settingsSetValue(settings, default_settings, 'PID_OFF_action',self.modbus.PID_OFF_action, read_defaults)
             self.settingsSetValue(settings, default_settings, 'PID_ON_action',self.modbus.PID_ON_action, read_defaults)
             for i in range(self.modbus.channels):
-                self.settingsSetValue(settings, default_settings, f'input{i+1}slave', self.modbus.inputDeviceIds[i], read_defaults)
+                self.settingsSetValue(settings, default_settings, f'input{i+1}deviceId', self.modbus.inputDeviceIds[i], read_defaults)
                 self.settingsSetValue(settings, default_settings, f'input{i+1}register',self.modbus.inputRegisters[i], read_defaults)
                 self.settingsSetValue(settings, default_settings, f'input{i+1}float',self.modbus.inputFloats[i], read_defaults)
                 self.settingsSetValue(settings, default_settings, f'input{i+1}bcd',self.modbus.inputBCDs[i], read_defaults)
@@ -19993,32 +19934,6 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.settingsSetValue(settings, default_settings, 'port',self.modbus.port, read_defaults)
             settings.endGroup()
 #--- END GROUP Modbus
-
-#--- BEGIN GROUP Scale
-            #save scale port
-            settings.beginGroup('Scale')
-            self.settingsSetValue(settings, default_settings, 'device',self.scale.device, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'comport',self.scale.comport, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'baudrate',self.scale.baudrate, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'bytesize',self.scale.bytesize, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'stopbits',self.scale.stopbits, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'parity',self.scale.parity, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'timeout',self.scale.timeout, read_defaults)
-            settings.endGroup()
-#--- END GROUP Scale
-
-#--- BEGIN GROUP Color
-            #save color port
-            settings.beginGroup('Color')
-            self.settingsSetValue(settings, default_settings, 'device',self.color.device, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'comport',self.color.comport, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'baudrate',self.color.baudrate, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'bytesize',self.color.bytesize, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'stopbits',self.color.stopbits, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'parity',self.color.parity, read_defaults)
-            self.settingsSetValue(settings, default_settings, 'timeout',self.color.timeout, read_defaults)
-            settings.endGroup()
-#--- END GROUP Color
 
 #--- BEGIN GROUP ArduinoPID
             #save pid settings (only key and value[0])
@@ -20708,7 +20623,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
     def stopActivities(self) -> None:
         # disconnect connected scales
-        self.scale_manager.disconnect_all()
+        self.scale_manager.disconnect_all_signal.emit()
 
         if self.full_screen_mode_active:
             if self.fullscreenAction is not None and not (platform.system() == 'Darwin' and self.qmc.locale_str == 'en'):
@@ -20806,7 +20721,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 _log.exception(e)
             self.qmc.stopPhidgetManager()
         try:
-            self.scale_manager.disconnect_all()
+            self.scale_manager.disconnect_all_signal.emit()
         except Exception as e: # pylint: disable=broad-except
             _log.exception(e)
 
@@ -20871,18 +20786,12 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.modbus.disconnect()
         # close s7 port
         self.s7.disconnect()
-        # close scale port
-        try:
-            if self.scale:
-                self.scale.closeport()
-        except Exception as e: # pylint: disable=broad-except
-            _log.exception(e)
-        # close color meter port
-        try:
-            if self.color:
-                self.color.closeport()
-        except Exception as e: # pylint: disable=broad-except
-            _log.exception(e)
+#        # close color meter port
+#        try:
+#            if self.color:
+#                self.color.closeport()
+#        except Exception as e: # pylint: disable=broad-except
+#            _log.exception(e)
 
     @pyqtSlot()
     @pyqtSlot(bool)
@@ -24108,7 +24017,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 pass
             try:
                 self.modbus.IP_retries = dialog.modbus_IP_retriesComboBox.currentIndex()
-                self.modbus.PID_slave_ID = toInt(str(dialog.modbus_PIDslave_Edit.text()))
+                self.modbus.PID_device_ID = toInt(str(dialog.modbus_PIDdevice_Edit.text()))
                 self.modbus.PID_SV_register = toInt(str(dialog.modbus_SVregister_Edit.text()))
                 self.modbus.PID_p_register = toInt(str(dialog.modbus_Pregister_Edit.text()))
                 self.modbus.PID_i_register = toInt(str(dialog.modbus_Iregister_Edit.text()))
@@ -24120,7 +24029,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
             for i in range(self.modbus.channels):
                 try:
-                    inputSlaveEdit = dialog.modbus_inputSlaveEdits[i]
+                    inputSlaveEdit = dialog.modbus_inputDeviceEdits[i]
                     if inputSlaveEdit is not None:
                         self.modbus.inputDeviceIds[i] = toInt(inputSlaveEdit.text())
                 except Exception: # pylint: disable=broad-except
@@ -24281,46 +24190,9 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             except Exception as e: # pylint: disable=broad-except
                 _log.exception(e)
 
-            # set scale port
-            try:
-                self.scale.device = str(dialog.scale_deviceEdit.currentText())                #unicode() changes QString to a python string
-                if self.scale.device in self.scale.bluetooth_devices and not self.app.getBluetoothPermission():
-                    self.scale.device = None
-                    message:str = QApplication.translate('Message','Bluetooth scale cannot be connected while permission for Artisan to access Bluetooth is denied')
-                    QMessageBox.information(self, QApplication.translate('Message','Bluetooth access denied'), message)
-                self.scale.comport = str(dialog.scale_comportEdit.getSelection())
-                self.scale.baudrate = toInt(str(dialog.scale_baudrateComboBox.currentText()))              #int changes QString to int
-                self.scale.bytesize = toInt(str(dialog.scale_bytesizeComboBox.currentText()))
-                self.scale.stopbits = toInt(str(dialog.scale_stopbitsComboBox.currentText()))
-                self.scale.parity = str(dialog.scale_parityComboBox.currentText())
-                self.scale.timeout = float2float(toFloat(comma2dot(str(dialog.scale_timeoutEdit.text()))))
-            except Exception as e: # pylint: disable=broad-except
-                _log.exception(e)
-            # set color port
-            try:
-                self.color.device = str(dialog.color_deviceEdit.currentText())                #unicode() changes QString to a python string
-                self.color.comport = str(dialog.color_comportEdit.getSelection())
-                self.color.baudrate = toInt(str(dialog.color_baudrateComboBox.currentText()))              #int changes QString to int
-                self.color.bytesize = toInt(str(dialog.color_bytesizeComboBox.currentText()))
-                self.color.stopbits = toInt(str(dialog.color_stopbitsComboBox.currentText()))
-                self.color.parity = str(dialog.color_parityComboBox.currentText())
-                self.color.timeout = float2float(toFloat(comma2dot(str(dialog.color_timeoutEdit.text()))))
-            except Exception as e: # pylint: disable=broad-except
-                _log.exception(e)
-
         self.qmc.intChannel.cache_clear() # device type and thus int channels might have been changed
         self.qmc.clearLCDs()
 
-#        # deleteLater() will not work here as the dialog is still bound via the parent
-#        dialog.deleteLater() # now we explicitly allow the dialog an its widgets to be GCed
-#        # the following will immediately release the memory despite this parent link
-#        QApplication.processEvents() # we ensure events concerning this dialog are processed before deletion
-#        try:
-#            sip.delete(dialog)
-#            #print(sip.isdeleted(dialog))
-#        except Exception: # pylint: disable=broad-except
-#            pass
-#        #self.closeEventSettings() # save all app settings
 
     def toggleHottopControl(self) -> None:
         if self.HottopControlActive:
@@ -26821,7 +26693,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             # build the results table
             import prettytable  # @UnresolvedImport
             tbl = prettytable.PrettyTable()
-            tbl.field_names = [' ',
+            tbl.field_names = [QApplication.translate('Label','Fit', 'Curve Fit Type'), #' ', # Fit Type
                                QApplication.translate('Label','RMSE BT'),
                                QApplication.translate('Label','MSE BT'),
                                QApplication.translate('Label','RoR') +  ' \u0394 ' + QApplication.translate('Label','@FCs'),
@@ -26835,7 +26707,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 tbl.add_row([QApplication.translate('Label','x') + '\u00b3', cfr['dbt_cubic_r'], cfr['dbt_cubic'], cfr['ror_fcs_delta_cubic'], cfr['ror_maxmin_delta_cubic']])
             if 'equ_naturallog' in cfr and 'dbt_naturallog' in cfr and 'ror_fcs_delta_naturallog' in cfr and 'ror_maxmin_delta_naturallog' in cfr:
                 tbl.add_row([QApplication.translate('Label','ln()'), cfr['dbt_naturallog_r'], cfr['dbt_naturallog'], cfr['ror_fcs_delta_naturallog'], cfr['ror_maxmin_delta_naturallog']])
-            resultstr = 'Curve Fit Analysis\n'
+            resultstr = f"{QApplication.translate('Label','Curve Fit Analysis')}\n"
             resultstr += tbl.get_string(sortby=None)
 
             cfr['segmentresultstr'] = res['segmentresultstr']
@@ -27372,6 +27244,7 @@ def initialize_locale(my_app:Artisan) -> str:
     # NOTE: on updates, need to update util.py:locale2full_local() as well
     supported_languages:List[str] = [
         'ar',
+        'cs',
         'da',
         'de',
         'el',
@@ -27511,6 +27384,11 @@ def main() -> None:
     else:
         QApplication.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
+    # after app initialization set DocumentsDirectory as default autosave path
+    doc_dir:Optional[str] = getDocumentsDirectory()
+    if doc_dir is not None:
+        appWindow.qmc.autosavepath = doc_dir
+        appWindow.qmc.autosavealsopath = doc_dir
 
     start_time = libtime.process_time() # begin of settings load
     # fill self.defaultSettings with default app QSettings values before loading app settings from system via settingsLoad()
