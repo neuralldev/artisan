@@ -111,7 +111,7 @@ try:
                                 QPixmap,QColor,QDesktopServices,QIcon, # @Reimport @UnresolvedImport @UnusedImport
                                 QRegularExpressionValidator, QDoubleValidator, QPainter, QCursor) # @Reimport @UnresolvedImport @UnusedImport
     from PyQt6.QtPrintSupport import (QPrinter,QPrintDialog) # @Reimport @UnresolvedImport @UnusedImport
-    from PyQt6.QtCore import (QLibraryInfo, QTranslator, QLocale, QFileInfo, PYQT_VERSION_STR, pyqtSignal, pyqtSlot, QtMsgType, # @Reimport @UnresolvedImport @UnusedImport
+    from PyQt6.QtCore import (QStandardPaths, QLibraryInfo, QTranslator, QLocale, QFileInfo, PYQT_VERSION_STR, pyqtSignal, pyqtSlot, QtMsgType, # @Reimport @UnresolvedImport @UnusedImport
 #                              QSize, pyqtProperty, # type: ignore # @Reimport @UnresolvedImport @UnusedImport
                               qVersion, QVersionNumber, QTime, QTimer, QFile, QIODevice, QTextStream, QSettings, # @Reimport @UnresolvedImport @UnusedImport
                               QRegularExpression, QDate, QUrl, QUrlQuery, QDir, Qt, QPoint, QEvent, QDateTime, QThread, qInstallMessageHandler) # @Reimport @UnresolvedImport @UnusedImport
@@ -138,7 +138,7 @@ except ImportError:
                                 QPixmap,QColor,QDesktopServices,QIcon, # @Reimport @UnresolvedImport @UnusedImport
                                 QRegularExpressionValidator, QDoubleValidator, QPainter, QCursor) # @Reimport @UnresolvedImport @UnusedImport
     from PyQt5.QtPrintSupport import (QPrinter,QPrintDialog) # type: ignore # @Reimport @UnresolvedImport @UnusedImport
-    from PyQt5.QtCore import (QLibraryInfo, QTranslator, QLocale, QFileInfo, PYQT_VERSION_STR, pyqtSignal, pyqtSlot, QtMsgType, # type: ignore # @Reimport @UnresolvedImport @UnusedImport
+    from PyQt5.QtCore import (QStandardPaths, QLibraryInfo, QTranslator, QLocale, QFileInfo, PYQT_VERSION_STR, pyqtSignal, pyqtSlot, QtMsgType, # type: ignore # @Reimport @UnresolvedImport @UnusedImport
                               qVersion, QVersionNumber, QTime, QTimer, QFile, QIODevice, QTextStream, QSettings, # @Reimport @UnresolvedImport @UnusedImport
                               QRegularExpression, QDate, QUrl, QUrlQuery, QDir, Qt, QPoint, QEvent, QDateTime, QThread, qInstallMessageHandler) # @Reimport @UnresolvedImport @UnusedImport
     from PyQt5.QtNetwork import QLocalSocket # type: ignore # @Reimport @UnresolvedImport @UnusedImport
@@ -1706,16 +1706,15 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         # path of last loaded WheelGraph
         self.wheelpath:str = ''
 
-        # self.profilepath is obteined at dirstruct() and points to profiles/year/month file-open/save will point to profilepath
         self.profilepath:str = ''
-        if platform.system() in {'Darwin', 'Linux'}:
-            self.profilepath = QDir().homePath() + '/Documents/'
-        else:
-            self.profilepath = QDir().homePath()
+        documents_directory = getDocumentsDirectory()
+        if documents_directory is not None:
+            self.profilepath = documents_directory
 
         # on the Mac preferences should be stored outside of applications in the users ~/Library/Preferences path
         if platform.system() == 'Darwin':
-            preference_path = QDir().homePath() + '/Library/Preferences//'
+            #preference_path = QDir().homePath() + '/Library/Preferences/'
+            preference_path = QStandardPaths.standardLocations(QStandardPaths.StandardLocation.ConfigLocation)[0]
             preference_dir = QDir()
             preference_dir.setPath(preference_path)
             if not preference_dir.exists():
@@ -7530,7 +7529,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 #                        self.set_mpl_fontproperties('C:\\Windows\\Fonts\\batang.ttc')
                         mpl.rcParams['font.family'] = ['Arial Unicode MS', 'DejaVu Sans', 'Malgun Gothic', 'sans-serif']
                     elif self.locale_str == 'ar':
-                        mpl.rcParams['font.family'] = ['DejaVu Sans', 'TraditionalArabic', 'Arial Unicode MS', 'sans-serif']
+                        mpl.rcParams['font.family'] = ['Microsoft Sans Serif', 'DejaVu Sans', 'TraditionalArabic', 'Arial Unicode MS', 'sans-serif']
                     self.mpl_fontproperties = FontProperties()
             except Exception as e: # pylint: disable=broad-except
                 _log.exception(e)
@@ -13148,7 +13147,13 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         if path is None:
             path = self.getDefaultPath()
         with MenuShortCutsDisabled(self.main_menu_actions_with_shortcuts):
-            f = str(QFileDialog.getSaveFileName(self,msg,path,ext)[0])
+            filename, _ = QFileDialog.getSaveFileName(self, msg, path, ext)
+            if filename:
+                # Extract extension from ext parameter (assuming ext is like "*.alog")
+                extension = ext.split('*')[-1].split(')')[0] if '*' in ext else ''
+                if extension and not filename.endswith(extension):
+                    filename = filename + extension
+            f = str(filename)
             self.setDefaultPath(f)
             return f
 
@@ -13644,7 +13649,6 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         if self.loadbackgroundUUID(filename, UUID, force_reload):
             try:
                 self.qmc.background = not self.qmc.hideBgafterprofileload
-                self.autoAdjustAxis()
                 self.qmc.timealign(redraw=False)
                 self.qmc.redraw()
                 if self.qmc.backgroundPlaybackEvents:
