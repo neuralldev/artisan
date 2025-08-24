@@ -593,10 +593,10 @@ class tgraphcanvas(FigureCanvas):
         self.AUCshowFlag:bool = False
 
         # intersection between BT projection and pDry/pFCs
-        self.intersection_point:Line2D = None                   # point of intersection with BT projection
-        self.intersection_point_annotation:Annotation = None     # legend on intersection point
-        self.intersection_point_line:Line2D = None              # vertical line on intesection
-         
+        self.intersection_point:Optional[Line2D] = None                   # point of intersection with BT projection
+        self.intersection_point_annotation:Optional[Annotation] = None     # legend on intersection point
+        self.intersection_point_line:Optional[Line2D] = None              # vertical line on intesection
+        self.intersection_postDE:Optional[bool]= False
         # timing statistics on loaded profile
         self.statisticstimes:List[float] = [0,0,0,0,0] # total, dry phase, mid phase, finish phase  and cooling phase times
 
@@ -4348,7 +4348,7 @@ class tgraphcanvas(FigureCanvas):
         
         target:float = 0.0 # temperature target of the current phase
         display_postFC:bool = False
-       
+        index:str = ""
         if self.timeindex[1] > 0 and self.timeindex[2] > 0:
             # display current temperature and % development
             if self.timeindex[6]: # after drop don't display
@@ -4367,11 +4367,13 @@ class tgraphcanvas(FigureCanvas):
         else:
             if self.timeindex[1] == 0 and self.timeindex[2] == 0:
                 index="DE"
+                bt = self.temp2[-1]
                 target:float = self.phases[0] 
                 if target == 0.0 : 
                     target = self.phases_celsius_defaults[0] if self.mode=="C" else self.phases_fahrenheit_defaults[0]
             else:
                 index="FC"
+                bt = self.temp2[-1]
                 target:float = self.phases[2]
                 if target == 0.0 : 
                     target = self.phases_celsius_defaults[2] if self.mode=="C" else self.phases_fahrenheit_defaults[2]
@@ -4390,15 +4392,30 @@ class tgraphcanvas(FigureCanvas):
             seconds = int((x_intersect-self.timex[self.timeindex[0]]) % 60)
             time_str = f"{minutes:02d}:{seconds:02d}"
             if display_postFC:
-                text = f"\nDEV {dev:.1f}%\n{target:.1f}°{self.mode}\nMAILLARD {maillard:.1f}%\nDRY {dry:.1f}%"
+                text = f"\nDEV {dev:.1f}%\n{target:.1f}°{self.mode}\nMAILLARD {maillard:.1f}%\nDRY {dry:.1f}%\nBT {bt:.1f}°{self.mode}\n"
             else:
-                text = f"\n{index} at {time_str}\n{target:.1f}°{self.mode}\n"
+                text = f"\n{index} at {time_str}\n{target:.1f}°{self.mode}\nBT {bt:.1f}°{self.mode}\n"
                 
-            if self.aw.qmc.intersection_point is None or self.aw.qmc.intersection_point_annotation is None or self.aw.qmc.intersection_point_line is None: # drawfor the first time and store the variables
+            # draw intersection point
+            if self.aw.qmc.intersection_point is None:
                 self.aw.qmc.intersection_point, = self.ax.plot(x_intersect, target, 'ro')
+            else:
+                self.aw.qmc.intersection_point.set_data([x_intersect], [target])
+
+            # draw annotation, annotation needs to be redrown when changing from DE to FC
+            if index=="FC" and not(self.aw.qmc.intersection_postDE):
+                self.aw.qmc.intersection_postDE = False
+                if self.aw.qmc.intersection_point_annotation is not None:
+                    self.DrawIntersection_remove_artist(self.aw.qmc.intersection_point_annotation)
+                    self.aw.qmc.intersection_point_annotation = None
+                
+            ymax:float = 230.0
+            if self.ax is not None:
+                ymax = float(self.ax.get_ylim()[1]-20.0)
+            if self.aw.qmc.intersection_point_annotation is None:
                 self.aw.qmc.intersection_point_annotation = self.ax.annotate(
                     text,               # text
-                    xy=(x_intersect, 230),         # reference point
+                    xy=(x_intersect, ymax),         # reference point
                     xytext=(5, 5),                 # shift (pixels)
                     textcoords="offset points",    # shift in points points
                     ha='left', va='top',               # alignment
@@ -4406,6 +4423,13 @@ class tgraphcanvas(FigureCanvas):
                     color='black',
                     bbox=dict(facecolor='white', alpha=0.6, edgecolor='none', boxstyle='round,pad=0.3') 
                 )
+            else:
+                if self.ax is not None:
+                        self.aw.qmc.intersection_point_annotation.set_text(text)
+                        self.aw.qmc.intersection_point_annotation.xy = (x_intersect, ymax)
+
+            #draw vertical intersection line
+            if self.aw.qmc.intersection_point_line is None: # drawfor the first time and store the variables
                 self.aw.qmc.intersection_point_line = self.ax.axvline(
                     x=x_intersect,
                     color='yellow',
@@ -4413,16 +4437,18 @@ class tgraphcanvas(FigureCanvas):
                     linewidth=1,
                     alpha=0.3 
                 )
-            else: # update information only to avoid redrawing all 
-                self.aw.qmc.intersection_point.set_data([x_intersect], [target])
+            else:
                 self.aw.qmc.intersection_point_line.set_xdata([x_intersect])
-                self.aw.qmc.intersection_point_annotation.set_text(text)
-                self.aw.qmc.intersection_point_annotation.xy = (x_intersect, 230)
-                
-            self.ax.draw_artist(self.aw.qmc.intersection_point)
-            self.ax.draw_artist(self.aw.qmc.intersection_point_line)
-            self.ax.draw_artist(self.aw.qmc.intersection_point_annotation)
-            #self.DrawIntersection_remove_artist(self.aw.qmc.intersection_point_annotation)
+        
+            if self.aw.qmc.intersection_point is not None and self.ax is not None:
+                self.ax.draw_artist(self.aw.qmc.intersection_point)
+            if self.aw.qmc.intersection_point_line is not None and self.ax is not None:
+                self.ax.draw_artist(self.aw.qmc.intersection_point_line)
+            if self.aw.qmc.intersection_point_annotation is not None and self.ax is not None:
+                # Ensure the annotation artist has its axes set
+                if getattr(self.aw.qmc.intersection_point_annotation, 'axes', None) is None:
+                    self.aw.qmc.intersection_point_annotation.axes = self.ax
+                self.ax.draw_artist(self.aw.qmc.intersection_point_annotation)
             
     # ADD DEVICE:
 
@@ -17593,7 +17619,7 @@ class tgraphcanvas(FigureCanvas):
 #        from scipy.interpolate import UnivariateSpline # @UnusedImport # pylint: disable=import-error
 #        global UnivariateSpline # pylint: disable=global-statement
         # init designer timez
-        self.designer_timez = list(numpy.arange(self.timex[0],self.timex[-1],self.time_step_size))
+        self.designer_timez = [float(x) for x in numpy.arange(self.timex[0], self.timex[-1], self.time_step_size)]
         # set initial RoR z-axis limits
         self.setDesignerDeltaAxisLimits(self.DeltaETflag, self.DeltaBTflag)
         self.redrawdesigner(force=True)

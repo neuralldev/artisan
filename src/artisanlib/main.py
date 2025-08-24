@@ -2211,6 +2211,10 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 importStrongholdAction.triggered.connect(self.importStronghold)
                 self.importMenu.addAction(importStrongholdAction)
 
+                importHibeanAction = QAction('Hibean JSON...', self)
+                importHibeanAction.triggered.connect(self.importHibean)
+                self.importMenu.addAction(importHibeanAction)
+
             self.convFromMenu: Optional[QMenu] = self.fileMenu.addMenu(QApplication.translate('Menu', 'Convert From'))
             if self.convFromMenu is not None:
                 fileConvertFromCropsterAction = QAction(QApplication.translate('Menu', 'Cropster XLS...'), self)
@@ -25959,6 +25963,12 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             _log.exception(ex)
             _, _, exc_tb = sys.exc_info()
             self.qmc.adderror((QApplication.translate('Error Message','Exception:') + ' {1} {0}').format(str(ex),message),getattr(exc_tb, 'tb_lineno', '?'))
+
+    @pyqtSlot()
+    @pyqtSlot(bool)
+    def importHibean(self, _:bool = False) -> None:
+        from artisanlib.hibean import extractProfileHibeanJson
+        self.importExternal(extractProfileHibeanJson, QApplication.translate('Message','Import Hibean JSON'), '*.json')
 
     @pyqtSlot()
     @pyqtSlot(bool)
