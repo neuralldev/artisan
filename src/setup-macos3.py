@@ -13,6 +13,11 @@
 #
 # AUTHOR
 # Dave Baxter, Marko Luther 2023
+#    export QT_PATH=${PYTHONPATH}/site-packages/PyQt6/Qt6
+#    export QT_SRC_PATH=~/Qt/6.2.3/macos
+#    export PYUIC=pyuic6
+#    export PYRCC=pyrcc6
+#    export PYLUPDATE=./pylupdate6pro
 """This is a setup.py script
 
 Usage:
@@ -122,11 +127,11 @@ OPTIONS = {
     'semi_standalone': False,
     'site_packages': True,
     'packages': ['yoctopuce','openpyxl','numpy','scipy','certifi', 'kiwisolver', 'psutil',
-        'matplotlib','PIL', 'lxml', 'snap7', 'google.protobuf', 'google._upb', 'keyring.backends'],
+        'matplotlib','PIL', 'lxml', 'snap7',  'keyring.backends'],
     'optimize':  2,
     'compressed': True,
     'iconfile': 'artisan.icns',
-    'arch': 'x86_64', # 'universal2', 'x86_64',
+    'arch': 'universal2', # 'universal2', 'x86_64',
     'matplotlib_backends': '-', # '-' for imported or explicit "Qt5Agg, PDF, PS, SVG"
     'includes': ['serial', 'charset_normalizer.md__mypyc'],
     'excludes' :  ['tkinter','curses',
@@ -209,7 +214,7 @@ for lang in SUPPORTED_LANGUAGES:
 #  place it in the brew Cellar
 
 brew_paths = ['/usr/local/Cellar', '/opt/homebrew/Cellar'] # path for Intel and arm brew installations
-libusb_versions = ['1.0.27', '1.0.26' , '1.0.25']
+libusb_versions = ['1.0.27', '1.0.26' , '1.0.25', '1.0.29']
 success = False
 for libusb_cand in [rf'{p}/libusb/{v}/lib/libusb-1.0.0.dylib' for v in libusb_versions for p in brew_paths]:
     print('libusb_cand',libusb_cand)

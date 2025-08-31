@@ -58,16 +58,9 @@ class PID_DlgControl(ArtisanDialog):
         self.setModal(True)
         #self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose) # default is True and this is set by default in ArtisanDialog!
 
-        pid_controller = self.aw.pidcontrol.externalPIDControl()
+        self.pid_controller = self.aw.pidcontrol.externalPIDControl()
 
-        if pid_controller == 3:
-            self.setWindowTitle(QApplication.translate('Form Caption','Arduino/TC4 PID Control'))
-        elif  pid_controller == 2:
-            self.setWindowTitle(QApplication.translate('Form Caption','S7 PID Control'))
-        elif  pid_controller == 1:
-            self.setWindowTitle(QApplication.translate('Form Caption','MODBUS PID Control'))
-        else:
-            self.setWindowTitle(QApplication.translate('Form Caption','PID Control'))
+        self.setPIDWindowTitle(self.pid_controller)
 
         # PID tab
         tab1Layout = QVBoxLayout()
@@ -117,7 +110,7 @@ class PID_DlgControl(ArtisanDialog):
 
         pidCycleBox = QHBoxLayout()
         pidCycleBox.addStretch()
-        if pid_controller != 4:
+        if self.pid_controller != 4:
             pidCycleBox.addWidget(pidCycleLabel)
             pidCycleBox.addWidget(self.pidCycle)
         pidCycleBox.addStretch()
@@ -129,7 +122,7 @@ class PID_DlgControl(ArtisanDialog):
         self.SVsyncSource = QComboBox()
         self.SVsyncSource.setToolTip(QApplication.translate('Tooltip', 'Source for SV slider synchronization in manual mode'))
         SVsyncSourceLabel = QLabel(QApplication.translate('Label','Sync'))
-        if pid_controller in {1, 2}: # only for external MODBUS/S7 PID
+        if self.pid_controller in {1, 2}: # only for external MODBUS/S7 PID
             SVsyncSourceItems = [''] # the first empty item deactivates SV slider syncing
             SVsyncSourceItems.extend(self.getCurveNames())
             self.SVsyncSource.addItems(SVsyncSourceItems)
@@ -145,7 +138,7 @@ class PID_DlgControl(ArtisanDialog):
 
         pidGridVBox = QVBoxLayout()
         pidVBox = QVBoxLayout()
-        if pid_controller in {0, 1, 2, 3, 4}: # only for internal PID, MODBUS/S7 PID and TC4/Kaleido; NOTE: for MODBUS/S7 the input is used only to decide on the source for the background follow mode SV
+        if self.pid_controller in {0, 1, 2, 3, 4}: # only for internal PID, MODBUS/S7 PID and TC4/Kaleido; NOTE: for MODBUS/S7 the input is used only to decide on the source for the background follow mode SV
             self.pidSource = QComboBox()
             self.pidSource.setToolTip(QApplication.translate('Tooltip', 'PID input signal'))
             if self.aw.qmc.device == 19 and self.aw.qmc.PIDbuttonflag:
@@ -179,18 +172,18 @@ class PID_DlgControl(ArtisanDialog):
             pidSourceBox.addStretch()
 #            pidVBox.addLayout(pidSourceBox)
             pidGridVBox.addLayout(pidSourceBox)
-            if pid_controller in {3, 4}: # TC4/Kaleido
+            if self.pid_controller in {3, 4}: # TC4/Kaleido
                 pidVBox.addLayout(pidCycleBox)
         pidVBox.addStretch()
         pidVBox.addLayout(pidSetBox)
         pidVBox.setAlignment(pidSetBox,Qt.AlignmentFlag.AlignRight)
 
-        if pid_controller != 4:
+        if self.pid_controller != 4:
             pidGridVBox.addLayout(pidGrid)
         pidGridBox = QHBoxLayout()
         pidGridBox.addLayout(pidGridVBox)
         pidGridBox.addLayout(pidVBox)
-        if pid_controller == 0: # Output configuration only for internal PID
+        if self.pid_controller == 0: # Output configuration only for internal PID
             #PID target (only shown if internal PID for hottop/modbus/TC4 is active
             controlItems = ['None',self.aw.qmc.etypesf(0),self.aw.qmc.etypesf(1),self.aw.qmc.etypesf(2),self.aw.qmc.etypesf(3)]
             #positiveControl
@@ -397,7 +390,7 @@ class PID_DlgControl(ArtisanDialog):
         svInputBox.addWidget(pidSetSV)
 
         svSyncBox = QHBoxLayout()
-        if pid_controller in {1, 2}:
+        if self.pid_controller in {1, 2}:
             svSyncBox.addWidget(SVsyncSourceLabel)
             svSyncBox.addWidget(self.SVsyncSource)
             svSyncBox.addStretch()
@@ -436,7 +429,7 @@ class PID_DlgControl(ArtisanDialog):
 
         svBox = QHBoxLayout()
         svBox.addWidget(svGrp)
-        if pid_controller == 0: # only the internal PID allows for duty control
+        if self.pid_controller == 0: # only the internal PID allows for duty control
             self.pidDutySteps = QSpinBox()
             self.pidDutySteps.setAlignment(Qt.AlignmentFlag.AlignRight)
             self.pidDutySteps.setRange(1,10)
@@ -557,7 +550,7 @@ class PID_DlgControl(ArtisanDialog):
         self.createEvents = QCheckBox(QApplication.translate('CheckBox', 'Create Events'))
         self.createEvents.setChecked(self.aw.pidcontrol.createEvents)
         self.createEvents.setToolTip(QApplication.translate('Tooltip', 'Generated an event mark on each output slider change\ninitiated by the PID'))
-        if pid_controller != 0:
+        if self.pid_controller != 0:
             self.createEvents.setEnabled(False)
 
         self.loadPIDfromBackground = QCheckBox(QApplication.translate('CheckBox', 'Load p-i-d from background'))
@@ -705,23 +698,25 @@ class PID_DlgControl(ArtisanDialog):
         tab2InnerLayout.addLayout(rsGrid)
         tab2InnerLayout.addStretch()
 
-        okButton = QPushButton(QApplication.translate('Button','OK'))
-        okButton.clicked.connect(self.okAction)
-        onButton = QPushButton(QApplication.translate('Button','On'))
-        onButton.setToolTip(QApplication.translate('Tooltip', 'Turn PID ON'))
-        onButton.clicked.connect(self.pidONAction)
-        onButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        offButton = QPushButton(QApplication.translate('Button','Off'))
-        offButton.clicked.connect(self.pidOFFAction)
-        offButton.setToolTip(QApplication.translate('Tooltip', 'Turn PID OFF'))
-        offButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.okButton = QPushButton(QApplication.translate('Button','OK'))
+        self.okButton.clicked.connect(self.okAction)
+        self.onButton = QPushButton(QApplication.translate('Button','On'))
+        self.onButton.setToolTip(QApplication.translate('Tooltip', 'Turn PID ON'))
+        self.onButton.clicked.connect(self.pidONAction)
+        self.onButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        #self.onButton.setStyleSheet("color: lightgreen;")
+        self.offButton = QPushButton(QApplication.translate('Button','Off'))
+        self.offButton.clicked.connect(self.pidOFFAction)
+        self.offButton.setToolTip(QApplication.translate('Tooltip', 'Turn PID OFF'))
+        self.offButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.offButton.setStyleSheet("color: red;")
         okButtonLayout = QHBoxLayout()
-        okButtonLayout.addWidget(onButton)
-        okButtonLayout.addWidget(offButton)
+        okButtonLayout.addWidget(self.onButton)
+        okButtonLayout.addWidget(self.offButton)
         okButtonLayout.addStretch()
         okButtonLayout.addWidget(self.rsfile)
         okButtonLayout.addStretch()
-        okButtonLayout.addWidget(okButton)
+        okButtonLayout.addWidget(self.okButton)
         okButtonLayout.setContentsMargins(0,0,0,0)
         tab1Layout.setContentsMargins(0,0,0,0) # left, top, right, bottom
         tab1Layout.setSpacing(5)
@@ -895,7 +890,7 @@ class PID_DlgControl(ArtisanDialog):
         mainLayout.setContentsMargins(5,10,5,5)
         mainLayout.setSpacing(5)
         self.setLayout(mainLayout)
-        okButton.setFocus()
+        self.okButton.setFocus()
 
         self.setrampsoaks()
         self.setRSs()
@@ -909,6 +904,25 @@ class PID_DlgControl(ArtisanDialog):
         # we set the active tab with a QTimer after the tabbar has been rendered once, as otherwise
         # some tabs are not rendered at all on Windows using Qt v6.5.1 (https://bugreports.qt.io/projects/QTBUG/issues/QTBUG-114204?filter=allissues)
         QTimer.singleShot(10, self.setActiveTab)
+
+        #now set pid buttons according to pid status
+        if self.aw.pidcontrol.pidActive:
+            self.onButton.setVisible(False)
+            self.offButton.setVisible(True)
+        else:
+            self.onButton.setVisible(True)
+            self.offButton.setVisible(False)
+
+    def setPIDWindowTitle(self, pid_controller: int) -> None:
+            status = "ON" if self.aw.pidcontrol.pidActive else "OFF"
+            if pid_controller == 3:
+                self.setWindowTitle(QApplication.translate('Form Caption', f'Arduino/TC4 PID Control ({status})'))
+            elif pid_controller == 2:
+                self.setWindowTitle(QApplication.translate('Form Caption', f'S7 PID Control ({status})'))
+            elif pid_controller == 1:
+                self.setWindowTitle(QApplication.translate('Form Caption', f'MODBUS PID Control ({status})'))
+            else:
+                self.setWindowTitle(QApplication.translate('Form Caption', f'Artisan Software PID Control ({status})'))
 
     # NOTE: ET/BT inverted as pidSource=1 => BT and pidSource=2 => ET !!
     def getCurveNames(self) -> List[str]:
@@ -945,10 +959,16 @@ class PID_DlgControl(ArtisanDialog):
     @pyqtSlot(bool)
     def pidONAction(self, _:bool = False) -> None:
         self.aw.pidcontrol.pidOn()
+        self.offButton.setVisible(True)
+        self.onButton.setVisible(False)
+        self.setPIDWindowTitle(self.pid_controller)
 
     @pyqtSlot(bool)
     def pidOFFAction(self, _:bool = False) -> None:
         self.aw.pidcontrol.pidOff()
+        self.offButton.setVisible(False)
+        self.onButton.setVisible(True)
+        self.setPIDWindowTitle(self.pid_controller)
 
     @pyqtSlot(bool)
     def okAction(self, _:bool = False) -> None:
@@ -1266,8 +1286,8 @@ class PID_DlgControl(ArtisanDialog):
         kd = self.pidKd.value() # 0.00
         source:Optional[int] = None
         cycle:Optional[int] = None
-        pid_controller = self.aw.pidcontrol.externalPIDControl()
-        if pid_controller in {0, 3, 4}:
+        self.pid_controller = self.aw.pidcontrol.externalPIDControl()
+        if self.pid_controller in {0, 3, 4}:
             pidSourceIdx = self.pidSource.currentIndex()
             if self.aw.qmc.device == 19 and self.aw.qmc.PIDbuttonflag:
                 source = self.pidSource.currentIndex()+1 # one of the 4 TC channels, 1,..4
@@ -1277,12 +1297,12 @@ class PID_DlgControl(ArtisanDialog):
                 source = 1 # BT
             else:
                 source = pidSourceIdx + 1 # 3, 4, ... (extra device curves)
-            if pid_controller == 0 and not (self.aw.qmc.device == 19 and self.aw.qmc.PIDbuttonflag): # don't show Targets if TC4 firmware PID is in use
+            if self.pid_controller == 0 and not (self.aw.qmc.device == 19 and self.aw.qmc.PIDbuttonflag): # don't show Targets if TC4 firmware PID is in use
                 self.aw.pidcontrol.pidPositiveTarget = self.positiveControlCombo.currentIndex()
                 self.aw.pidcontrol.pidNegativeTarget = self.negativeControlCombo.currentIndex()
                 self.aw.pidcontrol.invertControl = self.invertControlFlag.isChecked()
             cycle = self.pidCycle.value() # def 1000 in ms
-        if pid_controller in {1, 2}: # external MODBUS/S7 PID control
+        if self.pid_controller in {1, 2}: # external MODBUS/S7 PID control
             svSource = self.pidSource.currentIndex()
             if svSource == 0: # ET
                 self.aw.pidcontrol.pidSource = 2

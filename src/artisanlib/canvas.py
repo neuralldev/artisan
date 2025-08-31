@@ -13,7 +13,7 @@
 # the GNU General Public License for more details.
 
 # AUTHOR
-# Marko Luther, 2023
+# Marko Luther, 2023, updated by TILAU
 
 from artisanlib import __version__
 from artisanlib import __revision__
@@ -124,6 +124,8 @@ try:
 except Exception: # pylint: disable=broad-except
     pass
 
+from wakepy import keep
+import asyncio 
 
 
 _log: Final[logging.Logger] = logging.getLogger(__name__)
@@ -590,6 +592,12 @@ class tgraphcanvas(FigureCanvas):
         self.AUCguideTime:float = 0 # the expected time in seconds the AUC target is reached (calculated by the AUC guide mechanism)
         self.AUCshowFlag:bool = False
 
+        # intersection between BT projection and pDry/pFCs
+        self.intersection_point:Optional[Line2D] = None                   # point of intersection with BT projection
+        self.intersection_point_annotation:Optional[Annotation] = None     # legend on intersection point
+        self.intersection_point_line:Optional[Line2D] = None              # vertical line on intesection
+        self.intersection_postDE:Optional[bool]= False
+        self.pid_point_annotation:Optional[Annotation] = None     # legend on intersection point
         # timing statistics on loaded profile
         self.statisticstimes:List[float] = [0,0,0,0,0] # total, dry phase, mid phase, finish phase  and cooling phase times
 
@@ -984,6 +992,7 @@ class tgraphcanvas(FigureCanvas):
             174, # ColorTrack BT
             175, # Thermoworks BlueDOT
             176  # Aillio Bullet R2
+          
         ]
 
         # ADD DEVICE:
@@ -1057,7 +1066,8 @@ class tgraphcanvas(FigureCanvas):
             166, # +Mugma Heater/Catalyzer
             170, # ColorTrack Serial
             173, # +Santoker BT RoR / ET RoR
-            174  # ColorTrack BT
+            174 # ColorTrack BT
+           
         ]
 
         # ADD DEVICE:
@@ -1980,6 +1990,7 @@ class tgraphcanvas(FigureCanvas):
         self.l_verticalcrossline:Optional[Line2D] = None
 
         self.l_timeline:Optional[Line2D] = None
+        self.l_PIDrampSoak:Optional[Line2D] = None
 
         self.legend:Optional[Legend] = None
 
@@ -2030,12 +2041,16 @@ class tgraphcanvas(FigureCanvas):
         # create an object time to measure and record time (in milliseconds)
 
         self.timeclock:ArtisanTime = ArtisanTime()
-
+        
         ############################  Thread Server #################################################
         #server that spawns a thread dynamically to sample temperature (press button ON to make a thread press OFF button to kill it)
         self.threadserver:Athreadserver = Athreadserver(self.aw)
-
-
+        self.ssbserver:ssbController = ssbController(self.aw)
+        
+        ############################  Wakepy #################################################
+        #monitors screen saver preventer execution
+        self.onoffPreventSleep:bool= False
+        
         ##########################     Designer variables       #################################
         self.designerflag:bool = False
         self.designerconnections:List[Optional[int]] = [None,None,None,None]   #mouse event ids
@@ -2441,6 +2456,7 @@ class tgraphcanvas(FigureCanvas):
         self.showBackgroundEventsSignal.connect(self.showBackgroundEvents)
         self.redrawSignal.connect(self.redraw, type=Qt.ConnectionType.QueuedConnection) # type: ignore
         self.redrawKeepViewSignal.connect(self.redraw_keep_view, type=Qt.ConnectionType.QueuedConnection) # type: ignore
+
 
     #NOTE: empty Figure is initially drawn at the end of self.awsettingsload()
     #################################    FUNCTIONS    ###################################
@@ -4303,7 +4319,252 @@ class tgraphcanvas(FigureCanvas):
         except Exception as e: # pylint: disable=broad-except
             _log.exception(e)
 
+    def DrawIntersection_remove_artist(self, obj):
+        if obj is None:
+            return
+        # liste/tuple/array of artists ?
+        if isinstance(obj, (list, tuple, numpy.ndarray)):
+            for art in obj:
+                if hasattr(art, "remove"):
+                    try:
+                        art.remove()
+                    except Exception:
+                        pass
+        # single artist
+        elif hasattr(obj, "remove"):
+            try:
+                obj.remove()
+            except Exception:
+                pass
 
+    def DrawPIDRampSoak(self, l_timeline:Line2D):
+
+        qmc = self.aw.qmc
+
+        if self.timeindex[0] >= 0: # after CHARGE remove the annotation
+            if qmc.pid_point_annotation is not None:
+                self.DrawIntersection_remove_artist(qmc.pid_point_annotation)
+            qmc.pid_point_annotation = None
+            return
+        
+        if l_timeline is None:
+            return
+
+        xdata = numpy.asarray(l_timeline.get_xdata(), dtype=float)
+
+        if xdata.size == 0:
+            return
+
+        x_intersect = xdata[-1]
+
+        tx = self.timex[-1]
+        time_str = stringfromseconds(tx)
+        et = self.temp1[-1]
+        bt = self.temp2[-1]
+        rampsoak= self.aw.pidcontrol.ramp_soak_engaged
+        if rampsoak>0 and self.aw.pidcontrol.svMode==1: # ramp/soak is defined, 
+            segment= self.aw.pidcontrol.current_soak_segment
+            display_segment  = segment + 1
+            total_time = self.aw.pidcontrol.RS_total_time
+            rslen= self.aw.pidcontrol.RSLen
+            svstr =   f'SV  {self.aw.pidcontrol.svValues[segment]}°{self.mode}\n'
+            rampstr = f'Ramp {stringfromseconds(self.aw.pidcontrol.svRamps[segment])}\n'
+            soakstr = f'Soak {stringfromseconds(self.aw.pidcontrol.svSoaks[segment])}\n'
+            text = (
+                f"PID Segment {display_segment}/{rslen}\n"
+                f"TS {time_str} on {stringfromseconds(total_time)}\n"
+                f"ET {et}°{self.mode}\n"
+                f"BT {bt}°{self.mode}"
+            ) + svstr + rampstr + soakstr
+        else: #svMode == 0=Manual, 2=Background
+            sv = round(self.aw.pidcontrol.svValue,1)
+            svstr = f'SV {sv}°{self.mode}\n'
+            text = (
+                f"PID Manual mode\n"
+                f"TS {time_str}\n"
+                f"ET {et}°{self.mode}\n"
+                f"BT {bt}°{self.mode}"
+            ) + svstr
+        # Draw annotation
+        ymax = float(self.ax.get_ylim()[1] - 20.0) if self.ax is not None else (230.0 if self.mode == "C" else 450.0)
+        # Determine if annotation fits on the right side
+        ax_width = self.ax.get_window_extent().width if self.ax is not None else 0
+        # Transform x_intersect to display coordinates
+        x_disp = self.ax.transData.transform((x_intersect, 0))[0] if self.ax is not None else 0
+        # If annotation would overflow right, display on left
+        ha = 'right' if x_disp + 200 > ax_width else 'left'
+        offset = (-7, 5) if ha == 'right' else (5, 5)
+        if qmc.pid_point_annotation is None:
+           qmc.pid_point_annotation = self.ax.annotate(
+            text,
+            xy=(x_intersect, ymax),
+            xytext=offset,
+            textcoords="offset points",
+            ha=ha, va='top',
+            fontsize=9,
+            color='black',
+            bbox=dict(facecolor='white', alpha=0.6, edgecolor='none', boxstyle='round,pad=0.3')
+            )
+        else:
+            # Update annotation position and alignment
+            qmc.pid_point_annotation.set_text(text)
+            qmc.pid_point_annotation.xy = (x_intersect, ymax)
+            qmc.pid_point_annotation.set_ha(ha)
+            qmc.pid_point_annotation.set_position(offset)
+
+            if qmc.pid_point_annotation is not None and self.ax is not None:
+                self.ax.draw_artist(qmc.pid_point_annotation)
+
+    def DrawIntersectionBetweenCurveandProjection(self, l_projection: Line2D):
+
+        if l_projection is None:
+            return
+        
+        qmc = self.aw.qmc
+        
+        if self.timeindex[6] > 0: # after DROP remove the annotation 
+            if qmc.intersection_point_annotation is not None:
+                self.DrawIntersection_remove_artist(qmc.intersection_point_annotation)
+                qmc.intersection_point_annotation = None
+
+        xdata = numpy.asarray(l_projection.get_xdata(), dtype=float)
+        ydata = numpy.asarray(l_projection.get_ydata(), dtype=float)
+
+        if xdata.size == 0 or ydata.size == 0:
+            return
+
+        # Determine phase and target temperature
+        #indexes for CHARGE[0],DRYe[1],FCs[2],FCe[3],SCs[4],SCe[5],DROP[6] and COOLe[7]
+
+        charge = self.timex[self.timeindex[0]]
+        tx = self.timex[-1]
+        relative_tx = tx - charge
+        if self.timeindex[6] > 0: # drop occurred
+            de = self.timex[self.timeindex[1]]
+            fc = self.timex[self.timeindex[2]]
+            drop = self.timex[self.timeindex[6]]
+            index = "DROP"
+        elif self.timeindex[2] > 0 : # after FC, before DROP, we are in DEV
+            de = self.timex[self.timeindex[1]]
+            fc = self.timex[self.timeindex[2]]
+            dev_time = (tx-fc) # development time in seconds
+            dev = dev_time * 100. / relative_tx
+            dry = (de - charge) * 100. / relative_tx
+            maillard = (fc - de) * 100. / relative_tx
+            target = self.temp2[-1]
+#            display_postFC = True
+            index = "FC"
+        elif self.timeindex[1] > 0 : # we are in DE
+            index = "DE"
+            target = self.phases[2] or (self.phases_celsius_defaults[0] if self.mode == "C" else self.phases_fahrenheit_defaults[0])    
+#            display_postFC = False
+        else: # we are between charge and DE
+                index = "CHARGE"
+                target = self.phases[0] or (self.phases_celsius_defaults[2] if self.mode == "C" else self.phases_fahrenheit_defaults[2])
+
+        # Find intersection
+        diff = ydata - target
+        indices = numpy.where(numpy.diff(numpy.sign(diff)))[0]
+        x_intersect = None
+        for i in indices:
+            x1, y1 = xdata[i], ydata[i]
+            x2, y2 = xdata[i + 1], ydata[i + 1]
+            if y2 > y1:
+                x_intersect = x1 + (target - y1) * (x2 - x1) / (y2 - y1)
+                break
+        if x_intersect is None:
+            return
+
+        # Format annotation text
+        time_str = stringfromseconds(x_intersect - self.timex[self.timeindex[0]])
+        relative_time_str = stringfromseconds(relative_tx)
+        bt = self.temp2[-1]
+        btcolor = qmc.palette['bt']
+        if index=="CHARGE":
+            text = (
+                f"\n"
+                f"TS {relative_time_str}\n"
+                f"DE at {time_str}\n"
+                f"{target:.1f}°{self.mode}\n"
+                f"BT {bt:.1f}°{self.mode}\n"
+            )
+        elif index=="DE":
+            text = (
+                f"\n"
+                f"TS {relative_time_str}\n"
+                f"FC at {time_str}\n"
+                f"{target:.1f}°{self.mode}\n"
+                f"BT {bt:.1f}°{self.mode}\n"
+            )
+        elif index=="FC":
+            text = (
+                f"\n"
+                f"DEV {dev:.1f}%, ({int(dev_time // 60):02d}:{int(dev_time % 60):02d})\n"
+                f"BT {bt:.1f}°{self.mode}\n"
+                f"DRY {dry:.1f}%\n"
+                f"MAILLARD {maillard:.1f}%\n"
+            )
+        else:
+            text = f"\nBT {bt:.1f}°{self.mode}\n"
+
+        # Draw intersection point
+        
+        if qmc.intersection_point is None:
+            qmc.intersection_point, = self.ax.plot(x_intersect, target, 'ro')
+        else:
+            qmc.intersection_point.set_data([x_intersect], [target])
+
+        # Remove annotation if switching from DE to FC
+        if index == "FC" and not qmc.intersection_postDE:
+            qmc.intersection_postDE = False
+            if qmc.intersection_point_annotation is not None:
+                self.DrawIntersection_remove_artist(qmc.intersection_point_annotation)
+                qmc.intersection_point_annotation = None
+
+        # Draw annotation
+        ymax = float(self.ax.get_ylim()[1] - 20.0) if self.ax is not None else (230.0 if self.mode == "C" else 450.0)
+        # Determine if annotation fits on the right side
+        ax_width = self.ax.get_window_extent().width if self.ax is not None else 0
+        # Transform x_intersect to display coordinates
+        x_disp = self.ax.transData.transform((x_intersect, 0))[0] if self.ax is not None else 0
+        # If annotation would overflow right, display on left
+        ha = 'right' if x_disp + 200 > ax_width else 'left'
+        offset = (-7, 5) if ha == 'right' else (5, 5)
+        if qmc.intersection_point_annotation is None:
+           qmc.intersection_point_annotation = self.ax.annotate(
+            text,
+            xy=(x_intersect, ymax),
+            xytext=offset,
+            textcoords="offset points",
+            ha=ha, va='top',
+            fontsize=9,
+            color='black',
+            bbox=dict(facecolor='white', alpha=0.6, edgecolor='none', boxstyle='round,pad=0.3')
+            )
+        else:
+            # Update annotation position and alignment
+            qmc.intersection_point_annotation.set_text(text)
+            qmc.intersection_point_annotation.xy = (x_intersect, ymax)
+            qmc.intersection_point_annotation.set_ha(ha)
+            qmc.intersection_point_annotation.set_position(offset)
+
+        # Draw vertical intersection line
+        if qmc.intersection_point_line is None:
+            qmc.intersection_point_line = self.ax.axvline(
+                x=x_intersect,
+                color='yellow',
+                linestyle='--',
+                linewidth=1,
+                alpha=0.3
+            )
+        else:
+            qmc.intersection_point_line.set_xdata([x_intersect])
+
+        # Draw artists
+        for artist in [qmc.intersection_point, qmc.intersection_point_line, qmc.intersection_point_annotation]:
+            if artist is not None and self.ax is not None:
+                self.ax.draw_artist(artist)
+            
     # ADD DEVICE:
 
     # returns True if the extra device n, channel c, is of type MODBUS or S7, has no factor defined, nor any math formula, and is of type int
@@ -4361,11 +4622,15 @@ class tgraphcanvas(FigureCanvas):
             if self.BTprojectFlag:
                 if self.l_BTprojection is not None and self.BTcurve:
                     # show only if either the DeltaBT curve or LCD is shown (allows to suppress projects for cases where ET channel is used for other signals)
-                    self.ax.draw_artist(self.l_BTprojection)
+                    # self.ax.draw_artist(self.l_BTprojection)
+                    self.DrawIntersectionBetweenCurveandProjection(self.l_BTprojection)
                 if self.projectDeltaFlag and self.l_DeltaBTprojection is not None and self.DeltaBTflag:
                     self.ax.draw_artist(self.l_DeltaBTprojection)
             if self.l_AUCguide is not None and self.AUCguideFlag and self.AUCguideTime > 0 and self.AUCguideTime < self.endofx:
                 self.ax.draw_artist(self.l_AUCguide)
+            # add annotation on PID Ramp Soak mode
+            if self.aw.pidcontrol.pidActive: # if PID is being activated display a summary of action in an annotation displayed at tx 
+                self.DrawPIDRampSoak(self.l_timeline)
 
     # input filter
     # if temp (the actual reading) is outside of the interval [tmin,tmax] or
@@ -5251,6 +5516,7 @@ class tgraphcanvas(FigureCanvas):
                     except Exception: # pylint: disable=broad-except
                         pass
                 self.aw.lcd1.display(timestr)
+                self.aw.phaseslcd1.display(timestr)
                 if self.aw.largeLCDs_dialog is not None:
                     self.updateLargeLCDsTimeSignal.emit(timestr)
 
@@ -5622,6 +5888,7 @@ class tgraphcanvas(FigureCanvas):
 
     def setLCDtimestr(self, timestr:str) -> None:
         self.aw.lcd1.display(timestr)
+        self.aw.phaseslcd1.display(timestr)
         # update connected WebLCDs
         if self.aw.WebLCDs is not None:
             self.updateWebLCDs(time=timestr)
@@ -7621,6 +7888,7 @@ class tgraphcanvas(FigureCanvas):
             self.beepedBackgroundEvents=set()
             self.clearEvents() # clear special events
             self.aw.lcd1.display('00:00')
+            self.aw.phaseslcd1.display('00:00')
             if self.aw.WebLCDs:
                 self.updateWebLCDs(time='00:00')
             if self.aw.largeLCDs_dialog is not None:
@@ -13300,6 +13568,10 @@ class tgraphcanvas(FigureCanvas):
 
             if not bool(self.aw.simulator):
                 QTimer.singleShot(300,self.StartAsyncSamplingAction)
+
+            # start the screen saver preventer
+            self.ssbserver.start()
+
             _log.info('MODE: ON MONITOR (sampling @%ss)', float2float(self.delay/1000))
         except Exception as ex: # pylint: disable=broad-except
             _log.exception(ex)
@@ -13509,6 +13781,9 @@ class tgraphcanvas(FigureCanvas):
                 self.flagon = False
 
                 self.getMeterReads()
+
+                # finish screen locking task
+                self.ssbserver.terminatingSignal.emit()
 
             except Exception as ex: # pylint: disable=broad-except
                 _log.exception(ex)
@@ -13736,7 +14011,7 @@ class tgraphcanvas(FigureCanvas):
                 ser.colorTrackSerial.stop() # ty: ignore[possibly-unbound-attribute]
                 libtime.sleep(0.05)
                 ser.colorTrackSerial = None
-
+                
             # close main serial port
             try:
                 ser.closeport()
@@ -13938,8 +14213,10 @@ class tgraphcanvas(FigureCanvas):
             if not self.flagsamplingthreadrunning:
                 if not self.checkSaved():
                     return
+                self.aw.ntb.hide()
                 self.aw.soundpopSignal.emit()
                 self.OnMonitor()
+
         #turn OFF
         else:
             try:
@@ -13947,6 +14224,7 @@ class tgraphcanvas(FigureCanvas):
             except Exception: # pylint: disable=broad-except
                 pass
             self.OffMonitor()
+            self.aw.ntb.show()
 
     @pyqtSlot()
     def fireChargeTimer(self) -> None:
@@ -17459,7 +17737,7 @@ class tgraphcanvas(FigureCanvas):
 #        from scipy.interpolate import UnivariateSpline # @UnusedImport # pylint: disable=import-error
 #        global UnivariateSpline # pylint: disable=global-statement
         # init designer timez
-        self.designer_timez = list(numpy.arange(self.timex[0],self.timex[-1],self.time_step_size))
+        self.designer_timez = [float(x) for x in numpy.arange(self.timex[0], self.timex[-1], self.time_step_size)]
         # set initial RoR z-axis limits
         self.setDesignerDeltaAxisLimits(self.DeltaETflag, self.DeltaBTflag)
         self.redrawdesigner(force=True)
@@ -19183,3 +19461,64 @@ class Athreadserver(QWidget): # pylint: disable=too-few-public-methods # pyright
     @pyqtSlot()
     def terminating(self) -> None:
         self.terminatingSignal.emit()
+
+########################################################################################
+###     Screen Saver thread
+########################################################################################
+
+class WorkerThread(QObject): # pylint: disable=too-few-public-methods # pyright: ignore [reportGeneralTypeIssues] # Argument to class must be a base class
+    finished = pyqtSignal()
+#    progress = pyqtSignal(int)
+    
+    def __init__(self, aw:'ApplicationWindow') -> None:
+        super().__init__()
+        self.aw = aw
+        
+    def do_work(self):
+        i:int = 0
+        with keep.presenting() as k:
+            a = k.activation_result.success
+            fl = 1 if self.aw.qmc.onoffPreventSleep else 0
+            while self.aw.qmc.onoffPreventSleep:
+                libtime.sleep(5)
+                i = i+1
+                # self.progress.emit(i)
+
+    def run(self):
+        self.do_work()
+        
+class ssbController(QWidget): # pylint: disable=too-few-public-methods # pyright: ignore [reportGeneralTypeIssues] # Argument to class must be a base class
+    terminatingSignal = pyqtSignal()
+    
+    def __init__(self, aw:'ApplicationWindow') -> None:
+        super().__init__()
+        self.aw = aw
+        self.terminatingSignal.connect(self.finish)
+
+    # defines and run the screen saver loop 
+    def runlongtaskl(self):
+        self.thread = QThread()
+        self.worker = WorkerThread(self.aw)
+        self.worker.moveToThread(self.thread)
+        self.thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.worker.deleteLater)
+        self.thread.finished.connect(self.thread.deleteLater)
+#        self.worker.progress.connect(self.reportProgress)
+        self.thread.start()
+    
+    def start(self):
+        _log.debug("Prevent screen saver")
+        self.aw.qmc.onoffPreventSleep = True
+        self.runlongtaskl() # main actions to setup the loop
+
+#    @pyqtSlot()
+#    def reportProgress(self):
+#        _log.info(f'looping iteration')
+        
+    @pyqtSlot()
+    def finish(self):
+        self.aw.qmc.onoffPreventSleep = False # clear flag
+        if self.thread.isRunning or not self.thread.isFinished: # if thread is still running kill it
+            self.thread.quit()
+        _log.debug("Releasing screen saver lock")

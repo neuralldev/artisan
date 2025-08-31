@@ -3,10 +3,10 @@ name: Pytest
 on:
   push:
     branches:
-      - master
+      - continuous
   pull_request:
     branches:
-      - master
+      - continuous
 
 jobs:
   pytest:

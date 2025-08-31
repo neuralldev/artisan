@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # MAINTAINER
-# Marko Luther, 2023
+# Marko Luther, 2023, updated by TILAU
 
 import time as libtime
 startup_time = libtime.process_time()
@@ -198,6 +198,7 @@ if TYPE_CHECKING:
     from artisanlib.scale import ScaleSpec
     from artisanlib.roast_properties import editGraphDlg # pylint: disable=unused-import
     from artisanlib.comparator import roastCompareDlg # pylint: disable=unused-import
+    from artisanlib.beancave import BeancaveDlg # pylint: disable=unused-import
     from artisanlib.wheels import WheelDlg # pylint: disable=unused-import
     from artisanlib.hottop import Hottop # pylint: disable=unused-import
     from artisanlib.weblcds import WebLCDs, WebGreen, WebRoasted # pylint: disable=unused-import
@@ -765,14 +766,12 @@ from artisanlib.slider_style import artisan_slider_style
 from artisanlib.event_button_style import artisan_event_button_style
 from artisanlib.simulator import Simulator
 from artisanlib.dialogs import HelpDlg, ArtisanInputDialog, ArtisanComboBoxDialog, ArtisanPortsDialog, ArtisanSliderLCDinputDlg
-from artisanlib.large_lcds import (LargeMainLCDs, LargeDeltaLCDs, LargePIDLCDs, LargeExtraLCDs, LargePhasesLCDs, LargeScaleLCDs)
-from artisanlib.logs import (serialLogDlg, errorDlg, messageDlg)
+from artisanlib.large_lcds import LargeMainLCDs, LargeDeltaLCDs, LargePIDLCDs, LargeExtraLCDs, LargePhasesLCDs, LargeScaleLCDs
+from artisanlib.logs import serialLogDlg, errorDlg, messageDlg
 from artisanlib.comm import serialport, colorport, scaleport
-from artisanlib.pid_dialogs import (PXRpidDlgControl, PXG4pidDlgControl,
-    PID_DlgControl, DTApidDlgControl)
+from artisanlib.pid_dialogs import PXRpidDlgControl, PXG4pidDlgControl,PID_DlgControl, DTApidDlgControl
 from artisanlib.pid_control import FujiPID, PIDcontrol, DtaPID
-from artisanlib.widgets import (MyQLCDNumber, EventPushButton, MajorEventPushButton,
-    AnimatedMajorEventPushButton, MinorEventPushButton, AuxEventPushButton, ClickableLCDFrame, Splitter, SliderUnclickable)
+from artisanlib.widgets import MyQLCDNumber, EventPushButton, MajorEventPushButton,AnimatedMajorEventPushButton, MinorEventPushButton, AuxEventPushButton, ClickableLCDFrame, Splitter, SliderUnclickable
 
 from artisanlib.notifications import Notification, NotificationManager, NotificationType
 from artisanlib.canvas import tgraphcanvas
@@ -1520,11 +1519,11 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         'WebLCDsAlerts', 'EventsDlg_activeTab', 'graphColorDlg_activeTab', 'PID_DlgControl_activeTab', 'CurveDlg_activeTab', 'editGraphDlg_activeTab',
         'backgroundDlg_activeTab', 'DeviceAssignmentDlg_activeTab', 'AlarmDlg_activeTab', 'schedule_activeTab', 'StatisticsDlg_activeTab', 'resetqsettings', 'settingspath', 'wheelpath', 'profilepath',
         'userprofilepath', 'printer', 'main_widget', 'defaultdpi', 'dpi', 'qmc', 'HottopControlActive', 'AsyncSamplingTimer', 'wheeldialog',
-        'simulator', 'simulatorpath', 'comparator', 'stack', 'eventsbuttonflag', 'minieventsflags', 'seriallogflag',
+        'simulator', 'simulatorpath', 'beancave', 'comparator', 'stack', 'eventsbuttonflag', 'minieventsflags', 'seriallogflag',
         'seriallog', 'ser', 'modbus', 'extraMODBUStemps', 'extraMODBUStx', 's7', 'extraS7tx', 'ws', 'scale', 'color', 'extraser', 'extracomport', 'extrabaudrate',
         'extrabytesize', 'extraparity', 'extrastopbits', 'extratimeout', 'hottop', 'santokerHost', 'santokerPort', 'santokerSerial', 'santokerBLE', 'santoker', 'santokerR', 'fujipid', 'dtapid', 'pidcontrol', 'soundflag', 'recentRoasts', 'maxRecentRoasts',
         'mugmaHost','mugmaPort', 'mugma', 'mugma_default_host',
-        'kaleido_default_host', 'kaleidoHost', 'kaleidoPort', 'kaleidoSerial', 'kaleidoPID', 'kaleido', 'colorTrack_mean_window_size', 'colorTrack_median_window_size', 'ikawa',
+        'kaleido_default_host', 'kaleidoHost', 'kaleidoPort', 'kaleidoSerial', 'kaleidoPID', 'kaleido', 'colorTrack_mean_window_size', 'colorTrack_median_window_size' ,'bleRoastSeeDeviceName', 'ikawa',
         'lcdpaletteB', 'lcdpaletteF', 'extraeventsbuttonsflags', 'extraeventslabels', 'extraeventbuttoncolor', 'extraeventsactionstrings',
         'extraeventbuttonround', 'block_quantification_sampling_ticks', 'sampling_seconds_to_block_quantifiction', 'sampling_ticks_to_block_quantifiction', 'extraeventsactionslastvalue',
         'org_extradevicesettings', 'eventslidervalues', 'eventslidervisibilities', 'eventsliderKeyboardControl', 'eventsliderAlternativeLayout_default',
@@ -1542,7 +1541,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         'eventsAction', 'alarmAction', 'phasesGraphAction', 'StatisticsAction', 'WindowconfigAction', 'colorsAction', 'themeMenu', 'autosaveAction',
         'batchAction', 'temperatureConfMenu', 'FahrenheitAction', 'CelsiusAction', 'languageMenu', 'analyzeMenu', 'fitIdealautoAction',
         'analyzeMenu', 'fitIdealx2Action', 'fitIdealx3Action', 'fitIdealx0Action', 'fitBkgndAction', 'clearresultsAction', 'roastCompareAction',
-        'designerAction', 'simulatorAction', 'wheeleditorAction', 'transformAction', 'temperatureMenu', 'ConvertToFahrenheitAction',
+        'designerAction', 'simulatorAction', 'beanCaveMenuAction', 'wheeleditorAction', 'transformAction', 'temperatureMenu', 'ConvertToFahrenheitAction',
         'ConvertToCelsiusAction', 'controlsAction', 'readingsAction', 'eventsEditorAction', 'buttonsAction', 'slidersAction', 'scheduleAction', 'lcdsAction', 'deltalcdsAction',
         'pidlcdsAction', 'scalelcdsAction', 'extralcdsAction', 'phaseslcdsAction', 'fullscreenAction', 'loadSettingsAction', 'openRecentSettingMenu',
         'saveAsSettingsAction', 'resetAction', 'messagelabel', 'button_font_size_pt', 'button_font_size', 'button_font_size_small', 'button_font_size_small_selected',
@@ -1564,7 +1563,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         'e7buttonbarLayout', 'e7buttondialog', 'e8buttonbarLayout', 'e8buttondialog', 'e9buttonbarLayout', 'e9buttondialog', 'e10buttonbarLayout', 'e10buttondialog',
         'keyboardmove', 'keyboardButtonList', 'keyboardmoveindex',
         'keyboardmoveflag', 'lastkeyboardcmd', 'error_dlg', 'serial_dlg', 'message_dlg', 'ETname', 'BTname', 'level1frame', 'level1layout', 'qpc', 'splitter', 'scroller', 'EventsGroupLayout',
-        'LCD2frame', 'LCD3frame', 'LCD4frame', 'LCD5frame', 'LCD6frame', 'LCD7frame', 'TPlabel', 'TPlcd', 'TPlcdFrame', 'TP2DRYlabel', 'TP2DRYframe',
+        'LCD2frame', 'LCD3frame', 'LCD4frame', 'LCD5frame', 'LCD6frame', 'LCD7frame', 'TPlabel', 'TPlcd', 'PhaseBTlcdFrame', 'TPlcdFrame', 'TP2DRYlabel', 'TP2DRYframe',
         'DRYlabel', 'DRYlcd', 'DRYlcdFrame', 'DRY2FCslabel', 'DRY2FCsframe', 'FCslabel', 'FCslcd', 'FCslcdFrame', 'AUClabel', 'AUClcd', 'AUClcdFrame',
         'AUCLCD', 'phasesLCDs', 'extrabuttonsLayout', 'extrabuttondialogs', 'slider1', 'slider2', 'slider3', 'slider4', 'sliderLCD1', 'sliderLCD2', 'sliderLCD3',
         'sliderLCD4', 'sliderGrpBox1', 'sliderGrpBox2', 'sliderGrpBox3', 'sliderGrpBox4', 'sliderSV', 'sliderLCDSV', 'sliderGrpBoxSV', 'leftlayout',
@@ -1812,6 +1811,8 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
         self.comparator:Optional[roastCompareDlg] = None # holds the profile comparator dialog
 
+        self.beancave:Optional[BeancaveDlg] = None # bean cave management
+
         self.qmc.setContentsMargins(0,0,0,0)
         #events config
         self.eventsbuttonflag:int = 0
@@ -1886,6 +1887,10 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         # ColorTrack
         self.colorTrack_mean_window_size:int = 50    # window size of the mean filter (10-200)
         self.colorTrack_median_window_size:int = 50  # window size of the median filter (10-200)
+
+        #lebrew BLE
+        self.bleRoastSeeDeviceName:Optional[str] = 'none' # device UUID selected
+        self.bleRoastSeeDevicesList:List[str] = ['please scan devices for list']
 
         # Kaleido Network
         self.kaleido_default_host:Final[str] = '127.0.0.1'
@@ -2205,6 +2210,10 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                 importStrongholdAction = QAction('Stronghold XLSX...', self)
                 importStrongholdAction.triggered.connect(self.importStronghold)
                 self.importMenu.addAction(importStrongholdAction)
+
+                importHibeanAction = QAction('Hibean JSON...', self)
+                importHibeanAction.triggered.connect(self.importHibean)
+                self.importMenu.addAction(importHibeanAction)
 
             self.convFromMenu: Optional[QMenu] = self.fileMenu.addMenu(QApplication.translate('Menu', 'Convert From'))
             if self.convFromMenu is not None:
@@ -2696,6 +2705,12 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.simulatorAction.setCheckable(True)
             self.simulatorAction.setChecked(bool(self.simulator))
             self.ToolkitMenu.addAction(self.simulatorAction)
+            
+            self.beanCaveMenuAction:QAction = QAction(QApplication.translate('Menu', 'BeanCave'), self)
+            self.beanCaveMenuAction.triggered.connect(self.handleBeancave)
+            self.beanCaveMenuAction.setCheckable(True)
+            self.beanCaveMenuAction.setChecked(bool(self.beancave))
+            self.ToolkitMenu.addAction(self.beanCaveMenuAction)
 
             self.wheeleditorAction: QAction = QAction(QApplication.translate('Menu', 'Wheel Graph'), self)
             self.wheeleditorAction.triggered.connect(self.graphwheel)
@@ -3339,7 +3354,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.buttonDROP.clicked.connect(self.qmc.markDrop)
 
         #create PID control button
-        self.buttonCONTROL: QPushButton = QPushButton(QApplication.translate('Button', 'CONTROL'))
+        self.buttonCONTROL: QPushButton = QPushButton(QApplication.translate('Button', 'PID CONTROL'))
         self.buttonCONTROL.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.buttonCONTROL.setStyleSheet(self.pushbuttonstyles['PID'])
         self.buttonCONTROL.setGraphicsEffect(self.makeShadow())
@@ -3907,6 +3922,61 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
         # phases LCDs
 
+        self.phaseslcd1: MyQLCDNumber = MyQLCDNumber() # time
+        self.phaseslcd1.setSegmentStyle(QLCDNumber.SegmentStyle.Flat)
+        self.phaseslcd1.setMinimumHeight(40)
+        self.phaseslcd1.setMinimumWidth(100)
+        self.phaseslcd1.setFrameStyle(QFrame.Shadow.Plain)
+        self.phaseslcd1.clicked.connect(self.superusermodeLeftClicked)
+        self.phaseslcd1.display('00:00')
+        self.phaseslcd1.setStyleSheet(f"QLCDNumber {{ border-radius: 4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF['timer'])}; background-color: {rgba_colorname2argb_colorname(self.lcdpaletteB['timer'])};}}")
+        self.phaseslcd1.setToolTip(QApplication.translate('Tooltip', 'Timer'))
+ 
+        # DET
+   
+        self.PhaseDETlabel: QLabel = QLabel()
+        self.PhaseDETlabel.setText(f"<big><b>{deltaLabelBigPrefix}{self.ETname}</b></big>")
+        self.PhaseDETlcd = QLCDNumber()
+        self.PhaseDETlcd.display(' - ')
+        self.PhaseDETlcdFrame = self.makePhasesLCDbox(self.PhaseDETlabel,self.PhaseDETlcd)
+        self.PhaseDETlcd.setNumDigits(5)
+        self.PhaseDETlcd.setMinimumWidth(100)
+        self.PhaseDETlcd.setStyleSheet('QLCDNumber{border-radius:4; border-width: 0; border-color: black; border-style:solid; color: black; background-color: #e6e6e6;}')
+        self.setLabelColor(self.PhaseDETlabel,self.qmc.palette['deltaet'])     
+
+        # BT
+        self.PhaseBTlabel: QLabel = QLabel()
+        self.PhaseBTlabel.setText(f'<big><b>{self.BTname}</b></big>')
+        self.PhaseBTlcd = QLCDNumber()
+        self.PhaseBTlcd.display(' - ')
+        self.PhaseBTlcdFrame = self.makePhasesLCDbox(self.PhaseBTlabel,self.PhaseBTlcd)
+        self.PhaseBTlcd.setNumDigits(5)
+        self.PhaseBTlcd.setMinimumWidth(100)
+        self.PhaseBTlcd.setStyleSheet('QLCDNumber{border-radius:4; border-width: 0; border-color: black; border-style:solid; color: black; background-color: #e6e6e6;}')
+        self.setLabelColor(self.PhaseBTlabel,self.qmc.palette['bt'])     
+
+        # DeltaBT
+        self.PhaseDBTlabel: QLabel = QLabel()
+        self.PhaseDBTlabel.setText(f'<big><b>{deltaLabelBigPrefix}{self.BTname}</b></big>')
+        self.PhaseDBTlcd = QLCDNumber()
+        self.PhaseDBTlcd.display(' - ')
+        self.PhaseDBTlcdFrame = self.makePhasesLCDbox(self.PhaseDBTlabel,self.PhaseDBTlcd)
+        self.PhaseDBTlcd.setNumDigits(5)
+        self.PhaseDBTlcd.setMinimumWidth(100)
+        self.PhaseDBTlcd.setStyleSheet('QLCDNumber{border-radius:4; border-width: 0; border-color: black; border-style:solid; color: black; background-color: #e6e6e6;}')
+        self.setLabelColor(self.PhaseDBTlabel,self.qmc.palette['deltabt'])     
+
+        # ET
+        self.PhaseETlabel: QLabel = QLabel()
+        self.PhaseETlabel.setText(f'<big><b>{self.ETname}</b></big>')
+        self.PhaseETlcd = QLCDNumber()
+        self.PhaseETlcd.display(' - ')
+        self.PhaseETlcdFrame = self.makePhasesLCDbox(self.PhaseETlabel,self.PhaseETlcd)
+        self.PhaseETlcd.setNumDigits(5)
+        self.PhaseETlcd.setMinimumWidth(100)
+        self.PhaseETlcd.setStyleSheet('QLCDNumber{border-radius:4; border-width: 0; border-color: black; border-style:solid; color: black; background-color: #e6e6e6;}')
+        self.setLabelColor(self.PhaseETlabel,self.qmc.palette['et'])     
+
         # TP
         self.TPlabel: QLabel = QLabel()
         self.TPlabel.setText('<small><b>' + QApplication.translate('Label', 'TP') + '&raquo;</b></small>')
@@ -3976,24 +4046,45 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.AUCLCD.setLayout(AUCLayout)
         self.AUCLCD.hide()
 
+        # extension des LCD de phase
 
         self.phasesLCDs: QFrame = QFrame()
-        self.phasesLCDs.setContentsMargins(0, 0, 0, 0)
-        phasesLCDlayout = QHBoxLayout()
-        phasesLCDlayout.addWidget(self.TPlcdFrame)
-        phasesLCDlayout.addWidget(self.TP2DRYframe)
-        phasesLCDlayout.addWidget(self.DRYlcdFrame)
-        phasesLCDlayout.addWidget(self.DRY2FCsframe)
-        phasesLCDlayout.addWidget(self.FCslcdFrame)
-        phasesLCDlayout.setContentsMargins(0, 0, 0, 0)
-        phasesLCDlayout.setSpacing(0)
-        self.phasesLCDs.setLayout(phasesLCDlayout)
+        policy = self.phasesLCDs.sizePolicy()
+        policy.setHorizontalPolicy(QSizePolicy.Policy.Expanding)  # s'étire horizontalement
+        self.phasesLCDs.setSizePolicy(policy)
+        self.phasesLCDs.setMinimumWidth(400)
+        self.phasesLCDs.setContentsMargins(0, 0, 0, 0)        
+#        self.phasesLCDs.setStyleSheet("""
+#    QFrame {
+#        border: 2px solid blue;
+#        border-radius: 4px; /* coins arrondis facultatif */
+#    }
+#""")
+        self.phasesLCDlayout = QHBoxLayout()
+        self.phasesLCDlayout.setContentsMargins(0, 0, 0, 0)
+        self.phasesLCDlayout.setSpacing(1)
+#        self.phasesLCDlayout.addStretch()
+        self.phasesLCDlayout.setDirection(QHBoxLayout.Direction.LeftToRight)
+        self.phasesLCDlayout.addWidget(self.phaseslcd1)
+        self.phasesLCDlayout.addSpacing(10)
+        self.phasesLCDlayout.addWidget(self.PhaseBTlcdFrame)
+        self.phasesLCDlayout.addWidget(self.PhaseETlcdFrame)
+        self.phasesLCDlayout.addWidget(self.PhaseDETlcdFrame)
+        self.phasesLCDlayout.addWidget(self.PhaseDBTlcdFrame)
+#         self.phasesLCDlayout.addWidget(self.TPlcdFrame)
+#        self.phasesLCDlayout.addWidget(self.TP2DRYframe)
+#        self.phasesLCDlayout.addWidget(self.DRYlcdFrame)
+#        self.phasesLCDlayout.addWidget(self.DRY2FCsframe)
+#        self.phasesLCDlayout.addWidget(self.FCslcdFrame)        
+        self.phasesLCDlayout.addSpacing(400)
+        self.phasesLCDs.setLayout(self.phasesLCDlayout)
         self.phasesLCDs.hide()
-        self.phasesLCDs.setToolTip(QApplication.translate('Tooltip','Phase LCDs: right-click to cycle through TIME, PERCENTAGE and TEMP MODE'))
+#        self.phasesLCDs.setToolTip(QApplication.translate('Tooltip','Phase LCDs: right-click to cycle through TIME, PERCENTAGE and TEMP MODE'))
 
         #level 1
         self.level1layout.addStretch()
         self.level1layout.addWidget(self.phasesLCDs)
+        self.level1layout.addSpacing(10)
         self.level1layout.addWidget(self.AUCLCD)
         self.level1layout.addSpacing(20)
         self.level1layout.addWidget(self.buttonRESET)
@@ -4006,7 +4097,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.level1layout.addSpacing(10)
         self.level1layout.addWidget(self.lcd1)
         self.level1layout.setSpacing(0)
-        self.level1layout.setContentsMargins(0,7,7,12) # left, top, right, bottom
+        self.level1layout.setContentsMargins(0,7,7,7) # left, top, right, bottom
 
         #level 3
         level3layout.addLayout(pidbuttonLayout,0)
@@ -4532,6 +4623,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
     # timer_color one of "timer" (black), "slowcoolingtimer" (red), "rstimer" (blue)
     def setTimerColor(self, timer_color:str) -> None:
         self.lcd1.setStyleSheet(f'QLCDNumber {{ border-radius: 4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF[timer_color])}; background-color: {rgba_colorname2argb_colorname(self.lcdpaletteB[timer_color])};}}')
+        self.phaseslcd1.setStyleSheet(f'QLCDNumber {{ border-radius: 4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF[timer_color])}; background-color: {rgba_colorname2argb_colorname(self.lcdpaletteB[timer_color])};}}')
         self.qmc.setTimerLargeLCDcolorSignal.emit(self.lcdpaletteF[timer_color], self.lcdpaletteB[timer_color])
         # HACK: PID/CONTROL button changes shape/shadow on setTimerColor() as triggered by RESET
         # there reason remains unclear
@@ -6807,7 +6899,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                         if alt_modifier:
                             speed = 2
                         elif control_modifier:
-                            speed = 4
+                            speed = 8
                         old_base = self.qmc.timeclock.getBase()
                         old_speed = old_base/1000
                         if old_speed != speed:
@@ -7734,6 +7826,31 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             _, _, exc_tb = sys.exc_info()
             self.qmc.adderror((QApplication.translate('Error Message', 'Exception:') + ' updateAUCLCD(): {0}').format(str(ex)),getattr(exc_tb, 'tb_lineno', '?'))
 
+    def getPhasesLCDsGeneralData(self) -> Tuple[Optional[str],Optional[str],Optional[str],Optional[str]]:
+        ET:Optional[str] = None
+        DET:Optional[str] = None
+        DBT:Optional[str] = None
+        BT:Optional[str] = None
+        try:
+            if self.qmc.timex: # requires at least some recordings
+                BT = str(float2float(self.qmc.temp2[-1]))
+                ET = str(float2float(self.qmc.temp1[-1]))
+                # check at least CHARGE time
+                if self.qmc.flagon:
+                    TP_index = self.qmc.TPalarmtimeindex
+                else:
+                    TP_index = self.findTP()
+                if TP_index and TP_index < len(self.qmc.timex) and TP_index > 0:
+                    if self.qmc.delta2[-1] is not None:
+                        DBT = str(float2float(self.qmc.delta2[-1]))
+                    if self.qmc.delta1[-1] is not None:
+                        DET = str(float2float(self.qmc.delta1[-1]))  
+        except Exception as e: # pylint: disable=broad-except
+            _log.exception(e)
+            _, _, exc_tb = sys.exc_info()
+            self.qmc.adderror((QApplication.translate('Error Message','Exception:') + ' updateGeneralPhasesLCDs() {0}').format(str(e)),getattr(exc_tb, 'tb_lineno', '?'))
+        return ET,DET,BT,DBT
+            
     # returns multiple results on the current state of the phases:
     #  TP, TPlabel, DRY, DRY, FCs, FCslabel
     #  TP2DRYlabel, DRY2FCslabel
@@ -8036,13 +8153,50 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
 
     def updatePhasesLCDs(self) -> None:
+        # Stylesheet pour la couleur rouge
+        red_style = "QLCDNumber { color: red; }"
+        # Stylesheet pour la couleur verte
+        green_style = "QLCDNumber { color: green; }"
         try:
             if self.qmc.phasesLCDflag or self.LargePhasesLCDsFlag:
                 TP,TPlabel,DRY,DRYlabel,FCs,FCslabel,TP2DRYlabel,DRY2FCslabel,TP2DRYframeTooltip,DRY2FCsframeTooltip,phasesLCDsTooltip = self.getPhasesLCDsData()
-
+                ET,DET,BT,DBT = self.getPhasesLCDsGeneralData()
                 if self.qmc.phasesLCDflag:
-                    label_fmt = '<small><b>{}</b></small>'
-                    #
+                    label_fmt = '<small><b>{}</b></small>'                    
+                    if ET is not None:
+                        fET = float(ET)
+                        if fET < 140 or fET > 200 :
+                            self.PhaseETlcd.setStyleSheet("QLCDNumber { color: red; }")
+                        else:
+                            if fET < 150 or fET > 190 :
+                                self.PhaseETlcd.setStyleSheet("QLCDNumber { color: orange; }")
+                            else:
+                                self.PhaseETlcd.setStyleSheet("QLCDNumber { color: green; }")
+                        self.PhaseETlcd.display(ET)
+                    if DET is not None:
+                        fET = float(DET)
+                        if fET > 8 :
+                            self.PhaseDETlcd.setStyleSheet("QLCDNumber { color: red; }")
+                        else:
+                            self.PhaseDETlcd.setStyleSheet("QLCDNumber { color: green; }")
+                        self.PhaseDETlcd.display(DET)
+                    if BT is not None:
+                        fBT = float(BT)
+                        if fBT < 120 or fBT > 210 :
+                            self.PhaseBTlcd.setStyleSheet("QLCDNumber { color: red; }")
+                        else:
+                            if fBT > 190 :
+                                self.PhaseBTlcd.setStyleSheet("QLCDNumber { color: orange; }")
+                            else:
+                                self.PhaseBTlcd.setStyleSheet("QLCDNumber { color: green; }")
+                        self.PhaseBTlcd.display(BT)
+                    if DBT is not None:
+                        fBT = float(DBT)
+                        if fBT > 15 or fBT < 4:
+                            self.PhaseDBTlcd.setStyleSheet("QLCDNumber { color: red; }")
+                        else:
+                            self.PhaseDBTlcd.setStyleSheet("QLCDNumber { color: green; }")
+                        self.PhaseDBTlcd.display(DBT)
                     if TP is not None:
                         self.TPlcd.display(TP)
                     if DRY is not None:
@@ -11705,6 +11859,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         if self.analyzeMenu is not None:
             self.analyzeMenu.setEnabled(True)
         self.roastCompareAction.setEnabled(True)
+        self.beanCaveMenuAction.setEnabled(True)
         self.designerAction.setEnabled(True)
         self.simulatorAction.setEnabled(True)
         self.wheeleditorAction.setEnabled(True)
@@ -13342,6 +13497,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
                 self.qmc.redraw()
                 self.updatePhasesLCDs()
+                
                 message = QApplication.translate('Message','{0}  loaded ').format(filename)
                 self.sendmessage(message)
                 _log.info('profile loaded: %s', filename)
@@ -17885,6 +18041,15 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.mugmaPort = toInt(settings.value('mugmaPort',self.mugmaPort))
             self.colorTrack_mean_window_size = toInt(settings.value('ctMean',self.colorTrack_mean_window_size))
             self.colorTrack_median_window_size = toInt(settings.value('ctMedian',self.colorTrack_median_window_size))
+            # restore the BLE device name if it is a valid UUID
+            uuid_ble_pattern = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+            ble_name = toString(settings.value('lbrsc1',self.bleRoastSeeDeviceName)) if uuid_ble_pattern.match(toString(settings.value('lbrsc1',self.bleRoastSeeDeviceName))) else ""
+            self.bleRoastSeeDeviceName = ble_name
+            if (ble_name is not None and ble_name !=''): #populate combo box list with device name
+                self.bleRoastSeeDevicesList = [ble_name]
+            else:
+                self.bleRoasSeeDevicesList = None
+#            _log.info('bleRoastSeeDeviceName: %s',self.bleRoastSeeDeviceName)
             # activate CONTROL BUTTON
             self.showControlButton()
             self.ser.controlETpid = [toInt(x) for x in toList(settings.value('controlETpid',self.ser.controlETpid))]
@@ -18055,12 +18220,16 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                     self.setLabelColor(self.messagelabel,self.qmc.palette['messages'])
                 if 'et' in self.qmc.palette:
                     self.setLabelColor(self.label2,self.qmc.palette['et'])
+                    self.setLabelColor(self.PhaseETlabel,self.qmc.palette['et'])
                 if 'bt' in self.qmc.palette:
                     self.setLabelColor(self.label3,self.qmc.palette['bt'])
+                    self.setLabelColor(self.PhaseBTlabel,self.qmc.palette['bt'])
                 if 'deltaet' in self.qmc.palette:
                     self.setLabelColor(self.label4,self.qmc.palette['deltaet'])
+                    self.setLabelColor(self.PhaseDETlabel,self.qmc.palette['deltaet'])
                 if 'deltabt' in self.qmc.palette:
                     self.setLabelColor(self.label5,self.qmc.palette['deltabt'])
+                    self.setLabelColor(self.PhaseDBTlabel,self.qmc.palette['deltabt'])
                 if 'canvas' in self.qmc.palette:
                     if len(self.qmc.palette['canvas']) == 0:  #revert the canvas element to default if it is blank in the settings.
                         self.qmc.palette['canvas'] = '#f8f8f8'
@@ -18084,6 +18253,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                     self.qmc.alpha[str(k)] = v
             #restore colors
             self.lcd1.setStyleSheet(f"QLCDNumber {{ border-radius:4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF['timer'])}; background: {rgba_colorname2argb_colorname(self.lcdpaletteB['timer'])};}}")
+            self.phaseslcd1.setStyleSheet(f"QLCDNumber {{ border-radius:4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF['timer'])}; background: {rgba_colorname2argb_colorname(self.lcdpaletteB['timer'])};}}")
             self.lcd2.setStyleSheet(f"QLCDNumber {{ border-radius:4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF['et'])}; background: {rgba_colorname2argb_colorname(self.lcdpaletteB['et'])};}}")
             self.lcd3.setStyleSheet(f"QLCDNumber {{ border-radius:4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF['bt'])}; background: {rgba_colorname2argb_colorname(self.lcdpaletteB['bt'])};}}")
             self.lcd4.setStyleSheet(f"QLCDNumber {{ border-radius:4; color: {rgba_colorname2argb_colorname(self.lcdpaletteF['deltaet'])}; background: {rgba_colorname2argb_colorname(self.lcdpaletteB['deltaet'])};}}")
@@ -19925,6 +20095,11 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.settingsSetValue(settings, default_settings, 'mugmaPort',self.mugmaPort, read_defaults)
             self.settingsSetValue(settings, default_settings, 'ctMean',self.colorTrack_mean_window_size, read_defaults)
             self.settingsSetValue(settings, default_settings, 'ctMedian',self.colorTrack_median_window_size, read_defaults)
+            # save BLE device name
+            # we use a regex to check if the name is a valid BLE UUID
+            uuid_ble_pattern = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+            ble_name = self.bleRoastSeeDeviceName if uuid_ble_pattern.match(str(self.bleRoastSeeDeviceName)) else ""
+            self.settingsSetValue(settings, default_settings, 'lbrsc1', ble_name, read_defaults)
             settings.endGroup()
 #--- END GROUP System
 
@@ -25791,6 +25966,12 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
     @pyqtSlot()
     @pyqtSlot(bool)
+    def importHibean(self, _:bool = False) -> None:
+        from artisanlib.hibean import extractProfileHibeanJson
+        self.importExternal(extractProfileHibeanJson, QApplication.translate('Message','Import Hibean JSON'), '*.json')
+
+    @pyqtSlot()
+    @pyqtSlot(bool)
     def importCropster(self, _:bool = False) -> None:
         from artisanlib.cropster import extractProfileCropsterXLS
         self.importExternal(extractProfileCropsterXLS, QApplication.translate('Message','Import Cropster XLS'),'*.xls')
@@ -26312,30 +26493,32 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
         # hidden buttons at the top of the table are for actions and don't count in the first row
         # find the index of the first visible button
-        first_visible_idx = 0
+        first_counted_idx = 0
         for i, _ in enumerate(self.extraeventstypes):
-            if self.extraeventsvisibility[i]:
-                first_visible_idx = i
+            if self.extraeventsvisibility[i] or (
+                    self.extraeventstypes[i] == 4 and
+                    self.extraeventsactions[i] == 0):
+                first_counted_idx = i
                 break
 
         for i, eet in enumerate(self.extraeventstypes):
             # next button in this group is hidden
-            next_hidden = ((i - first_visible_idx)%self.buttonlistmaxlen < self.buttonlistmaxlen -1 and  # at least one more places in the group
+            next_hidden = ((i - first_counted_idx)%self.buttonlistmaxlen < self.buttonlistmaxlen -1 and  # at least one more places in the group
                     i+1 < len(self.extraeventstypes) and # there is one more button
                     not self.extraeventsvisibility[i+1]) # and the next one is hidden
             # previous button in this group is hidden
-            prev_hidden = ((i - first_visible_idx)%self.buttonlistmaxlen > 0 and # at least one previous place in this group
+            prev_hidden = ((i - first_counted_idx)%self.buttonlistmaxlen > 0 and # at least one previous place in this group
                     i > 0 and # there is more than one button in total
                     not self.extraeventsvisibility[i-1]) # and the previous one is hidden
 
-            if (i - first_visible_idx)%self.buttonlistmaxlen == 0: # left-most button in the row
+            if (i - first_counted_idx)%self.buttonlistmaxlen == 0: # left-most button in the row
                 if i == len(self.extraeventstypes)-1 or next_hidden:
                     # a singleton button in a one element bar
                     self.extraeventbuttonround.append(3)
                 else:
                     # the left-most button in this bar
                     self.extraeventbuttonround.append(1)
-            elif ((i - first_visible_idx)%self.buttonlistmaxlen < self.buttonlistmaxlen-1) and i != len(self.extraeventstypes)-1:
+            elif ((i - first_counted_idx)%self.buttonlistmaxlen < self.buttonlistmaxlen-1) and i != len(self.extraeventstypes)-1:
                 # a button in the middle of this bar
                 if prev_hidden and next_hidden:
                     # we round both sides
@@ -26367,7 +26550,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
             self.buttonlist.append(p)
             self.buttonStates.append(0)
             #add button to row
-            if i < first_visible_idx:
+            if i < first_counted_idx:
                 pass
             elif row1count < self.buttonlistmaxlen:
                 self.e1buttonbarLayout.addWidget(self.buttonlist[i])
@@ -27374,6 +27557,13 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
 
     @pyqtSlot()
     @pyqtSlot(bool)
+    def handleBeancave(self, _:bool = False) -> None:
+        from artisanlib.beancave import BeancaveDlg
+        dialog = BeancaveDlg(self,self)
+        dialog.show()
+
+    @pyqtSlot()
+    @pyqtSlot(bool)
     def simulate(self, _:bool = False) -> None:
         modifiers = QApplication.keyboardModifiers()
         control_modifier = modifiers == Qt.KeyboardModifier.ControlModifier # command/apple key on macOS, Control key on Windows
@@ -27423,7 +27613,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                         if alt_modifier:
                             speed = 2
                         elif control_modifier:
-                            speed = 4
+                            speed = 8
                         self.qmc.timeclock.setBase(1000*speed)
                         self.simulator = Simulator(self.qmc.mode, self.deserialize(filename))
                         self.simulatorpath = filename

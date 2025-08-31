@@ -80,6 +80,7 @@ babel==2.17.0
 bleak==0.22.3; python_version < '3.9' # last Python 3.8 release
 bleak==1.0.1; python_version >= '3.9'
 python-statemachine==2.5.0
+qrcode==8.2
 #
 #
 ######
@@ -123,12 +124,15 @@ pyobjc-framework-libdispatch==10.3.2; sys_platform=='darwin'
 py2app==0.28.8; sys_platform=='darwin'
 #py-cpuinfo==9.0.0; sys_platform=='darwin' # used for proper CPU arch detection running under Rosetta2
 darkdetect==0.8.0; sys_platform=='darwin' and platform_release<'20.0' # detect if dark mode is active (only used by macOS legacy builds)
+wakepy=wakepy-0.10.2.post1 ; sys_platform=='darwin'
 ###
 ########
 ### Linux specific packages
 ###
 distro==1.9.0; platform_system=='Linux'
 SecretStorage==3.3.3; platform_system=='Linux'
+wakepy=wakepy-0.10.2.post1; platform_system=='Linux'
+
 ### NOTES:
 ### keyring on Linux needs the GnomeKeyring package installed for plus to remember the passwords
 ### via # sudo apt install gnome-keyring
@@ -142,3 +146,5 @@ pyinstaller-versionfile==2.1.1; platform_system=='Windows' and python_version < 
 pyinstaller-versionfile==3.0.1; platform_system=='Windows' and python_version >= '3.9'
 libusb-package==1.0.26.3; platform_system=='Windows'
 tzdata==2025.2; platform_system=='Windows' and python_version >= '3.9' # to prevent pyinstaller WARNING: Hidden import "tzdata" not found!
+google-api-python-client=2.176.0
+wakepy=wakepy-0.10.2.post1; platform_system=='Windows'

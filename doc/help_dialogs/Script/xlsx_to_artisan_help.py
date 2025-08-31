@@ -212,7 +212,7 @@ def buildpyCode(filename_in:str) -> str:
                 if row[0].row == num_rows + 2:  # two empty rows signifies the end of the help sheet
                     break
             else:
-                num_rows = row[0].row
+                num_rows = row[0].row if row[0].row is not None else 0
 
         # create the table name for the sheet name
         tbl_name = 'tbl_' + re.sub(r'[^A-Za-z0-9]','',ws.title)

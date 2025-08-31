@@ -1418,6 +1418,8 @@ class PIDcontrol:
 #        if self.aw.qmc.flagon:
         if not self.pidActive:
             self.aw.sendmessage(QApplication.translate('StatusBar','PID ON'))
+#            self.aw.buttonCONTROL.setText(QApplication.translate('Button','CONTROL (PID ON)'))
+
         self.pidModeInit()
 
         self.slider_force_move = True
@@ -1470,6 +1472,7 @@ class PIDcontrol:
     def pidOff(self, send_command:bool = True) -> None:
         if self.pidActive:
             self.aw.sendmessage(QApplication.translate('Message','PID OFF'))
+#            self.aw.buttonCONTROL.setText(QApplication.translate('Button','CONTROL (PID OFF)'))
         self.aw.setTimerColor('timer')
         if self.aw.qmc.flagon and not self.aw.qmc.flagstart:
             self.aw.qmc.setLCDtime(0)

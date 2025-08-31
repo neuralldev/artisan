@@ -1,4 +1,6 @@
 **/*.pyc
+.svn/
+src/.eggs/
 src/build/
 src/dist*/
 src/.pydevproject
@@ -27,50 +29,16 @@ pip-delete-this-directory.txt
 # Testing and coverage
 .pytest_cache/
 .coverage
-.coverage.*
-.htmlcov/
-.tox/
-.nox/
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
+.prev_artisanlib_hash.txt
+simple.log
+artisan_plus.log
+outbox/
+*flycheck_*.py
 
-# Code spelling
-.pyspelling.yml
-
-# Type checking
-.mypy_cache/
-.dmypy.json
-dmypy.json
-.pytype/
-
-# Linting
-.ruff_cache/
-
-# Augment AI assistant files
-.augment/
-
-# IDEs and editors
-.project
-.pydevproject
-.idea/
-.settings/
-.vscode/
-.vscode/settings.json.bak
-.vscode/.ropeproject
-*.swp
-*.swo
-*~
-
-# OS generated files
+#specific local dev
+tail.sh
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+src/.DS_Store
 
 #Keeps derived files out of the Artisan repository
 #   To remove these files from the repository a commit must first be made

@@ -3,10 +3,10 @@ name: Pylint
 on:
   push:
     branches:
-      - master
+      - continuous
   pull_request:
     branches:
-      - master
+      - continuous
   workflow_dispatch:
     inputs:
       logLevel:

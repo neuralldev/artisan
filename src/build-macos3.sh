@@ -22,10 +22,16 @@ set -e  # reduced logging
 python3 -V
 
 # check that we are running on Appveyor
-if [ -z $APPVEYOR ]; then
-    echo "This file is for use on Appveyor CI only."
-    exit 1
-fi
+#if [ -z $APPVEYOR ]; then
+#    echo "This file is for use on Appveyor CI only."
+#    exit 1
+#fi
+
+export QT_PATH=${PYTHONPATH}/site-packages/PyQt6/Qt6
+export QT_SRC_PATH=~/Qt/6.2.3/macos
+export PYUIC=pyuic6
+export PYRCC=pyrcc6
+export PYLUPDATE=./pylupdate6pro
 
 echo "************* build derived files **************"
 ./build-derived.sh macos  #generate the derived files
