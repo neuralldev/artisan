@@ -4059,34 +4059,34 @@ ENDE</translation>
       <location filename="../artisanlib/ports.py" line="1698" />
       <location filename="../artisanlib/ports.py" line="1655" />
       <location filename="../artisanlib/events.py" line="3612" />
-      <location filename="../artisanlib/comm.py" line="6978" />
-      <location filename="../artisanlib/comm.py" line="6949" />
-      <location filename="../artisanlib/comm.py" line="6838" />
-      <location filename="../artisanlib/comm.py" line="6658" />
-      <location filename="../artisanlib/comm.py" line="6444" />
-      <location filename="../artisanlib/comm.py" line="5972" />
-      <location filename="../artisanlib/comm.py" line="4172" />
-      <location filename="../artisanlib/comm.py" line="3955" />
-      <location filename="../artisanlib/comm.py" line="3885" />
-      <location filename="../artisanlib/comm.py" line="3636" />
-      <location filename="../artisanlib/comm.py" line="3514" />
-      <location filename="../artisanlib/comm.py" line="3284" />
-      <location filename="../artisanlib/comm.py" line="3200" />
-      <location filename="../artisanlib/comm.py" line="3137" />
-      <location filename="../artisanlib/comm.py" line="3088" />
-      <location filename="../artisanlib/comm.py" line="3043" />
-      <location filename="../artisanlib/comm.py" line="2983" />
-      <location filename="../artisanlib/comm.py" line="2930" />
-      <location filename="../artisanlib/comm.py" line="2885" />
-      <location filename="../artisanlib/comm.py" line="2677" />
-      <location filename="../artisanlib/comm.py" line="2640" />
-      <location filename="../artisanlib/comm.py" line="2613" />
-      <location filename="../artisanlib/comm.py" line="2572" />
-      <location filename="../artisanlib/comm.py" line="2549" />
-      <location filename="../artisanlib/comm.py" line="2495" />
-      <location filename="../artisanlib/comm.py" line="2447" />
-      <location filename="../artisanlib/comm.py" line="2018" />
-      <location filename="../artisanlib/comm.py" line="825" />
+      <location filename="../artisanlib/comm.py" line="6981" />
+      <location filename="../artisanlib/comm.py" line="6952" />
+      <location filename="../artisanlib/comm.py" line="6841" />
+      <location filename="../artisanlib/comm.py" line="6661" />
+      <location filename="../artisanlib/comm.py" line="6447" />
+      <location filename="../artisanlib/comm.py" line="5975" />
+      <location filename="../artisanlib/comm.py" line="4175" />
+      <location filename="../artisanlib/comm.py" line="3958" />
+      <location filename="../artisanlib/comm.py" line="3888" />
+      <location filename="../artisanlib/comm.py" line="3639" />
+      <location filename="../artisanlib/comm.py" line="3517" />
+      <location filename="../artisanlib/comm.py" line="3287" />
+      <location filename="../artisanlib/comm.py" line="3203" />
+      <location filename="../artisanlib/comm.py" line="3140" />
+      <location filename="../artisanlib/comm.py" line="3091" />
+      <location filename="../artisanlib/comm.py" line="3046" />
+      <location filename="../artisanlib/comm.py" line="2986" />
+      <location filename="../artisanlib/comm.py" line="2933" />
+      <location filename="../artisanlib/comm.py" line="2888" />
+      <location filename="../artisanlib/comm.py" line="2680" />
+      <location filename="../artisanlib/comm.py" line="2643" />
+      <location filename="../artisanlib/comm.py" line="2616" />
+      <location filename="../artisanlib/comm.py" line="2575" />
+      <location filename="../artisanlib/comm.py" line="2552" />
+      <location filename="../artisanlib/comm.py" line="2498" />
+      <location filename="../artisanlib/comm.py" line="2450" />
+      <location filename="../artisanlib/comm.py" line="2021" />
+      <location filename="../artisanlib/comm.py" line="828" />
       <location filename="../artisanlib/comm.py" line="591" />
       <location filename="../artisanlib/comm.py" line="587" />
       <location filename="../artisanlib/comm.py" line="583" />
@@ -4135,117 +4135,117 @@ ENDE</translation>
       <translation>Ingen RX-data modtaget</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="7056" />
-      <location filename="../artisanlib/comm.py" line="7048" />
-      <location filename="../artisanlib/comm.py" line="7031" />
-      <location filename="../artisanlib/comm.py" line="2314" />
-      <location filename="../artisanlib/comm.py" line="764" />
+      <location filename="../artisanlib/comm.py" line="7059" />
+      <location filename="../artisanlib/comm.py" line="7051" />
+      <location filename="../artisanlib/comm.py" line="7034" />
+      <location filename="../artisanlib/comm.py" line="2317" />
+      <location filename="../artisanlib/comm.py" line="767" />
       <location filename="../artisanlib/comm.py" line="606" />
       <source>Serial Exception:</source>
       <translation>Seriel undtagelse:</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="758" />
+      <location filename="../artisanlib/comm.py" line="761" />
       <source>DTAcommand(): {0} bytes received but 15 needed</source>
       <translation>DTAcommand(): {0} bytes modtaget, men 15 nødvendige</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="827" />
+      <location filename="../artisanlib/comm.py" line="830" />
       <source>callprogram() received:</source>
       <translation>callprogram() modtaget:</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="1995" />
+      <location filename="../artisanlib/comm.py" line="1998" />
       <source>Extech755pressure(): conversion error, {0} bytes received</source>
       <translation>Extech755pressure(): konverteringsfejl, {0} bytes modtaget</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2006" />
+      <location filename="../artisanlib/comm.py" line="2009" />
       <source>Extech755pressure(): {0} bytes received but 10 needed</source>
       <translation>Extech755pressure(): {0} bytes modtaget, men 10 nødvendige</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2314" />
+      <location filename="../artisanlib/comm.py" line="2317" />
       <source>Unable to open serial port</source>
       <translation>Kan ikke åbne seriel port</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2441" />
+      <location filename="../artisanlib/comm.py" line="2444" />
       <source>MS6514temperature(): {0} bytes received but 18 needed</source>
       <translation>MS6514temperature(): {0} bytes modtaget, men 18 nødvendige</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2489" />
+      <location filename="../artisanlib/comm.py" line="2492" />
       <source>DT301temperature(): {0} bytes received but 11 needed</source>
       <translation>DT301temperatur(): {0} bytes modtaget, men 11 nødvendige</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2607" />
+      <location filename="../artisanlib/comm.py" line="2610" />
       <source>HH806AUtemperature(): {0} bytes received</source>
       <translation>HH806AUtemperatur(): {0} bytes modtaget</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2653" />
+      <location filename="../artisanlib/comm.py" line="2656" />
       <source>HH806Wtemperature(): Unable to initiate device</source>
       <translation>HH806Wtemperatur(): Kan ikke starte enheden</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2880" />
+      <location filename="../artisanlib/comm.py" line="2883" />
       <source>HH506RAGetID: {0} bytes received but 5 needed</source>
       <translation>HH506RAGetID: {0} bytes modtaget, men 5 nødvendige</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2899" />
+      <location filename="../artisanlib/comm.py" line="2902" />
       <source>HH506RAtemperature(): Unable to get id from HH506RA device </source>
       <translation>HH506RAtemperature(): Kan ikke hente id fra HH506RA-enheden</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2924" />
+      <location filename="../artisanlib/comm.py" line="2927" />
       <source>HH506RAtemperature(): {0} bytes received but 14 needed</source>
       <translation>HH506RAtemperature(): {0} bytes modtaget, men 14 nødvendige</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2975" />
+      <location filename="../artisanlib/comm.py" line="2978" />
       <source>CENTER302temperature(): {0} bytes received but 7 needed</source>
       <translation>CENTER302temperatur(): {0} bytes modtaget, men 7 nødvendige</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3035" />
+      <location filename="../artisanlib/comm.py" line="3038" />
       <source>CENTER303temperature(): {0} bytes received but 8 needed</source>
       <translation>CENTER303temperatur(): {0} bytes modtaget, men 8 nødvendige</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3079" />
+      <location filename="../artisanlib/comm.py" line="3082" />
       <source>VOLTCRAFTPL125T2temperature(): {0} bytes received but 26 needed</source>
       <translation>VOLTCRAFTPL125T2temperatur(): {0} bytes modtaget, men 26 nødvendige</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3128" />
+      <location filename="../artisanlib/comm.py" line="3131" />
       <source>VOLTCRAFTPL125T4temperature(): {0} bytes received but 26 needed</source>
       <translation>VOLTCRAFTPL125T4temperatur(): {0} bytes modtaget, men 26 nødvendige</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3191" />
+      <location filename="../artisanlib/comm.py" line="3194" />
       <source>CENTER306temperature(): {0} bytes received but 10 needed</source>
       <translation>CENTER306temperatur(): {0} bytes modtaget, men 10 nødvendige</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3278" />
+      <location filename="../artisanlib/comm.py" line="3281" />
       <source>CENTER309temperature(): {0} bytes received but 45 needed</source>
       <translation>CENTER309temperatur(): {0} bytes modtaget, men 45 nødvendige</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6503" />
+      <location filename="../artisanlib/comm.py" line="6506" />
       <source>Arduino could not set channels</source>
       <translation>Arduino kunne ikke indstille kanaler</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6519" />
+      <location filename="../artisanlib/comm.py" line="6522" />
       <source>Arduino could not set temperature unit</source>
       <translation>Arduino kunne ikke indstille temperaturenhed</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6529" />
+      <location filename="../artisanlib/comm.py" line="6532" />
       <source>Arduino could not set filters</source>
       <translation>Arduino kunne ikke indstille filtre</translation>
     </message>
@@ -4263,8 +4263,8 @@ ENDE</translation>
       <location filename="../artisanlib/main.py" line="25045" />
       <location filename="../artisanlib/main.py" line="13995" />
       <location filename="../artisanlib/main.py" line="13385" />
-      <location filename="../artisanlib/comm.py" line="6932" />
-      <location filename="../artisanlib/comm.py" line="6829" />
+      <location filename="../artisanlib/comm.py" line="6935" />
+      <location filename="../artisanlib/comm.py" line="6832" />
       <source>Value Error:</source>
       <translation>Værdi fejl:</translation>
     </message>
@@ -11261,7 +11261,7 @@ Brug af matematiske formler i plotteren giver også mulighed for at bruge de sym
     <name>Label</name>
     <message>
       <location filename="../artisanlib/canvas.py" line="11831" />
-      <location filename="../artisanlib/large_lcds.py" line="840" />
+      <location filename="../artisanlib/large_lcds.py" line="837" />
       <location filename="../artisanlib/roast_properties.py" line="900" />
       <location filename="../artisanlib/roast_properties.py" line="227" />
       <location filename="../artisanlib/roast_properties.py" line="154" />
@@ -11343,7 +11343,7 @@ Brug af matematiske formler i plotteren giver også mulighed for at bruge de sym
     <message>
       <location filename="../artisanlib/roast_properties.py" line="899" />
       <location filename="../artisanlib/roast_properties.py" line="285" />
-      <location filename="../plus/schedule.py" line="3893" />
+      <location filename="../plus/schedule.py" line="3958" />
       <location filename="../plus/schedule.py" line="2105" />
       <source>Roasted</source>
       <translation>Ristede</translation>
@@ -11354,7 +11354,7 @@ Brug af matematiske formler i plotteren giver også mulighed for at bruge de sym
       <location filename="../artisanlib/canvas.py" line="11775" />
       <location filename="../artisanlib/roast_properties.py" line="898" />
       <location filename="../artisanlib/roast_properties.py" line="212" />
-      <location filename="../plus/schedule.py" line="3891" />
+      <location filename="../plus/schedule.py" line="3956" />
       <source>Green</source>
       <translation>Grøn</translation>
     </message>
@@ -13165,7 +13165,7 @@ LCD-skærme alle</translation>
       <translation>PID%</translation>
     </message>
     <message>
-      <location filename="../artisanlib/large_lcds.py" line="845" />
+      <location filename="../artisanlib/large_lcds.py" line="842" />
       <source>Total</source>
       <translation type="unfinished" />
     </message>
@@ -14104,7 +14104,7 @@ LCD-skærme alle</translation>
     <name>Menu</name>
     <message>
       <location filename="../artisanlib/main.py" line="2744" />
-      <location filename="../plus/schedule.py" line="2284" />
+      <location filename="../plus/schedule.py" line="2310" />
       <source>Schedule</source>
       <translation>Plan</translation>
     </message>
@@ -14134,19 +14134,19 @@ LCD-skærme alle</translation>
     </message>
     <message>
       <location filename="../artisanlib/main.py" line="2774" />
-      <location filename="../artisanlib/large_lcds.py" line="614" />
+      <location filename="../artisanlib/large_lcds.py" line="611" />
       <source>Extra LCDs</source>
       <translation>Ekstra LCD-skærme</translation>
     </message>
     <message>
       <location filename="../artisanlib/main.py" line="2780" />
-      <location filename="../artisanlib/large_lcds.py" line="736" />
+      <location filename="../artisanlib/large_lcds.py" line="733" />
       <source>Phases LCDs</source>
       <translation>Faser LCD-skærme</translation>
     </message>
     <message>
       <location filename="../artisanlib/main.py" line="2786" />
-      <location filename="../artisanlib/large_lcds.py" line="833" />
+      <location filename="../artisanlib/large_lcds.py" line="830" />
       <source>Scale LCDs</source>
       <translation>Skalér LCD-skærme</translation>
     </message>
@@ -14702,47 +14702,47 @@ LCD-skærme alle</translation>
       <translation>Registrer Steg</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="2338" />
+      <location filename="../plus/schedule.py" line="2364" />
       <source>Scheduler started</source>
       <translation>Planlægger startede</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="2640" />
+      <location filename="../plus/schedule.py" line="2673" />
       <source>Roasts will not adjust the schedule&lt;br&gt;while the schedule window is closed</source>
       <translation>Stege vil ikke justere tidsplanen&lt;br&gt;mens tidsplanvinduet er lukket</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="2654" />
-      <location filename="../plus/schedule.py" line="2645" />
+      <location filename="../plus/schedule.py" line="2687" />
+      <location filename="../plus/schedule.py" line="2678" />
       <source>Close Scheduler</source>
       <translation>Luk Scheduler</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="2702" />
+      <location filename="../plus/schedule.py" line="2735" />
       <source>Scheduler stopped</source>
       <translation>Planlægger stoppet</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3584" />
-      <location filename="../plus/schedule.py" line="3066" />
+      <location filename="../plus/schedule.py" line="3649" />
+      <location filename="../plus/schedule.py" line="3131" />
       <source>1 batch</source>
       <translation>1 portion</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3599" />
-      <location filename="../plus/schedule.py" line="3590" />
-      <location filename="../plus/schedule.py" line="3074" />
-      <location filename="../plus/schedule.py" line="3068" />
+      <location filename="../plus/schedule.py" line="3664" />
+      <location filename="../plus/schedule.py" line="3655" />
+      <location filename="../plus/schedule.py" line="3139" />
+      <location filename="../plus/schedule.py" line="3133" />
       <source>{} batches</source>
       <translation>{} partier</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3412" />
+      <location filename="../plus/schedule.py" line="3477" />
       <source>Updating completed roast properties failed</source>
       <translation>Opdatering af færdige stegeegenskaber mislykkedes</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3478" />
+      <location filename="../plus/schedule.py" line="3543" />
       <source>Fetching completed roast properties failed</source>
       <translation>Hentning af færdige stegeegenskaber mislykkedes</translation>
     </message>
@@ -14776,7 +14776,7 @@ LCD-skærme alle</translation>
       <location filename="../artisanlib/canvas.py" line="13155" />
       <location filename="../artisanlib/canvas.py" line="13137" />
       <location filename="../artisanlib/main.py" line="4435" />
-      <location filename="../artisanlib/comm.py" line="1515" />
+      <location filename="../artisanlib/comm.py" line="1518" />
       <location filename="../artisanlib/wsport.py" line="286" />
       <source>{} connected</source>
       <translation>{} tilsluttet</translation>
@@ -14790,7 +14790,7 @@ LCD-skærme alle</translation>
       <location filename="../artisanlib/canvas.py" line="13156" />
       <location filename="../artisanlib/canvas.py" line="13138" />
       <location filename="../artisanlib/main.py" line="4442" />
-      <location filename="../artisanlib/comm.py" line="1516" />
+      <location filename="../artisanlib/comm.py" line="1519" />
       <location filename="../artisanlib/wsport.py" line="337" />
       <location filename="../artisanlib/wsport.py" line="322" />
       <location filename="../artisanlib/wsport.py" line="315" />
@@ -15051,238 +15051,238 @@ Gentag handling i slutningen: {0}</translation>
       <translation>Nuværende pid = {0}. Skift nu til pid ={1}?</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3430" />
+      <location filename="../artisanlib/comm.py" line="3433" />
       <source>Phidget Temperature Sensor IR attached</source>
       <translation>Phidget temperatursensor IR tilsluttet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3433" />
+      <location filename="../artisanlib/comm.py" line="3436" />
       <source>Phidget Temperature Sensor 1-input attached</source>
       <translation>Phidget temperatursensor 1-indgang tilsluttet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3436" />
+      <location filename="../artisanlib/comm.py" line="3439" />
       <source>Phidget Isolated Thermocouple 1-input attached</source>
       <translation>Phidget Isoleret termoelement 1-indgang tilsluttet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3442" />
+      <location filename="../artisanlib/comm.py" line="3445" />
       <source>Phidget VINT RTD 1-input attached</source>
       <translation>Phidget VINT RTD 1-indgang tilsluttet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3454" />
+      <location filename="../artisanlib/comm.py" line="3457" />
       <source>Phidget Temperature Sensor IR detached</source>
       <translation>Phidget temperatursensor IR afmonteret</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3456" />
+      <location filename="../artisanlib/comm.py" line="3459" />
       <source>Phidget Temperature Sensor 1-input detached</source>
       <translation>Phidget temperatursensor 1-indgang afmonteret</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3458" />
+      <location filename="../artisanlib/comm.py" line="3461" />
       <source>Phidget Isolated Thermocouple 1-input detached</source>
       <translation>Phidget Isoleret termoelement 1-indgang adskilt</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3460" />
+      <location filename="../artisanlib/comm.py" line="3463" />
       <source>Phidget VINT RTD 1-input detached</source>
       <translation>Phidget VINT RTD 1-indgang adskilt</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3748" />
+      <location filename="../artisanlib/comm.py" line="3751" />
       <source>Phidget Temperature Sensor 4-input attached</source>
       <translation>Phidget temperatursensor 4-indgang tilsluttet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3759" />
+      <location filename="../artisanlib/comm.py" line="3762" />
       <source>Phidget Temperature Sensor 4-input detached</source>
       <translation>Phidget-temperatursensor 4-indgang adskilt</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="4058" />
+      <location filename="../artisanlib/comm.py" line="4061" />
       <source>Phidget 1046 attached</source>
       <translation>Phidget 1046 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="4060" />
+      <location filename="../artisanlib/comm.py" line="4063" />
       <source>Phidget DAQ1500 attached</source>
       <translation>Phidget DAQ1500 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="4072" />
+      <location filename="../artisanlib/comm.py" line="4075" />
       <source>Phidget 1046 detached</source>
       <translation>Phidget 1046 fritliggende</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="4074" />
+      <location filename="../artisanlib/comm.py" line="4077" />
       <source>Phidget DAQ1500 detached</source>
       <translation>Phidget DAQ1500 fritstående</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5746" />
+      <location filename="../artisanlib/comm.py" line="5749" />
       <source>Phidget IO 2/2/2 attached</source>
       <translation>Phidget IO 2/2/2 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5748" />
+      <location filename="../artisanlib/comm.py" line="5751" />
       <source>Phidget IO 6/6/6 attached</source>
       <translation>Phidget IO 6/6/6 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5750" />
+      <location filename="../artisanlib/comm.py" line="5753" />
       <source>Phidget IO 8/8/8 attached</source>
       <translation>Phidget IO 8/8/8 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5752" />
+      <location filename="../artisanlib/comm.py" line="5755" />
       <source>Phidget DAQ1000 attached</source>
       <translation>Phidget DAQ1000 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5754" />
+      <location filename="../artisanlib/comm.py" line="5757" />
       <source>Phidget DAQ1200 attached</source>
       <translation>Phidget DAQ1200 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5756" />
+      <location filename="../artisanlib/comm.py" line="5759" />
       <source>Phidget DAQ1300 attached</source>
       <translation>Phidget DAQ1300 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5758" />
+      <location filename="../artisanlib/comm.py" line="5761" />
       <source>Phidget DAQ1301 attached</source>
       <translation>Phidget DAQ1301 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5760" />
+      <location filename="../artisanlib/comm.py" line="5763" />
       <source>Phidget DAQ1400 attached</source>
       <translation>Phidget DAQ1400 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5762" />
+      <location filename="../artisanlib/comm.py" line="5765" />
       <source>Phidget VCP1000 attached</source>
       <translation>Phidget VCP1000 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5764" />
+      <location filename="../artisanlib/comm.py" line="5767" />
       <source>Phidget VCP1001 attached</source>
       <translation>Phidget VCP1001 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5766" />
+      <location filename="../artisanlib/comm.py" line="5769" />
       <source>Phidget VCP1002 attached</source>
       <translation>Phidget VCP1002 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5768" />
+      <location filename="../artisanlib/comm.py" line="5771" />
       <source>Phidget IO attached</source>
       <translation>Phidget IO vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5780" />
+      <location filename="../artisanlib/comm.py" line="5783" />
       <source>Phidget IO 2/2/2 detached</source>
       <translation>Phidget IO 2/2/2 løsrevet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5782" />
+      <location filename="../artisanlib/comm.py" line="5785" />
       <source>Phidget IO 6/6/6 detached</source>
       <translation>Phidget IO 6/6/6 afmonteret</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5784" />
+      <location filename="../artisanlib/comm.py" line="5787" />
       <source>Phidget IO 8/8/8 detached</source>
       <translation>Phidget IO 8/8/8 løsrevet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5786" />
+      <location filename="../artisanlib/comm.py" line="5789" />
       <source>Phidget DAQ1000 detached</source>
       <translation>Phidget DAQ1000 fritstående</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5788" />
+      <location filename="../artisanlib/comm.py" line="5791" />
       <source>Phidget DAQ1200 detached</source>
       <translation>Phidget DAQ1200 fritstående</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5790" />
+      <location filename="../artisanlib/comm.py" line="5793" />
       <source>Phidget DAQ1300 detached</source>
       <translation>Phidget DAQ1300 fritstående</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5792" />
+      <location filename="../artisanlib/comm.py" line="5795" />
       <source>Phidget DAQ1301 detached</source>
       <translation>Phidget DAQ1301 afmonteret</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5794" />
+      <location filename="../artisanlib/comm.py" line="5797" />
       <source>Phidget DAQ1400 detached</source>
       <translation>Phidget DAQ1400 fritstående</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5796" />
+      <location filename="../artisanlib/comm.py" line="5799" />
       <source>Phidget VCP1000 detached</source>
       <translation>Phidget VCP1000 afmonteret</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5798" />
+      <location filename="../artisanlib/comm.py" line="5801" />
       <source>Phidget VCP1001 detached</source>
       <translation>Phidget VCP1001 afmonteret</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5800" />
+      <location filename="../artisanlib/comm.py" line="5803" />
       <source>Phidget VCP1002 detached</source>
       <translation>Phidget VCP1002 afmonteret</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5802" />
+      <location filename="../artisanlib/comm.py" line="5805" />
       <source>Phidget IO detached</source>
       <translation>Phidget IO løsrevet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6106" />
+      <location filename="../artisanlib/comm.py" line="6109" />
       <source>Yocto Thermocouple attached</source>
       <translation>Yocto termoelement monteret</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6108" />
+      <location filename="../artisanlib/comm.py" line="6111" />
       <source>Yocto IR attached</source>
       <translation>Yocto IR tilsluttet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6165" />
+      <location filename="../artisanlib/comm.py" line="6168" />
       <source>Yocto PT100 attached</source>
       <translation>Yocto PT100 vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6267" />
-      <location filename="../artisanlib/comm.py" line="6204" />
+      <location filename="../artisanlib/comm.py" line="6270" />
+      <location filename="../artisanlib/comm.py" line="6207" />
       <source>Yocto Sensor attached</source>
       <translation>Yocto Sensor tilsluttet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6210" />
+      <location filename="../artisanlib/comm.py" line="6213" />
       <source>Yocto Watt Power attached</source>
       <translation>Yocto Watt Power tilsluttet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6216" />
+      <location filename="../artisanlib/comm.py" line="6219" />
       <source>Yocto Watt Energy attached</source>
       <translation>Yocto Watt Energy vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6233" />
+      <location filename="../artisanlib/comm.py" line="6236" />
       <source>Yocto Watt Voltage attached</source>
       <translation>Yocto Watt spænding tilsluttet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6250" />
+      <location filename="../artisanlib/comm.py" line="6253" />
       <source>Yocto Watt Current attached</source>
       <translation>Yocto Watt Strøm vedhæftet</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6532" />
+      <location filename="../artisanlib/comm.py" line="6535" />
       <source>TC4 initialized</source>
       <translation>TC4 initialiseret</translation>
     </message>
@@ -17576,32 +17576,37 @@ Profil mangler [CHARGE] eller [DROP]</translation>
       <translation>Ingen færdige stege</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="2246" />
+      <location filename="../plus/schedule.py" line="2177" />
+      <source>Schedule Updated!</source>
+      <translation>Stegeplan opdateret!</translation>
+    </message>
+    <message>
+      <location filename="../plus/schedule.py" line="2272" />
       <source>Login to {} to receive your roast schedule</source>
       <translation>Log ind på {} for at modtage din stegeplan</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3126" />
+      <location filename="../plus/schedule.py" line="3191" />
       <source>List only items scheduled for the current user {}</source>
       <translation>Vis kun elementer, der er planlagt for den aktuelle bruger {}</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3134" />
+      <location filename="../plus/schedule.py" line="3199" />
       <source>List only items scheduled for the current machine {}</source>
       <translation>Vis kun elementer, der er planlagt til den aktuelle maskine {}</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3823" />
+      <location filename="../plus/schedule.py" line="3888" />
       <source>Schedule empty!{}Plan your schedule on {}</source>
       <translation>Tidsplanen er tom!{}Planlæg din tidsplan på {}</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3831" />
+      <location filename="../plus/schedule.py" line="3896" />
       <source>Nothing scheduled for you today!{}Deactivate filters to see all items.</source>
       <translation>Intet planlagt til dig i dag!{}Deaktiver filtre for at se alle elementer.</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3881" />
+      <location filename="../plus/schedule.py" line="3946" />
       <source>nothing to weight</source>
       <translation>intet til vægt</translation>
     </message>
@@ -17779,7 +17784,7 @@ Profil mangler [CHARGE] eller [DROP]</translation>
       <location filename="../artisanlib/roast_properties.py" line="2485" />
       <location filename="../artisanlib/roast_properties.py" line="2138" />
       <location filename="../artisanlib/roast_properties.py" line="2125" />
-      <location filename="../plus/schedule.py" line="2778" />
+      <location filename="../plus/schedule.py" line="2843" />
       <source>Roaster Scope</source>
       <translation type="unfinished" />
     </message>
@@ -18152,12 +18157,12 @@ Profil mangler [CHARGE] eller [DROP]</translation>
   <context>
     <name>Tab</name>
     <message>
-      <location filename="../plus/schedule.py" line="2185" />
+      <location filename="../plus/schedule.py" line="2211" />
       <source>To-Do</source>
       <translation>At gøre</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="2186" />
+      <location filename="../plus/schedule.py" line="2212" />
       <source>Completed</source>
       <translation>Afsluttet</translation>
     </message>
@@ -19149,7 +19154,7 @@ Profil mangler [CHARGE] eller [DROP]</translation>
   <context>
     <name>Tooltip</name>
     <message>
-      <location filename="../plus/schedule.py" line="2149" />
+      <location filename="../plus/schedule.py" line="2145" />
       <source>Update schedule</source>
       <translation>Opdater tidsplan</translation>
     </message>

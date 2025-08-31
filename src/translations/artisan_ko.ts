@@ -4520,34 +4520,34 @@ END</source>
       <location filename="../artisanlib/ports.py" line="1698" />
       <location filename="../artisanlib/ports.py" line="1655" />
       <location filename="../artisanlib/events.py" line="3612" />
-      <location filename="../artisanlib/comm.py" line="6978" />
-      <location filename="../artisanlib/comm.py" line="6949" />
-      <location filename="../artisanlib/comm.py" line="6838" />
-      <location filename="../artisanlib/comm.py" line="6658" />
-      <location filename="../artisanlib/comm.py" line="6444" />
-      <location filename="../artisanlib/comm.py" line="5972" />
-      <location filename="../artisanlib/comm.py" line="4172" />
-      <location filename="../artisanlib/comm.py" line="3955" />
-      <location filename="../artisanlib/comm.py" line="3885" />
-      <location filename="../artisanlib/comm.py" line="3636" />
-      <location filename="../artisanlib/comm.py" line="3514" />
-      <location filename="../artisanlib/comm.py" line="3284" />
-      <location filename="../artisanlib/comm.py" line="3200" />
-      <location filename="../artisanlib/comm.py" line="3137" />
-      <location filename="../artisanlib/comm.py" line="3088" />
-      <location filename="../artisanlib/comm.py" line="3043" />
-      <location filename="../artisanlib/comm.py" line="2983" />
-      <location filename="../artisanlib/comm.py" line="2930" />
-      <location filename="../artisanlib/comm.py" line="2885" />
-      <location filename="../artisanlib/comm.py" line="2677" />
-      <location filename="../artisanlib/comm.py" line="2640" />
-      <location filename="../artisanlib/comm.py" line="2613" />
-      <location filename="../artisanlib/comm.py" line="2572" />
-      <location filename="../artisanlib/comm.py" line="2549" />
-      <location filename="../artisanlib/comm.py" line="2495" />
-      <location filename="../artisanlib/comm.py" line="2447" />
-      <location filename="../artisanlib/comm.py" line="2018" />
-      <location filename="../artisanlib/comm.py" line="825" />
+      <location filename="../artisanlib/comm.py" line="6981" />
+      <location filename="../artisanlib/comm.py" line="6952" />
+      <location filename="../artisanlib/comm.py" line="6841" />
+      <location filename="../artisanlib/comm.py" line="6661" />
+      <location filename="../artisanlib/comm.py" line="6447" />
+      <location filename="../artisanlib/comm.py" line="5975" />
+      <location filename="../artisanlib/comm.py" line="4175" />
+      <location filename="../artisanlib/comm.py" line="3958" />
+      <location filename="../artisanlib/comm.py" line="3888" />
+      <location filename="../artisanlib/comm.py" line="3639" />
+      <location filename="../artisanlib/comm.py" line="3517" />
+      <location filename="../artisanlib/comm.py" line="3287" />
+      <location filename="../artisanlib/comm.py" line="3203" />
+      <location filename="../artisanlib/comm.py" line="3140" />
+      <location filename="../artisanlib/comm.py" line="3091" />
+      <location filename="../artisanlib/comm.py" line="3046" />
+      <location filename="../artisanlib/comm.py" line="2986" />
+      <location filename="../artisanlib/comm.py" line="2933" />
+      <location filename="../artisanlib/comm.py" line="2888" />
+      <location filename="../artisanlib/comm.py" line="2680" />
+      <location filename="../artisanlib/comm.py" line="2643" />
+      <location filename="../artisanlib/comm.py" line="2616" />
+      <location filename="../artisanlib/comm.py" line="2575" />
+      <location filename="../artisanlib/comm.py" line="2552" />
+      <location filename="../artisanlib/comm.py" line="2498" />
+      <location filename="../artisanlib/comm.py" line="2450" />
+      <location filename="../artisanlib/comm.py" line="2021" />
+      <location filename="../artisanlib/comm.py" line="828" />
       <location filename="../artisanlib/comm.py" line="591" />
       <location filename="../artisanlib/comm.py" line="587" />
       <location filename="../artisanlib/comm.py" line="583" />
@@ -4596,117 +4596,117 @@ END</source>
       <translation>수신된 RX 데이터 없음</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="7056" />
-      <location filename="../artisanlib/comm.py" line="7048" />
-      <location filename="../artisanlib/comm.py" line="7031" />
-      <location filename="../artisanlib/comm.py" line="2314" />
-      <location filename="../artisanlib/comm.py" line="764" />
+      <location filename="../artisanlib/comm.py" line="7059" />
+      <location filename="../artisanlib/comm.py" line="7051" />
+      <location filename="../artisanlib/comm.py" line="7034" />
+      <location filename="../artisanlib/comm.py" line="2317" />
+      <location filename="../artisanlib/comm.py" line="767" />
       <location filename="../artisanlib/comm.py" line="606" />
       <source>Serial Exception:</source>
       <translation>직렬 예외:</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="758" />
+      <location filename="../artisanlib/comm.py" line="761" />
       <source>DTAcommand(): {0} bytes received but 15 needed</source>
       <translation>DTAcommand(): {0}바이트를 받았지만 15바이트가 필요합니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="827" />
+      <location filename="../artisanlib/comm.py" line="830" />
       <source>callprogram() received:</source>
       <translation>callprogram() 수신:</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="1995" />
+      <location filename="../artisanlib/comm.py" line="1998" />
       <source>Extech755pressure(): conversion error, {0} bytes received</source>
       <translation>Extech755pressure(): 변환 오류, {0}바이트 수신됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2006" />
+      <location filename="../artisanlib/comm.py" line="2009" />
       <source>Extech755pressure(): {0} bytes received but 10 needed</source>
       <translation>Extech755pressure(): {0}바이트가 수신되었지만 10바이트가 필요합니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2314" />
+      <location filename="../artisanlib/comm.py" line="2317" />
       <source>Unable to open serial port</source>
       <translation>직렬 포트를 열 수 없습니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2441" />
+      <location filename="../artisanlib/comm.py" line="2444" />
       <source>MS6514temperature(): {0} bytes received but 18 needed</source>
       <translation>MS6514온도(): {0}바이트를 받았지만 18바이트가 필요합니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2489" />
+      <location filename="../artisanlib/comm.py" line="2492" />
       <source>DT301temperature(): {0} bytes received but 11 needed</source>
       <translation>DT301temperature(): {0}바이트를 받았지만 11바이트가 필요합니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2607" />
+      <location filename="../artisanlib/comm.py" line="2610" />
       <source>HH806AUtemperature(): {0} bytes received</source>
       <translation>HH806AU온도(): {0}바이트 수신됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2653" />
+      <location filename="../artisanlib/comm.py" line="2656" />
       <source>HH806Wtemperature(): Unable to initiate device</source>
       <translation>HH806W온도(): 장치를 시작할 수 없습니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2880" />
+      <location filename="../artisanlib/comm.py" line="2883" />
       <source>HH506RAGetID: {0} bytes received but 5 needed</source>
       <translation>HH506RAGetID: {0}바이트가 수신되었지만 5바이트가 필요합니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2899" />
+      <location filename="../artisanlib/comm.py" line="2902" />
       <source>HH506RAtemperature(): Unable to get id from HH506RA device </source>
       <translation>HH506RAtemperature(): HH506RA 장치에서 ID를 가져올 수 없습니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2924" />
+      <location filename="../artisanlib/comm.py" line="2927" />
       <source>HH506RAtemperature(): {0} bytes received but 14 needed</source>
       <translation>HH506RAtemperature(): {0}바이트를 받았지만 14바이트가 필요합니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="2975" />
+      <location filename="../artisanlib/comm.py" line="2978" />
       <source>CENTER302temperature(): {0} bytes received but 7 needed</source>
       <translation>CENTER302온도(): {0}바이트를 받았지만 7바이트가 필요합니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3035" />
+      <location filename="../artisanlib/comm.py" line="3038" />
       <source>CENTER303temperature(): {0} bytes received but 8 needed</source>
       <translation>CENTER303온도(): {0}바이트를 받았지만 8바이트가 필요합니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3079" />
+      <location filename="../artisanlib/comm.py" line="3082" />
       <source>VOLTCRAFTPL125T2temperature(): {0} bytes received but 26 needed</source>
       <translation>VOLTCRAFTPL125T2temperature(): {0}바이트를 받았지만 26바이트가 필요합니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3128" />
+      <location filename="../artisanlib/comm.py" line="3131" />
       <source>VOLTCRAFTPL125T4temperature(): {0} bytes received but 26 needed</source>
       <translation>VOLTCRAFTPL125T4temperature(): {0}바이트를 받았지만 26바이트가 필요합니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3191" />
+      <location filename="../artisanlib/comm.py" line="3194" />
       <source>CENTER306temperature(): {0} bytes received but 10 needed</source>
       <translation>CENTER306온도(): {0}바이트를 받았지만 10바이트가 필요합니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3278" />
+      <location filename="../artisanlib/comm.py" line="3281" />
       <source>CENTER309temperature(): {0} bytes received but 45 needed</source>
       <translation>CENTER309temperature(): {0}바이트를 받았지만 45바이트가 필요합니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6503" />
+      <location filename="../artisanlib/comm.py" line="6506" />
       <source>Arduino could not set channels</source>
       <translation>Arduino가 채널을 설정할 수 없습니다.</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6519" />
+      <location filename="../artisanlib/comm.py" line="6522" />
       <source>Arduino could not set temperature unit</source>
       <translation>Arduino는 온도 단위를 설정할 수 없습니다</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6529" />
+      <location filename="../artisanlib/comm.py" line="6532" />
       <source>Arduino could not set filters</source>
       <translation>Arduino는 필터를 설정할 수 없습니다</translation>
     </message>
@@ -4724,8 +4724,8 @@ END</source>
       <location filename="../artisanlib/main.py" line="25045" />
       <location filename="../artisanlib/main.py" line="13995" />
       <location filename="../artisanlib/main.py" line="13385" />
-      <location filename="../artisanlib/comm.py" line="6932" />
-      <location filename="../artisanlib/comm.py" line="6829" />
+      <location filename="../artisanlib/comm.py" line="6935" />
+      <location filename="../artisanlib/comm.py" line="6832" />
       <source>Value Error:</source>
       <translation>값 오류:</translation>
     </message>
@@ -12181,7 +12181,7 @@ When Keyboard Shortcuts are OFF adds a custom event</source>
     <name>Label</name>
     <message>
       <location filename="../artisanlib/canvas.py" line="11831" />
-      <location filename="../artisanlib/large_lcds.py" line="840" />
+      <location filename="../artisanlib/large_lcds.py" line="837" />
       <location filename="../artisanlib/roast_properties.py" line="900" />
       <location filename="../artisanlib/roast_properties.py" line="227" />
       <location filename="../artisanlib/roast_properties.py" line="154" />
@@ -12263,7 +12263,7 @@ When Keyboard Shortcuts are OFF adds a custom event</source>
     <message>
       <location filename="../artisanlib/roast_properties.py" line="899" />
       <location filename="../artisanlib/roast_properties.py" line="285" />
-      <location filename="../plus/schedule.py" line="3893" />
+      <location filename="../plus/schedule.py" line="3958" />
       <location filename="../plus/schedule.py" line="2105" />
       <source>Roasted</source>
       <translation type="unfinished">원두</translation>
@@ -12274,7 +12274,7 @@ When Keyboard Shortcuts are OFF adds a custom event</source>
       <location filename="../artisanlib/canvas.py" line="11775" />
       <location filename="../artisanlib/roast_properties.py" line="898" />
       <location filename="../artisanlib/roast_properties.py" line="212" />
-      <location filename="../plus/schedule.py" line="3891" />
+      <location filename="../plus/schedule.py" line="3956" />
       <source>Green</source>
       <translation>생두</translation>
     </message>
@@ -14085,7 +14085,7 @@ LCD 모두</translation>
       <translation>PID %</translation>
     </message>
     <message>
-      <location filename="../artisanlib/large_lcds.py" line="845" />
+      <location filename="../artisanlib/large_lcds.py" line="842" />
       <source>Total</source>
       <translation>총</translation>
     </message>
@@ -15328,7 +15328,7 @@ LCD 모두</translation>
     <name>Menu</name>
     <message>
       <location filename="../artisanlib/main.py" line="2744" />
-      <location filename="../plus/schedule.py" line="2284" />
+      <location filename="../plus/schedule.py" line="2310" />
       <source>Schedule</source>
       <translation>계획</translation>
     </message>
@@ -15358,19 +15358,19 @@ LCD 모두</translation>
     </message>
     <message>
       <location filename="../artisanlib/main.py" line="2774" />
-      <location filename="../artisanlib/large_lcds.py" line="614" />
+      <location filename="../artisanlib/large_lcds.py" line="611" />
       <source>Extra LCDs</source>
       <translation>추가 LCD</translation>
     </message>
     <message>
       <location filename="../artisanlib/main.py" line="2780" />
-      <location filename="../artisanlib/large_lcds.py" line="736" />
+      <location filename="../artisanlib/large_lcds.py" line="733" />
       <source>Phases LCDs</source>
       <translation type="unfinished">구간표시 LCD</translation>
     </message>
     <message>
       <location filename="../artisanlib/main.py" line="2786" />
-      <location filename="../artisanlib/large_lcds.py" line="833" />
+      <location filename="../artisanlib/large_lcds.py" line="830" />
       <source>Scale LCDs</source>
       <translation>LCD 스케일</translation>
     </message>
@@ -15994,47 +15994,47 @@ LCD 모두</translation>
       <translation>등록 로스트</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="2338" />
+      <location filename="../plus/schedule.py" line="2364" />
       <source>Scheduler started</source>
       <translation>스케줄러가 시작되었습니다.</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="2640" />
+      <location filename="../plus/schedule.py" line="2673" />
       <source>Roasts will not adjust the schedule&lt;br&gt;while the schedule window is closed</source>
       <translation>일정 창이 닫혀 있는 동안에는 로스트가 일정을 조정하지 않습니다.</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="2654" />
-      <location filename="../plus/schedule.py" line="2645" />
+      <location filename="../plus/schedule.py" line="2687" />
+      <location filename="../plus/schedule.py" line="2678" />
       <source>Close Scheduler</source>
       <translation>스케줄러 닫기</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="2702" />
+      <location filename="../plus/schedule.py" line="2735" />
       <source>Scheduler stopped</source>
       <translation>스케줄러가 중지되었습니다.</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3584" />
-      <location filename="../plus/schedule.py" line="3066" />
+      <location filename="../plus/schedule.py" line="3649" />
+      <location filename="../plus/schedule.py" line="3131" />
       <source>1 batch</source>
       <translation>1개 배치</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3599" />
-      <location filename="../plus/schedule.py" line="3590" />
-      <location filename="../plus/schedule.py" line="3074" />
-      <location filename="../plus/schedule.py" line="3068" />
+      <location filename="../plus/schedule.py" line="3664" />
+      <location filename="../plus/schedule.py" line="3655" />
+      <location filename="../plus/schedule.py" line="3139" />
+      <location filename="../plus/schedule.py" line="3133" />
       <source>{} batches</source>
       <translation>{} 배치</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3412" />
+      <location filename="../plus/schedule.py" line="3477" />
       <source>Updating completed roast properties failed</source>
       <translation>완료된 로스팅 속성 업데이트에 실패했습니다.</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3478" />
+      <location filename="../plus/schedule.py" line="3543" />
       <source>Fetching completed roast properties failed</source>
       <translation>완료된 로스트 속성을 가져오는 데 실패했습니다.</translation>
     </message>
@@ -16068,7 +16068,7 @@ LCD 모두</translation>
       <location filename="../artisanlib/canvas.py" line="13155" />
       <location filename="../artisanlib/canvas.py" line="13137" />
       <location filename="../artisanlib/main.py" line="4435" />
-      <location filename="../artisanlib/comm.py" line="1515" />
+      <location filename="../artisanlib/comm.py" line="1518" />
       <location filename="../artisanlib/wsport.py" line="286" />
       <source>{} connected</source>
       <translation>{} 연결됨</translation>
@@ -16082,7 +16082,7 @@ LCD 모두</translation>
       <location filename="../artisanlib/canvas.py" line="13156" />
       <location filename="../artisanlib/canvas.py" line="13138" />
       <location filename="../artisanlib/main.py" line="4442" />
-      <location filename="../artisanlib/comm.py" line="1516" />
+      <location filename="../artisanlib/comm.py" line="1519" />
       <location filename="../artisanlib/wsport.py" line="337" />
       <location filename="../artisanlib/wsport.py" line="322" />
       <location filename="../artisanlib/wsport.py" line="315" />
@@ -16343,238 +16343,238 @@ Repeat Operation at the end: {0}</source>
       <translation>현재 PID = {0}. 지금 pid ={1}로 변경하시겠습니까?</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3430" />
+      <location filename="../artisanlib/comm.py" line="3433" />
       <source>Phidget Temperature Sensor IR attached</source>
       <translation>피젯 온도 센서 IR 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3433" />
+      <location filename="../artisanlib/comm.py" line="3436" />
       <source>Phidget Temperature Sensor 1-input attached</source>
       <translation>피젯 온도센서 1입력 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3436" />
+      <location filename="../artisanlib/comm.py" line="3439" />
       <source>Phidget Isolated Thermocouple 1-input attached</source>
       <translation>피젯 절연 써모커플 1-입력 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3442" />
+      <location filename="../artisanlib/comm.py" line="3445" />
       <source>Phidget VINT RTD 1-input attached</source>
       <translation>Phidget VINT RTD 1-입력 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3454" />
+      <location filename="../artisanlib/comm.py" line="3457" />
       <source>Phidget Temperature Sensor IR detached</source>
       <translation>Phidget 온도 센서 IR 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3456" />
+      <location filename="../artisanlib/comm.py" line="3459" />
       <source>Phidget Temperature Sensor 1-input detached</source>
       <translation>Phidget 온도 센서 1 입력 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3458" />
+      <location filename="../artisanlib/comm.py" line="3461" />
       <source>Phidget Isolated Thermocouple 1-input detached</source>
       <translation>피젯 절연 써모커플 1-입력 분리</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3460" />
+      <location filename="../artisanlib/comm.py" line="3463" />
       <source>Phidget VINT RTD 1-input detached</source>
       <translation>Phidget VINT RTD 1 입력 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3748" />
+      <location filename="../artisanlib/comm.py" line="3751" />
       <source>Phidget Temperature Sensor 4-input attached</source>
       <translation>피젯 온도센서 4입력 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="3759" />
+      <location filename="../artisanlib/comm.py" line="3762" />
       <source>Phidget Temperature Sensor 4-input detached</source>
       <translation>Phidget 온도 센서 4 입력 분리</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="4058" />
+      <location filename="../artisanlib/comm.py" line="4061" />
       <source>Phidget 1046 attached</source>
       <translation>피젯 1046 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="4060" />
+      <location filename="../artisanlib/comm.py" line="4063" />
       <source>Phidget DAQ1500 attached</source>
       <translation>피젯 DAQ1500 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="4072" />
+      <location filename="../artisanlib/comm.py" line="4075" />
       <source>Phidget 1046 detached</source>
       <translation>피젯 1046 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="4074" />
+      <location filename="../artisanlib/comm.py" line="4077" />
       <source>Phidget DAQ1500 detached</source>
       <translation>피젯 DAQ1500 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5746" />
+      <location filename="../artisanlib/comm.py" line="5749" />
       <source>Phidget IO 2/2/2 attached</source>
       <translation>피젯 IO 2/2/2 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5748" />
+      <location filename="../artisanlib/comm.py" line="5751" />
       <source>Phidget IO 6/6/6 attached</source>
       <translation>Phidget IO 6/6/6 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5750" />
+      <location filename="../artisanlib/comm.py" line="5753" />
       <source>Phidget IO 8/8/8 attached</source>
       <translation>피젯 IO 8/8/8 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5752" />
+      <location filename="../artisanlib/comm.py" line="5755" />
       <source>Phidget DAQ1000 attached</source>
       <translation>피젯 DAQ1000 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5754" />
+      <location filename="../artisanlib/comm.py" line="5757" />
       <source>Phidget DAQ1200 attached</source>
       <translation>Phidget DAQ1200 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5756" />
+      <location filename="../artisanlib/comm.py" line="5759" />
       <source>Phidget DAQ1300 attached</source>
       <translation>Phidget DAQ1300 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5758" />
+      <location filename="../artisanlib/comm.py" line="5761" />
       <source>Phidget DAQ1301 attached</source>
       <translation>Phidget DAQ1301 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5760" />
+      <location filename="../artisanlib/comm.py" line="5763" />
       <source>Phidget DAQ1400 attached</source>
       <translation>피젯 DAQ1400 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5762" />
+      <location filename="../artisanlib/comm.py" line="5765" />
       <source>Phidget VCP1000 attached</source>
       <translation>피젯 VCP1000 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5764" />
+      <location filename="../artisanlib/comm.py" line="5767" />
       <source>Phidget VCP1001 attached</source>
       <translation>피젯 VCP1001 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5766" />
+      <location filename="../artisanlib/comm.py" line="5769" />
       <source>Phidget VCP1002 attached</source>
       <translation>피젯 VCP1002 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5768" />
+      <location filename="../artisanlib/comm.py" line="5771" />
       <source>Phidget IO attached</source>
       <translation>피젯 IO 첨부</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5780" />
+      <location filename="../artisanlib/comm.py" line="5783" />
       <source>Phidget IO 2/2/2 detached</source>
       <translation>피젯 IO 2/2/2 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5782" />
+      <location filename="../artisanlib/comm.py" line="5785" />
       <source>Phidget IO 6/6/6 detached</source>
       <translation>피젯 IO 6/6/6 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5784" />
+      <location filename="../artisanlib/comm.py" line="5787" />
       <source>Phidget IO 8/8/8 detached</source>
       <translation>피젯 IO 8/8/8 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5786" />
+      <location filename="../artisanlib/comm.py" line="5789" />
       <source>Phidget DAQ1000 detached</source>
       <translation>피젯 DAQ1000 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5788" />
+      <location filename="../artisanlib/comm.py" line="5791" />
       <source>Phidget DAQ1200 detached</source>
       <translation>Phidget DAQ1200 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5790" />
+      <location filename="../artisanlib/comm.py" line="5793" />
       <source>Phidget DAQ1300 detached</source>
       <translation>Phidget DAQ1300 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5792" />
+      <location filename="../artisanlib/comm.py" line="5795" />
       <source>Phidget DAQ1301 detached</source>
       <translation>Phidget DAQ1301 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5794" />
+      <location filename="../artisanlib/comm.py" line="5797" />
       <source>Phidget DAQ1400 detached</source>
       <translation>피젯 DAQ1400 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5796" />
+      <location filename="../artisanlib/comm.py" line="5799" />
       <source>Phidget VCP1000 detached</source>
       <translation>피젯 VCP1000 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5798" />
+      <location filename="../artisanlib/comm.py" line="5801" />
       <source>Phidget VCP1001 detached</source>
       <translation>피젯 VCP1001 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5800" />
+      <location filename="../artisanlib/comm.py" line="5803" />
       <source>Phidget VCP1002 detached</source>
       <translation>피젯 VCP1002 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="5802" />
+      <location filename="../artisanlib/comm.py" line="5805" />
       <source>Phidget IO detached</source>
       <translation>Phidget IO 분리됨</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6106" />
+      <location filename="../artisanlib/comm.py" line="6109" />
       <source>Yocto Thermocouple attached</source>
       <translation>Yocto 써모커플 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6108" />
+      <location filename="../artisanlib/comm.py" line="6111" />
       <source>Yocto IR attached</source>
       <translation>Yocto IR 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6165" />
+      <location filename="../artisanlib/comm.py" line="6168" />
       <source>Yocto PT100 attached</source>
       <translation>Yocto PT100 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6267" />
-      <location filename="../artisanlib/comm.py" line="6204" />
+      <location filename="../artisanlib/comm.py" line="6270" />
+      <location filename="../artisanlib/comm.py" line="6207" />
       <source>Yocto Sensor attached</source>
       <translation>Yocto 센서 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6210" />
+      <location filename="../artisanlib/comm.py" line="6213" />
       <source>Yocto Watt Power attached</source>
       <translation>Yocto Watt Power 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6216" />
+      <location filename="../artisanlib/comm.py" line="6219" />
       <source>Yocto Watt Energy attached</source>
       <translation>Yocto 와트 에너지 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6233" />
+      <location filename="../artisanlib/comm.py" line="6236" />
       <source>Yocto Watt Voltage attached</source>
       <translation>Yocto 와트 전압 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6250" />
+      <location filename="../artisanlib/comm.py" line="6253" />
       <source>Yocto Watt Current attached</source>
       <translation>Yocto 와트 전류 부착</translation>
     </message>
     <message>
-      <location filename="../artisanlib/comm.py" line="6532" />
+      <location filename="../artisanlib/comm.py" line="6535" />
       <source>TC4 initialized</source>
       <translation>TC4 초기화됨</translation>
     </message>
@@ -18964,32 +18964,37 @@ To keep it free and current please support us with your donation and subscribe t
       <translation>완료된 로스트가 없습니다.</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="2246" />
+      <location filename="../plus/schedule.py" line="2177" />
+      <source>Schedule Updated!</source>
+      <translation>로스팅 일정이 업데이트되었습니다!</translation>
+    </message>
+    <message>
+      <location filename="../plus/schedule.py" line="2272" />
       <source>Login to {} to receive your roast schedule</source>
       <translation>로스팅 일정을 받으려면 {}에 로그인하세요.</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3126" />
+      <location filename="../plus/schedule.py" line="3191" />
       <source>List only items scheduled for the current user {}</source>
       <translation>현재 사용자에게 예약된 항목만 나열합니다. {}</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3134" />
+      <location filename="../plus/schedule.py" line="3199" />
       <source>List only items scheduled for the current machine {}</source>
       <translation>현재 컴퓨터에 예약된 항목만 나열합니다. {}</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3823" />
+      <location filename="../plus/schedule.py" line="3888" />
       <source>Schedule empty!{}Plan your schedule on {}</source>
       <translation>일정이 비어 있습니다!{}일정을 {}에 계획하세요.</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3831" />
+      <location filename="../plus/schedule.py" line="3896" />
       <source>Nothing scheduled for you today!{}Deactivate filters to see all items.</source>
       <translation>오늘은 아무 일정도 없습니다!{}모든 항목을 보려면 필터를 비활성화하세요.</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="3881" />
+      <location filename="../plus/schedule.py" line="3946" />
       <source>nothing to weight</source>
       <translation>무게에 아무것도</translation>
     </message>
@@ -19241,7 +19246,7 @@ To keep it free and current please support us with your donation and subscribe t
       <location filename="../artisanlib/roast_properties.py" line="2485" />
       <location filename="../artisanlib/roast_properties.py" line="2138" />
       <location filename="../artisanlib/roast_properties.py" line="2125" />
-      <location filename="../plus/schedule.py" line="2778" />
+      <location filename="../plus/schedule.py" line="2843" />
       <source>Roaster Scope</source>
       <translation type="unfinished">로스팅-그래프</translation>
     </message>
@@ -19621,12 +19626,12 @@ To keep it free and current please support us with your donation and subscribe t
   <context>
     <name>Tab</name>
     <message>
-      <location filename="../plus/schedule.py" line="2185" />
+      <location filename="../plus/schedule.py" line="2211" />
       <source>To-Do</source>
       <translation>할 것</translation>
     </message>
     <message>
-      <location filename="../plus/schedule.py" line="2186" />
+      <location filename="../plus/schedule.py" line="2212" />
       <source>Completed</source>
       <translation>완전한</translation>
     </message>
@@ -20727,7 +20732,7 @@ Pungency</source>
   <context>
     <name>Tooltip</name>
     <message>
-      <location filename="../plus/schedule.py" line="2149" />
+      <location filename="../plus/schedule.py" line="2145" />
       <source>Update schedule</source>
       <translation>업데이트 일정</translation>
     </message>

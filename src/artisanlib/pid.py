@@ -212,7 +212,7 @@ class PID:
         current_change = abs(current_input - self.measurement_history[-1])
 
         # Detect if current change is significantly larger than recent average
-        return current_change > 3.0 * avg_recent_change and current_change > 1.0
+        return current_change > 2.5 * avg_recent_change and current_change > 1.0
 
     def _calculate_derivative_on_measurement(self, current_input: float, dt: float) -> float:
         """Calculate derivative term using derivative-on-measurement with enhanced kick prevention."""
@@ -233,7 +233,7 @@ class PID:
 
         # Reduce derivative action if measurement discontinuity is detected
         if self._detect_measurement_discontinuity(current_input):
-            dtinput *= 0.3  # Reduce derivative action by 70%
+            dtinput *= 0.2  # Reduce derivative action by 80%
 
         return -self.Kd * dtinput
 
@@ -358,8 +358,6 @@ class PID:
                 self.lastError = err
                 self.lastInput = i
             elif (dt := now - self.lastTime) > 0.1:
-                # Update measurement history for discontinuity detection
-                self._update_measurement_history(i)
 
                 # Check if setpoint has changed since last update and handle integral
                 setpoint_change = self.target - self.lastTarget
@@ -403,6 +401,9 @@ class PID:
                     # Use enhanced derivative-on-measurement calculation
                     D = self._calculate_derivative_on_measurement(i, dt)
 
+                # Update measurement history for discontinuity detection (after calculating D which calls detect discontinuity)
+                self._update_measurement_history(i)
+
                 self.lastTime = now
                 self.lastError = err
                 self.lastInput = i
@@ -423,7 +424,7 @@ class PID:
                 # Apply back-calculation to adjust integral term if output was clamped
                 self._back_calculate_integral(output_before_clamp, output)
 
-                #                _log.debug('P: %s, I: %s, D: %s => output: %s', self.Pterm, self.Iterm, D, output)
+                # _log.debug('P: %s, I: %s, D: %s => output: %s', self.Pterm, self.Iterm, D, output)
 
                 int_output = int(round(min(float(self.dutyMax), max(float(self.dutyMin), output))))
                 if (
