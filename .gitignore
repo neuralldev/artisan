@@ -34,7 +34,7 @@ simple.log
 artisan_plus.log
 outbox/
 *flycheck_*.py
-
+artisan.original*.*
 #specific local dev
 tail.sh
 .DS_Store

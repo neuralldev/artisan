@@ -162,7 +162,7 @@ class PID:
             self.output_decay_weights is None
             or len(self.output_decay_weights) != self.output_smoothing_factor
         ):  # recompute only on changes
-            self.output_decay_weights = list(numpy.arange(1, self.output_smoothing_factor + 1))
+            self.output_decay_weights = [float(x) for x in numpy.arange(1, self.output_smoothing_factor + 1)]
         # add new value
         self.previous_outputs.append(output)
         # throw away superfluous values
@@ -181,7 +181,7 @@ class PID:
             self.input_decay_weights is None
             or len(self.input_decay_weights) != self.input_smoothing_factor
         ):  # recompute only on changes
-            self.input_decay_weights = list(numpy.arange(1, self.input_smoothing_factor + 1))
+            self.input_decay_weights = [float(x) for x in numpy.arange(1, self.input_smoothing_factor + 1)]
         # add new value
         self.previous_inputs.append(inp)
         # throw away superfluous values

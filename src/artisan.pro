@@ -22,6 +22,7 @@ SOURCES = \
     artisanlib/axis.py \
     artisanlib/background.py \
     artisanlib/batches.py \
+    artisanlib/beancave.py \
     artisanlib/calculator.py \
     artisanlib/canvas.py \
     artisanlib/colors.py \
@@ -35,8 +36,10 @@ SOURCES = \
     artisanlib/dialogs.py \
     artisanlib/events.py \
     artisanlib/giesen.py \
+    artisanlib/hibean.py \
     artisanlib/ikawa.py \
     artisanlib/large_lcds.py \
+    artisanlib/lebrewroastsee.py \
     artisanlib/logs.py \
     artisanlib/loring.py \
     artisanlib/main.py \

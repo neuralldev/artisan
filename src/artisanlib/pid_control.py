@@ -1586,7 +1586,7 @@ class PIDcontrol:
         if self.sv_smoothing_factor:
             # create or update smoothing decay weights
             if self.sv_decay_weights is None or len(self.sv_decay_weights) != self.sv_smoothing_factor: # recompute only on changes
-                self.sv_decay_weights = list(numpy.arange(1,self.sv_smoothing_factor+1))
+                self.sv_decay_weights = [float(x) for x in numpy.arange(1, self.sv_smoothing_factor + 1)] # translate smoothing factor as int to float
             # add new value
             self.previous_svs.append(sv)
             # throw away superfluous values
