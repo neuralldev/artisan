@@ -4,6 +4,7 @@
 # manage stock in grams and use them in roast properties to enter basic information on beans
 # decrease stock in g when they are selected from roast properties
 # this mod does not replace Artisan plus bean management but is a simple inteface for enthousiasts
+# credit to https://github.com/AndBondStyle/niimprint for printer support
 
 import sys
 import platform
@@ -564,7 +565,7 @@ class BeancaveDlg(ArtisanResizeablDialog):
     def sort_green_beans(self, key: str) -> None:
         self.green_beans.sort(key=lambda bean: getattr(bean, key))
         self.populate_table()
-        self.save_green_beans()
+#        self.save_green_beans()
         
     @pyqtSlot(int)
     def sort_by_column(self, column_index: int) -> None:
@@ -612,9 +613,9 @@ class BeancaveDlg(ArtisanResizeablDialog):
         self.datatable.horizontalHeader().setSortIndicator(column_index, self.sort_order) # type: ignore
         
         # Mettre à jour l'affichage de la table
-        self.populate_table()
-        self.save_green_beans()
-        
+        #self.populate_table()
+        # self.save_green_beans()
+
     def load_green_beans(self) -> None:
         beancave_file_path = os.path.join(self.beancave_directory, BEANCAVE_FILE_NAME)
         if os.path.exists(beancave_file_path):

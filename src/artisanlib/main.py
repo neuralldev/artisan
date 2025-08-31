@@ -3354,7 +3354,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
         self.buttonDROP.clicked.connect(self.qmc.markDrop)
 
         #create PID control button
-        self.buttonCONTROL: QPushButton = QPushButton(QApplication.translate('Button', 'CONTROL'))
+        self.buttonCONTROL: QPushButton = QPushButton(QApplication.translate('Button', 'PID CONTROL'))
         self.buttonCONTROL.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.buttonCONTROL.setStyleSheet(self.pushbuttonstyles['PID'])
         self.buttonCONTROL.setGraphicsEffect(self.makeShadow())
@@ -6899,7 +6899,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                         if alt_modifier:
                             speed = 2
                         elif control_modifier:
-                            speed = 4
+                            speed = 8
                         old_base = self.qmc.timeclock.getBase()
                         old_speed = old_base/1000
                         if old_speed != speed:
@@ -27613,7 +27613,7 @@ class ApplicationWindow(QMainWindow):  # pyright: ignore [reportGeneralTypeIssue
                         if alt_modifier:
                             speed = 2
                         elif control_modifier:
-                            speed = 4
+                            speed = 8
                         self.qmc.timeclock.setBase(1000*speed)
                         self.simulator = Simulator(self.qmc.mode, self.deserialize(filename))
                         self.simulatorpath = filename

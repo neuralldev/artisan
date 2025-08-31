@@ -597,6 +597,7 @@ class tgraphcanvas(FigureCanvas):
         self.intersection_point_annotation:Optional[Annotation] = None     # legend on intersection point
         self.intersection_point_line:Optional[Line2D] = None              # vertical line on intesection
         self.intersection_postDE:Optional[bool]= False
+        self.pid_point_annotation:Optional[Annotation] = None     # legend on intersection point
         # timing statistics on loaded profile
         self.statisticstimes:List[float] = [0,0,0,0,0] # total, dry phase, mid phase, finish phase  and cooling phase times
 
@@ -1989,6 +1990,7 @@ class tgraphcanvas(FigureCanvas):
         self.l_verticalcrossline:Optional[Line2D] = None
 
         self.l_timeline:Optional[Line2D] = None
+        self.l_PIDrampSoak:Optional[Line2D] = None
 
         self.legend:Optional[Legend] = None
 
@@ -4334,121 +4336,234 @@ class tgraphcanvas(FigureCanvas):
                 obj.remove()
             except Exception:
                 pass
-            
-    def DrawIntersectionBetweenCurveandProjection(self, l_projection:Line2D):
+
+    def DrawPIDRampSoak(self, l_timeline:Line2D):
+
+        qmc = self.aw.qmc
+
+        if self.timeindex[0] >= 0: # after CHARGE remove the annotation
+            if qmc.pid_point_annotation is not None:
+                self.DrawIntersection_remove_artist(qmc.pid_point_annotation)
+            qmc.pid_point_annotation = None
+            return
         
-        if l_projection is None:
+        if l_timeline is None:
             return
 
-        xdata= numpy.asarray(l_projection.get_xdata(), dtype=float)
-        ydata = numpy.asarray(l_projection.get_ydata(), dtype=float)
-        
-        if len(xdata)==0 or len(ydata)==0:
+        xdata = numpy.asarray(l_timeline.get_xdata(), dtype=float)
+
+        if xdata.size == 0:
+            return
+
+        x_intersect = xdata[-1]
+
+        tx = self.timex[-1]
+        time_str = stringfromseconds(tx)
+        et = self.temp1[-1]
+        bt = self.temp2[-1]
+        rampsoak= self.aw.pidcontrol.ramp_soak_engaged
+        if rampsoak>0 and self.aw.pidcontrol.svMode==1: # ramp/soak is defined, 
+            segment= self.aw.pidcontrol.current_soak_segment
+            display_segment  = segment + 1
+            total_time = self.aw.pidcontrol.RS_total_time
+            rslen= self.aw.pidcontrol.RSLen
+            svstr =   f'SV  {self.aw.pidcontrol.svValues[segment]}°{self.mode}\n'
+            rampstr = f'Ramp {stringfromseconds(self.aw.pidcontrol.svRamps[segment])}\n'
+            soakstr = f'Soak {stringfromseconds(self.aw.pidcontrol.svSoaks[segment])}\n'
+            text = (
+                f"PID Segment {display_segment}/{rslen}\n"
+                f"TS {time_str} on {stringfromseconds(total_time)}\n"
+                f"ET {et}°{self.mode}\n"
+                f"BT {bt}°{self.mode}"
+            ) + svstr + rampstr + soakstr
+        else: #svMode == 0=Manual, 2=Background
+            sv = round(self.aw.pidcontrol.svValue,1)
+            svstr = f'SV {sv}°{self.mode}\n'
+            text = (
+                f"PID Manual mode\n"
+                f"TS {time_str}\n"
+                f"ET {et}°{self.mode}\n"
+                f"BT {bt}°{self.mode}"
+            ) + svstr
+        # Draw annotation
+        ymax = float(self.ax.get_ylim()[1] - 20.0) if self.ax is not None else (230.0 if self.mode == "C" else 450.0)
+        # Determine if annotation fits on the right side
+        ax_width = self.ax.get_window_extent().width if self.ax is not None else 0
+        # Transform x_intersect to display coordinates
+        x_disp = self.ax.transData.transform((x_intersect, 0))[0] if self.ax is not None else 0
+        # If annotation would overflow right, display on left
+        ha = 'right' if x_disp + 200 > ax_width else 'left'
+        offset = (-7, 5) if ha == 'right' else (5, 5)
+        if qmc.pid_point_annotation is None:
+           qmc.pid_point_annotation = self.ax.annotate(
+            text,
+            xy=(x_intersect, ymax),
+            xytext=offset,
+            textcoords="offset points",
+            ha=ha, va='top',
+            fontsize=9,
+            color='black',
+            bbox=dict(facecolor='white', alpha=0.6, edgecolor='none', boxstyle='round,pad=0.3')
+            )
+        else:
+            # Update annotation position and alignment
+            qmc.pid_point_annotation.set_text(text)
+            qmc.pid_point_annotation.xy = (x_intersect, ymax)
+            qmc.pid_point_annotation.set_ha(ha)
+            qmc.pid_point_annotation.set_position(offset)
+
+            if qmc.pid_point_annotation is not None and self.ax is not None:
+                self.ax.draw_artist(qmc.pid_point_annotation)
+
+    def DrawIntersectionBetweenCurveandProjection(self, l_projection: Line2D):
+
+        if l_projection is None:
             return
         
-        target:float = 0.0 # temperature target of the current phase
-        display_postFC:bool = False
-        index:str = ""
-        if self.timeindex[1] > 0 and self.timeindex[2] > 0:
-            # display current temperature and % development
-            if self.timeindex[6]: # after drop don't display
-                    return
-            else: # before drop DEV% = (current time - time of FC) / (time of charge-time of start) %
-                charge = self.timex[self.timeindex[0]]
-                tx = self.timex[-1]
-                de = self.timex[self.timeindex[1]]
-                fc = self.timex[self.timeindex[2]]
-                dev = (tx - fc) * 100. / (tx-charge)
-                dry = (de-charge) * 100. / (tx-charge)
-                maillard = (fc-de) * 100. / (tx-charge)
-                target = self.temp2[-1] # BT
-                display_postFC = True
-                #_log.debug(f"tx={tx:.1f} charge={charge:.1f} dev={dev:.1f} dry={dry:.1f} maillard={maillard:.1f}")
-        else:
-            if self.timeindex[1] == 0 and self.timeindex[2] == 0:
-                index="DE"
-                bt = self.temp2[-1]
-                target:float = self.phases[0] 
-                if target == 0.0 : 
-                    target = self.phases_celsius_defaults[0] if self.mode=="C" else self.phases_fahrenheit_defaults[0]
-            else:
-                index="FC"
-                bt = self.temp2[-1]
-                target:float = self.phases[2]
-                if target == 0.0 : 
-                    target = self.phases_celsius_defaults[2] if self.mode=="C" else self.phases_fahrenheit_defaults[2]
+        qmc = self.aw.qmc
+        
+        if self.timeindex[6] > 0: # after DROP remove the annotation 
+            if qmc.intersection_point_annotation is not None:
+                self.DrawIntersection_remove_artist(qmc.intersection_point_annotation)
+                qmc.intersection_point_annotation = None
+
+        xdata = numpy.asarray(l_projection.get_xdata(), dtype=float)
+        ydata = numpy.asarray(l_projection.get_ydata(), dtype=float)
+
+        if xdata.size == 0 or ydata.size == 0:
+            return
+
+        # Determine phase and target temperature
+        #indexes for CHARGE[0],DRYe[1],FCs[2],FCe[3],SCs[4],SCe[5],DROP[6] and COOLe[7]
+
+        charge = self.timex[self.timeindex[0]]
+        tx = self.timex[-1]
+        relative_tx = tx - charge
+        if self.timeindex[6] > 0: # drop occurred
+            de = self.timex[self.timeindex[1]]
+            fc = self.timex[self.timeindex[2]]
+            drop = self.timex[self.timeindex[6]]
+            index = "DROP"
+        elif self.timeindex[2] > 0 : # after FC, before DROP, we are in DEV
+            de = self.timex[self.timeindex[1]]
+            fc = self.timex[self.timeindex[2]]
+            dev_time = (tx-fc) # development time in seconds
+            dev = dev_time * 100. / relative_tx
+            dry = (de - charge) * 100. / relative_tx
+            maillard = (fc - de) * 100. / relative_tx
+            target = self.temp2[-1]
+#            display_postFC = True
+            index = "FC"
+        elif self.timeindex[1] > 0 : # we are in DE
+            index = "DE"
+            target = self.phases[2] or (self.phases_celsius_defaults[0] if self.mode == "C" else self.phases_fahrenheit_defaults[0])    
+#            display_postFC = False
+        else: # we are between charge and DE
+                index = "CHARGE"
+                target = self.phases[0] or (self.phases_celsius_defaults[2] if self.mode == "C" else self.phases_fahrenheit_defaults[2])
+
+        # Find intersection
         diff = ydata - target
         indices = numpy.where(numpy.diff(numpy.sign(diff)))[0]
         x_intersect = None
         for i in indices:
             x1, y1 = xdata[i], ydata[i]
-            x2, y2 = xdata[i+1], ydata[i+1]
-            slope = y2 - y1
-            if slope > 0:  # pente ascendante
-                x_intersect = float(x1 + (target - y1) * (x2 - x1) / (y2 - y1))
-                break  # on garde seulement le premier croisement en pente ascendante
-        if x_intersect is not None:
-            minutes = int((x_intersect-self.timex[self.timeindex[0]]) // 60) # counter must display from charge mm:ss
-            seconds = int((x_intersect-self.timex[self.timeindex[0]]) % 60)
-            time_str = f"{minutes:02d}:{seconds:02d}"
-            if display_postFC:
-                text = f"\nDEV {dev:.1f}%\n{target:.1f}°{self.mode}\nMAILLARD {maillard:.1f}%\nDRY {dry:.1f}%\nBT {bt:.1f}°{self.mode}\n"
-            else:
-                text = f"\n{index} at {time_str}\n{target:.1f}°{self.mode}\nBT {bt:.1f}°{self.mode}\n"
-                
-            # draw intersection point
-            if self.aw.qmc.intersection_point is None:
-                self.aw.qmc.intersection_point, = self.ax.plot(x_intersect, target, 'ro')
-            else:
-                self.aw.qmc.intersection_point.set_data([x_intersect], [target])
+            x2, y2 = xdata[i + 1], ydata[i + 1]
+            if y2 > y1:
+                x_intersect = x1 + (target - y1) * (x2 - x1) / (y2 - y1)
+                break
+        if x_intersect is None:
+            return
 
-            # draw annotation, annotation needs to be redrown when changing from DE to FC
-            if index=="FC" and not(self.aw.qmc.intersection_postDE):
-                self.aw.qmc.intersection_postDE = False
-                if self.aw.qmc.intersection_point_annotation is not None:
-                    self.DrawIntersection_remove_artist(self.aw.qmc.intersection_point_annotation)
-                    self.aw.qmc.intersection_point_annotation = None
-                
-            ymax:float = 230.0
-            if self.ax is not None:
-                ymax = float(self.ax.get_ylim()[1]-20.0)
-            if self.aw.qmc.intersection_point_annotation is None:
-                self.aw.qmc.intersection_point_annotation = self.ax.annotate(
-                    text,               # text
-                    xy=(x_intersect, ymax),         # reference point
-                    xytext=(5, 5),                 # shift (pixels)
-                    textcoords="offset points",    # shift in points points
-                    ha='left', va='top',               # alignment
-                    fontsize=9,
-                    color='black',
-                    bbox=dict(facecolor='white', alpha=0.6, edgecolor='none', boxstyle='round,pad=0.3') 
-                )
-            else:
-                if self.ax is not None:
-                        self.aw.qmc.intersection_point_annotation.set_text(text)
-                        self.aw.qmc.intersection_point_annotation.xy = (x_intersect, ymax)
+        # Format annotation text
+        time_str = stringfromseconds(x_intersect - self.timex[self.timeindex[0]])
+        relative_time_str = stringfromseconds(relative_tx)
+        bt = self.temp2[-1]
+        btcolor = qmc.palette['bt']
+        if index=="CHARGE":
+            text = (
+                f"\n"
+                f"TS {relative_time_str}\n"
+                f"DE at {time_str}\n"
+                f"{target:.1f}°{self.mode}\n"
+                f"BT {bt:.1f}°{self.mode}\n"
+            )
+        elif index=="DE":
+            text = (
+                f"\n"
+                f"TS {relative_time_str}\n"
+                f"FC at {time_str}\n"
+                f"{target:.1f}°{self.mode}\n"
+                f"BT {bt:.1f}°{self.mode}\n"
+            )
+        elif index=="FC":
+            text = (
+                f"\n"
+                f"DEV {dev:.1f}%, ({int(dev_time // 60):02d}:{int(dev_time % 60):02d})\n"
+                f"BT {bt:.1f}°{self.mode}\n"
+                f"DRY {dry:.1f}%\n"
+                f"MAILLARD {maillard:.1f}%\n"
+            )
+        else:
+            text = f"\nBT {bt:.1f}°{self.mode}\n"
 
-            #draw vertical intersection line
-            if self.aw.qmc.intersection_point_line is None: # drawfor the first time and store the variables
-                self.aw.qmc.intersection_point_line = self.ax.axvline(
-                    x=x_intersect,
-                    color='yellow',
-                    linestyle='--',
-                    linewidth=1,
-                    alpha=0.3 
-                )
-            else:
-                self.aw.qmc.intersection_point_line.set_xdata([x_intersect])
+        # Draw intersection point
         
-            if self.aw.qmc.intersection_point is not None and self.ax is not None:
-                self.ax.draw_artist(self.aw.qmc.intersection_point)
-            if self.aw.qmc.intersection_point_line is not None and self.ax is not None:
-                self.ax.draw_artist(self.aw.qmc.intersection_point_line)
-            if self.aw.qmc.intersection_point_annotation is not None and self.ax is not None:
-                # Ensure the annotation artist has its axes set
-                if getattr(self.aw.qmc.intersection_point_annotation, 'axes', None) is None:
-                    self.aw.qmc.intersection_point_annotation.axes = self.ax
-                self.ax.draw_artist(self.aw.qmc.intersection_point_annotation)
+        if qmc.intersection_point is None:
+            qmc.intersection_point, = self.ax.plot(x_intersect, target, 'ro')
+        else:
+            qmc.intersection_point.set_data([x_intersect], [target])
+
+        # Remove annotation if switching from DE to FC
+        if index == "FC" and not qmc.intersection_postDE:
+            qmc.intersection_postDE = False
+            if qmc.intersection_point_annotation is not None:
+                self.DrawIntersection_remove_artist(qmc.intersection_point_annotation)
+                qmc.intersection_point_annotation = None
+
+        # Draw annotation
+        ymax = float(self.ax.get_ylim()[1] - 20.0) if self.ax is not None else (230.0 if self.mode == "C" else 450.0)
+        # Determine if annotation fits on the right side
+        ax_width = self.ax.get_window_extent().width if self.ax is not None else 0
+        # Transform x_intersect to display coordinates
+        x_disp = self.ax.transData.transform((x_intersect, 0))[0] if self.ax is not None else 0
+        # If annotation would overflow right, display on left
+        ha = 'right' if x_disp + 200 > ax_width else 'left'
+        offset = (-7, 5) if ha == 'right' else (5, 5)
+        if qmc.intersection_point_annotation is None:
+           qmc.intersection_point_annotation = self.ax.annotate(
+            text,
+            xy=(x_intersect, ymax),
+            xytext=offset,
+            textcoords="offset points",
+            ha=ha, va='top',
+            fontsize=9,
+            color='black',
+            bbox=dict(facecolor='white', alpha=0.6, edgecolor='none', boxstyle='round,pad=0.3')
+            )
+        else:
+            # Update annotation position and alignment
+            qmc.intersection_point_annotation.set_text(text)
+            qmc.intersection_point_annotation.xy = (x_intersect, ymax)
+            qmc.intersection_point_annotation.set_ha(ha)
+            qmc.intersection_point_annotation.set_position(offset)
+
+        # Draw vertical intersection line
+        if qmc.intersection_point_line is None:
+            qmc.intersection_point_line = self.ax.axvline(
+                x=x_intersect,
+                color='yellow',
+                linestyle='--',
+                linewidth=1,
+                alpha=0.3
+            )
+        else:
+            qmc.intersection_point_line.set_xdata([x_intersect])
+
+        # Draw artists
+        for artist in [qmc.intersection_point, qmc.intersection_point_line, qmc.intersection_point_annotation]:
+            if artist is not None and self.ax is not None:
+                self.ax.draw_artist(artist)
             
     # ADD DEVICE:
 
@@ -4513,6 +4628,9 @@ class tgraphcanvas(FigureCanvas):
                     self.ax.draw_artist(self.l_DeltaBTprojection)
             if self.l_AUCguide is not None and self.AUCguideFlag and self.AUCguideTime > 0 and self.AUCguideTime < self.endofx:
                 self.ax.draw_artist(self.l_AUCguide)
+            # add annotation on PID Ramp Soak mode
+            if self.aw.pidcontrol.pidActive: # if PID is being activated display a summary of action in an annotation displayed at tx 
+                self.DrawPIDRampSoak(self.l_timeline)
 
     # input filter
     # if temp (the actual reading) is outside of the interval [tmin,tmax] or
