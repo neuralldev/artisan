@@ -90,23 +90,18 @@ def del_file(file_path, fatal=True):
 ###################################
 # Setup the environment
 ###################################
-if os.environ.get('APPVEYOR'):
-    ARTISAN_SRC = r'C:\projects\artisan\src'
-    PYTHON = os.environ.get('PYTHON_PATH')
-    PYQT = os.environ.get('PYQT')
-    QT_TRANSL = os.environ.get('QT_TRANSL')
-    ARTISAN_LEGACY = os.environ.get('ARTISAN_LEGACY')
-else:
-    msg =f'artisan-win.spec is intended only to run on Appveyor CI.'
-    logging.error(msg)
-    sys.exit('Fatal Error')
+ARTISAN_SRC = r'C:\Users\Thierry\dev\artisan\artisan\src'
+PYTHON = r'C:\Users\Thierry\dev\artisan\artisan\.venv\Scripts'
+PYQT = '6'
+QT_TRANSL = r'C:\Users\Thierry\dev\artisan\artisan\.venv\Lib\site-packages\qt6_applications\Qt\translations'
+ARTISAN_LEGACY = os.environ.get('ARTISAN_LEGACY')
 
 NAME = 'artisan'
 TARGET = 'dist\\' + NAME + '\\'
 PYTHON_PACKAGES = PYTHON + r'\Lib\site-packages'
-PYQT_QT = PYTHON_PACKAGES + r'\PyQt' + PYQT + r'\Qt'
-PYQT_QT_BIN = PYQT_QT + r'\bin'
-PYQT_QT_TRANSLATIONS = QT_TRANSL
+PYQT_QT = r'C:\Users\Thierry\dev\artisan\artisan\.venv\Lib\site-packages\qt6_applications\Qt'
+PYQT_QT_BIN = r'C:\Users\Thierry\dev\artisan\artisan\.venv\Lib\site-packages\qt6_applications\Qt\bin'
+PYQT_QT_TRANSLATIONS = r'C:\Users\Thierry\dev\artisan\artisan\.venv\Lib\site-packages\qt6_applications\Qt\translations'
 YOCTO_BIN = PYTHON_PACKAGES + r'\yoctopuce\cdll'
 SNAP7_BIN = PYTHON_PACKAGES + r'\snap7\lib'
 PHIDGET22_BIN = PYTHON_PACKAGES + r'\Phidget22\.libs'
@@ -229,12 +224,15 @@ for tr in [
 # Add the translations not available in PyQt5 for legacy Windows.
 if not ARTISAN_LEGACY=='True':
     for tr in [
+        'qtbase_cs.qm',
         'qtbase_da.qm',
         'qtbase_fa.qm',
         'qtbase_gd.qm',
         'qtbase_lv.qm',
         'qtbase_nl.qm',
         'qtbase_pt_BR.qm',
+        'qtbase_ru.qm',
+        'qtbase_sk.qm',
         'qtbase_zh_CN.qm',
 #        'qtconnectivity_da.qm',
 #        'qtconnectivity_ko.qm',
@@ -247,11 +245,11 @@ if not ARTISAN_LEGACY=='True':
 
 # YOCTO HACK BEGIN: manually copy over the dlls
 make_dir(TARGET + r'_internal\yoctopuce\cdll')
-copy_file(YOCTO_BIN + r'\yapi64.dll', TARGET + r'_internal\yoctopuce\cdll')
+copy_file(r'C:\totransfer\yapi64.dll', TARGET + r'_internal\yoctopuce\cdll')
 # YOCTO HACK END
 
 # copy Snap7 lib
-copy_file(SNAP7_BIN + r'\snap7.dll', TARGET + r'_internal')
+copy_file(r'C:\totransfer\snap7.dll', TARGET + r'_internal')
 
 for fn in [
     'artisan.png',
@@ -317,7 +315,7 @@ xcopy_files(r'includes\Icons', TARGET + 'Icons')
 ###################################
 # remove unused translations of unused Qt modules
 rootdir = f'{TARGET}_internal'
-SUPPORTED_LANGUAGES = ['ar', 'da', 'de','el','en','es','fa','fi','fr','gd', 'he','hu','id','it','ja','ko','lv', 'nl','no','pl','pt_BR','pt','sk', 'sv','th','tr','uk','vi','zh_CN','zh_TW']
+SUPPORTED_LANGUAGES = ['ar', 'cs', 'da', 'de','el','en','es','fa','fi','fr','gd', 'he','hu','id','it','ja','ko','lv', 'nl','no','pl','pt_BR','pt','sk', 'sv','th','tr','uk','vi','zh_CN','zh_TW']
 
 qt_trans_prefix_keep = {
     'qtbase',

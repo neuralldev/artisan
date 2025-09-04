@@ -23,11 +23,13 @@
 @echo off
 :: test for existence of required environment variables
 setlocal enabledelayedexpansion
+set QT_PATH=C:\Qt\6.9.2\mingw_64
 if not defined QT_PATH (
     echo QT_PATH not set, be sure Qt 6.x is installed.
     echo Set QT_PATH appropriately, something like C:\Qt\6.4\msvc2019_64.  Exiting...
     exit /b 1
 )
+set PYTHON_PATH=C:\Users\Thierry\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0
 if not defined PYTHON_PATH (
     if defined PYTHONPATH (
         set PYTHON_PATH=%PYTHONPATH%
