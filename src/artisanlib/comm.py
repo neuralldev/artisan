@@ -17,7 +17,6 @@
 
 import os
 import sys
-import re
 import time as libtime
 import numpy
 import math
@@ -30,7 +29,6 @@ from typing import Final, Optional, List, Tuple, Dict, Callable, Union, Any, TYP
 if TYPE_CHECKING:
     from artisanlib.main import ApplicationWindow # pylint: disable=unused-import
     from artisanlib.colortrack import ColorTrack, ColorTrackBLE # pylint: disable=unused-import
-    from artisanlib.lebrewroastsee import LebrewRoastSeeC1 # pylint: disable=unused-import
     import serial # noqa: F401 # pylint: disable=unused-import
     from Phidget22.Phidget import Phidget # type: ignore # pylint: disable=unused-import
     from yoctopuce.yocto_voltageoutput import YVoltageOutput # type: ignore # pylint: disable=unused-import
@@ -50,7 +48,7 @@ if TYPE_CHECKING:
 
 
 
-from artisanlib.util import cmd2str, RoRfromCtoFstrict, fromCtoFstrict, fromFtoCstrict, hex2int, str2cmd, toFloat, float2float
+from artisanlib.util import cmd2str, RoRfromCtoFstrict, fromCtoFstrict, fromFtoCstrict, hex2int, str2cmd
 
 try:
     from PyQt6.QtCore import Qt, QDateTime, QSemaphore, pyqtSlot # @UnusedImport @Reimport  @UnresolvedImport
@@ -254,7 +252,7 @@ class serialport:
         'YOCTOthread','YOCTOvoltageOutputs','YOCTOcurrentOutputs','YOCTOrelays','YOCTOservos','YOCTOpwmOutputs','HH506RAid','MS6514PrevTemp1','MS6514PrevTemp2','DT301PrevTemp','EXTECH755PrevTemp',\
         'controlETpid','readBTpid','useModbusPort','showFujiLCDs','arduinoETChannel','arduinoBTChannel','arduinoATChannel',\
         'ArduinoIsInitialized','ArduinoFILT','HH806Winitflag','R1','devicefunctionlist','externalprogram',\
-        'externaloutprogram','externaloutprogramFlag','PhidgetHUMtemp','PhidgetHUMhum','PhidgetPREpre','TMP1000temp', 'colorTrackSerial', 'colorTrackBT', 'LebrewRoastSeeC1']
+        'externaloutprogram','externaloutprogramFlag','PhidgetHUMtemp','PhidgetHUMhum','PhidgetPREpre','TMP1000temp', 'colorTrackSerial', 'colorTrackBT']
 
     def __init__(self, aw:'ApplicationWindow') -> None:
 
@@ -277,53 +275,53 @@ class serialport:
         self.COMsemaphore:QSemaphore = QSemaphore(1)
         ##### SPECIAL METER FLAGS ########
         #stores the Phidget 1048 TemperatureSensor object (None if not initialized)
-        self.PhidgetTemperatureSensor:Optional[List[PhidgetTemperatureSensor]] = None # type:ignore[no-any-unimported,unused-ignore] # either None or a list containing one PhidgetTemperatureSensor() object per channel
+        self.PhidgetTemperatureSensor:Optional[List[PhidgetTemperatureSensor]] = None # either None or a list containing one PhidgetTemperatureSensor() object per channel
         self.Phidget1048values:List[List[Tuple[float,float]]] = [[],[],[],[]] # the values for each of the 4 channels as (value, time) tuples gathered by registered change triggers in the last period
         self.Phidget1048lastvalues:List[float] = [-1.0]*4 # the last async values returned
         self.Phidget1048semaphores:List[QSemaphore] = [QSemaphore(1),QSemaphore(1),QSemaphore(1),QSemaphore(1)] # semaphores protecting the access to self.Phidget1048values per channel
         # list of (serial,port) tuples filled on attaching the corresponding main device and consumed on attaching the other channel pairs
         #stores the Phidget 1045 TemperatureSensor object (None if not initialized)
-        self.PhidgetIRSensor:Optional[PhidgetTemperatureSensor] = None # type:ignore[no-any-unimported,unused-ignore]
-        self.PhidgetIRSensorIC:Optional[PhidgetTemperatureSensor] = None # type:ignore[no-any-unimported,unused-ignore]
+        self.PhidgetIRSensor:Optional[PhidgetTemperatureSensor] = None
+        self.PhidgetIRSensorIC:Optional[PhidgetTemperatureSensor] = None
         self.Phidget1045values:List[Tuple[float, float]] = [] # async values of the one channel
         self.Phidget1045lastvalue:float = -1
         self.Phidget1045tempIRavg:Optional[float] = None
         self.Phidget1045semaphore:QSemaphore = QSemaphore(1) # semaphore protecting the access to self.Phidget1045values per channel
         #stores the Phidget BridgeSensor object (None if not initialized)
-        self.PhidgetBridgeSensor:Optional[List[VoltageRatioInput]] = None # type:ignore[no-any-unimported,unused-ignore]
+        self.PhidgetBridgeSensor:Optional[List[VoltageRatioInput]] = None
         self.Phidget1046values:List[List[Tuple[float,float]]] = [[],[],[],[]] # the values for each of the 4 channels, as (value, time) tuples, gathered by registered change triggers in the last period
         self.Phidget1046lastvalues:List[float] = [-1.0]*4 # the last async values returned
         self.Phidget1046semaphores:List[QSemaphore] = [QSemaphore(1),QSemaphore(1),QSemaphore(1),QSemaphore(1)] # semaphores protecting the access to self.Phidget1046values per channel
         #stores the Phidget IO object (None if not initialized)
-        self.PhidgetIO:Optional[List[Union[DigitalInput, VoltageInput, VoltageRatioInput, FrequencyCounter, CurrentInput]]] = None # type:ignore[no-any-unimported,unused-ignore]
+        self.PhidgetIO:Optional[List[Union[DigitalInput, VoltageInput, VoltageRatioInput, FrequencyCounter, CurrentInput]]] = None
         self.PhidgetIOvalues:List[List[Tuple[float,float]]] = [[], [], [], [], [], [], [], []] # the values gathered by registered change triggers for channel 0 - 8
         self.PhidgetIOlastvalues:List[float] = [-1.0]*8 # the values gathered by registered change triggers
         self.PhidgetIOsemaphores:List[QSemaphore] = [QSemaphore(1),QSemaphore(1),QSemaphore(1),QSemaphore(1)] # semaphores protecting the access to self.Phidget1048values per channel
         #stores the Phidget Digital Output PMW objects (None if not initialized)
-        self.PhidgetDigitalOut:Dict[Optional[str], List[Phidget]] = {} # type:ignore[no-any-unimported,unused-ignore] # a dict associating out serials with lists of channels
+        self.PhidgetDigitalOut:Dict[Optional[str], List[Phidget]] = {} # a dict associating out serials with lists of channels
         self.PhidgetDigitalOutLastPWM:Dict[Optional[str], List[float]] = {} # a dict associating out serials with the list of last PWMs per channel
         self.PhidgetDigitalOutLastToggle:Dict[Optional[str], List[Optional[float]]] = {} # a dict associating out serials with the list of last 'PWM'-toggles per channel; if not None, channel was last toggled OFF and the value indicates that lastPWM on switching OFF
-        self.PhidgetDigitalOutHub:Dict[Optional[str], List[Phidget]] = {} # type:ignore[no-any-unimported,unused-ignore] # a dict associating hub serials with lists of channels
+        self.PhidgetDigitalOutHub:Dict[Optional[str], List[Phidget]] = {} # a dict associating hub serials with lists of channels
         self.PhidgetDigitalOutLastPWMhub:Dict[Optional[str], List[float]] = {} # a dict associating hub serials with the list of last PWMs per port of the hub
         self.PhidgetDigitalOutLastToggleHub:Dict[Optional[str], List[Optional[float]]] = {} # a dict associating hub serials with the list of last toggles per port of the hub; if not None, channel was last toggled OFF and the value indicates that lastPWM on switching OFF
         #store the Phidget Analog Output objects
-        self.PhidgetAnalogOut:Dict[Optional[str], List[Phidget]] = {} # type:ignore[no-any-unimported,unused-ignore] # a dict associating serials with lists of channels
+        self.PhidgetAnalogOut:Dict[Optional[str], List[Phidget]] = {} # a dict associating serials with lists of channels
         #store the servo objects
-        self.PhidgetRCServo:Dict[Optional[str], List[Phidget]] = {} # type:ignore[no-any-unimported,unused-ignore] # a dict associating serials with lists of channels
+        self.PhidgetRCServo:Dict[Optional[str], List[Phidget]] = {} # a dict associating serials with lists of channels
         #store the Phidget StepperMotor objects
-        self.PhidgetStepperMotor:Dict[Optional[str], List[Phidget]] = {} # type:ignore[no-any-unimported,unused-ignore] # a dict associating serials with lists of channels
+        self.PhidgetStepperMotor:Dict[Optional[str], List[Phidget]] = {} # a dict associating serials with lists of channels
         #store the Phidget DCMotor objects
-        self.PhidgetDCMotor:Dict[Optional[str], List[Phidget]] = {} # type:ignore[no-any-unimported,unused-ignore] # a dict associating serials with lists of channels
+        self.PhidgetDCMotor:Dict[Optional[str], List[Phidget]] = {} # a dict associating serials with lists of channels
         # Phidget Ambient Sensor Channels
-        self.PhidgetHUMtemp:Optional[PhidgetTemperatureSensor] = None # type:ignore[no-any-unimported,unused-ignore]
-        self.PhidgetHUMhum:Optional[PhidgetHumiditySensor] = None# type:ignore[no-any-unimported,unused-ignore]
-        self.PhidgetPREpre:Optional[PhidgetPressureSensor] = None# type:ignore[no-any-unimported,unused-ignore]
-        self.TMP1000temp:Optional[PhidgetTemperatureSensor] = None# type:ignore[no-any-unimported,unused-ignore]
+        self.PhidgetHUMtemp:Optional[PhidgetTemperatureSensor] = None
+        self.PhidgetHUMhum:Optional[PhidgetHumiditySensor] = None
+        self.PhidgetPREpre:Optional[PhidgetPressureSensor] = None
+        self.TMP1000temp:Optional[PhidgetTemperatureSensor] = None
         #Yoctopuce channels
         self.YOCTOlibImported:bool = False # ensure that the YOCTOlib is only imported once
-        self.YOCTOsensor:Optional[YSensor] = None # type:ignore[no-any-unimported,unused-ignore]
-        self.YOCTOchan1:Optional[YSensor] = None # type:ignore[no-any-unimported,unused-ignore]
-        self.YOCTOchan2:Optional[YSensor] = None # type:ignore[no-any-unimported,unused-ignore]
+        self.YOCTOsensor:Optional[YSensor] = None
+        self.YOCTOchan1:Optional[YSensor] = None
+        self.YOCTOchan2:Optional[YSensor] = None
         self.YOCTOtempIRavg:Optional[float] = None # averages IR module temperature channel to eliminate noise
 
         self.YOCTOvalues:List[List[Tuple[float,float]]] = [[],[]] # the values for each of the 2 channels gathered by registered change triggers in the last period
@@ -331,15 +329,14 @@ class serialport:
         self.YOCTOsemaphores:List[QSemaphore] = [QSemaphore(1),QSemaphore(1)] # semaphores protecting the access to YOCTO per channel
         self.YOCTOthread:Optional[YoctoThread] = None
 
-        self.YOCTOvoltageOutputs:List[YVoltageOutput] = [] # type:ignore[no-any-unimported,unused-ignore]
-        self.YOCTOcurrentOutputs:List[YCurrentLoopOutput] = [] # type:ignore[no-any-unimported,unused-ignore]
-        self.YOCTOrelays:List[YRelay] = [] # type:ignore[no-any-unimported,unused-ignore]
-        self.YOCTOservos:List[YServo] = [] # type:ignore[no-any-unimported,unused-ignore]
-        self.YOCTOpwmOutputs:List[YPwmOutput] = [] # type:ignore[no-any-unimported,unused-ignore]
+        self.YOCTOvoltageOutputs:List[YVoltageOutput] = []
+        self.YOCTOcurrentOutputs:List[YCurrentLoopOutput] = []
+        self.YOCTOrelays:List[YRelay] = []
+        self.YOCTOservos:List[YServo] = []
+        self.YOCTOpwmOutputs:List[YPwmOutput] = []
 
         self.colorTrackSerial:Optional[ColorTrack] = None
         self.colorTrackBT:Optional[ColorTrackBLE] = None
-        self.LebrewRoastSeeC1:Optional[LebrewRoastSeeC1] = None
 
         #stores the _id of the meter HH506RA as a string
         self.HH506RAid:str = 'X'
@@ -553,7 +550,7 @@ class serialport:
                                    self.ColorTrackBT,         #174
                                    self.BlueDOT_BTET,         #175
                                    self.R2_BTIBTS             #176
-                                   ] 
+                                   ]
         #string with the name of the program for device #27
         self.externalprogram:str = 'test.py'
         self.externaloutprogram:str = 'out.py' # this program is called with arguments <ET>,<BT>,<ETB>,<BTB> values on each sampling
@@ -665,13 +662,15 @@ class serialport:
             #return saved readings from device 0
             return self.aw.qmc.dutycycleTX, self.aw.qmc.dutycycle, self.aw.qmc.currentpidsv
         if not self.aw.pidcontrol.pidActive:
+            self.aw.qmc.updateLargePIDLCDs(sv='', duty='')
             return self.aw.qmc.timeclock.elapsedMilli(),-1,-1
+        lcdformat = ('%.1f' if self.aw.qmc.LCDdecimalplaces else '%.0f')
         if (self.aw.qmc.device == 19 and not self.aw.pidcontrol.externalPIDControl()) or \
-                (self.aw.qmc.device == 53) or \
-                (self.aw.qmc.device == 29 and not self.aw.pidcontrol.externalPIDControl()):
-                # TC4 (19), HOTTOP (53) or MODBUS (29) with Artisan Software PID
+                (self.aw.qmc.device in {29, 79} and not self.aw.pidcontrol.externalPIDControl()):
+                # TC4 (19) or MODBUS/S7 (29/79) with Artisan Software PID
             duty = self.aw.qmc.pid.getDuty()
             duty = (-1.0 if duty is None else min(100.0, max(-100.0, duty)))
+            self.aw.qmc.updateLargePIDLCDs(sv=lcdformat%self.aw.qmc.pid.target, duty=lcdformat%duty)
             return self.aw.qmc.timeclock.elapsedMilli(), duty, self.aw.qmc.pid.target
         sv = self.aw.pidcontrol.sv if self.aw.pidcontrol.sv is not None else -1
         if self.aw.qmc.device == 29: # external MODBUS PID
@@ -679,6 +678,7 @@ class serialport:
         else:
             duty = self.aw.qmc.pid.getDuty()
             duty = (-1.0 if duty is None else min(100.0, max(-100.0, duty)))
+        self.aw.qmc.updateLargePIDLCDs(sv=lcdformat%sv, duty=lcdformat%duty)
         return tx, duty, sv
 
     def DTAtemperature(self) -> Tuple[float,float,float]:
@@ -1524,23 +1524,6 @@ class serialport:
             return tx, -1, -1
         color_mean, color_median = self.colorTrackBT.getColor()
         return tx, color_median, color_mean # ch1: mean, ch2: median
-
-    def RoastSeeC1BT(self) -> Tuple[float,float,float]:
-        tx = self.aw.qmc.timeclock.elapsedMilli()
-        if self.RoastSeeC1BT is None:
-            try:
-                from artisanlib.lebrewroastsee import LebrewRoastSeeC1
-                self.RoastSeeC1BT = LebrewRoastSeeC1(
-                    self.aw.LebrewColorSeeC1_color_read,
-                    connected_handler=lambda : self.aw.sendmessageSignal.emit(QApplication.translate('Message', '{} connected').format('LebrewColorSeeC1'),True,None),
-                    disconnected_handler=lambda : self.aw.sendmessageSignal.emit(QApplication.translate('Message', '{} disconnected').format('LebrewColorSeeC1'),True,None))
-                if self.RoastSeeC1BT is not None:
-                    self.RoastSeeC1BT.start()
-            except Exception as e: # pylint: disable=broad-except
-                _log.error(e)
-            return tx, -1, -1
-        color_read= self.RoastSeeC1BT.getColor()
-        return tx, color_read, -1 
 
     def ARDUINOTC4(self) -> Tuple[float,float,float]:
         self.aw.qmc.extraArduinoTX = self.aw.qmc.timeclock.elapsedMilli()
@@ -2774,14 +2757,14 @@ class serialport:
         res:List[float] = [-1.0]*self.aw.modbus.channels
 
         for i in range(self.aw.modbus.channels):
-            if self.aw.modbus.inputSlaves[i] and not force: # in force mode (second request in oversampling mode) read only first two channels (ET/BT)
+            if self.aw.modbus.inputDeviceIds[i] and not force: # in force mode (second request in oversampling mode) read only first two channels (ET/BT)
                 if not self.aw.modbus.optimizer or force:
                     self.aw.modbus.sleepBetween() # we start with a sleep, as it could be that just a send command happened before the semaphore was caught
                 rf:Optional[float]
                 ri:Optional[int]
                 if self.aw.modbus.inputFloats[i]:
                     rf = self.aw.modbus.readFloat(
-                                self.aw.modbus.inputSlaves[i],
+                                self.aw.modbus.inputDeviceIds[i],
                                 self.aw.modbus.inputRegisters[i],
                                 self.aw.modbus.inputCodes[i],
                                 force)
@@ -2789,7 +2772,7 @@ class serialport:
                         res[i] = rf
                 elif self.aw.modbus.inputFloatsAsInt[i]:
                     ri = self.aw.modbus.readInt32(
-                                self.aw.modbus.inputSlaves[i],
+                                self.aw.modbus.inputDeviceIds[i],
                                 self.aw.modbus.inputRegisters[i],
                                 self.aw.modbus.inputCodes[i],
                                 force,
@@ -2798,7 +2781,7 @@ class serialport:
                         res[i] = ri
                 elif self.aw.modbus.inputBCDs[i]:
                     ri = self.aw.modbus.readBCD(
-                                self.aw.modbus.inputSlaves[i],
+                                self.aw.modbus.inputDeviceIds[i],
                                 self.aw.modbus.inputRegisters[i],
                                 self.aw.modbus.inputCodes[i],
                                 force)
@@ -2806,7 +2789,7 @@ class serialport:
                         res[i] = ri
                 elif self.aw.modbus.inputBCDsAsInt[i]:
                     ri = self.aw.modbus.readBCDint(
-                                self.aw.modbus.inputSlaves[i],
+                                self.aw.modbus.inputDeviceIds[i],
                                 self.aw.modbus.inputRegisters[i],
                                 self.aw.modbus.inputCodes[i],
                                 force)
@@ -2814,7 +2797,7 @@ class serialport:
                         res[i] = ri
                 else:
                     ri = self.aw.modbus.readSingleRegister(
-                                self.aw.modbus.inputSlaves[i],
+                                self.aw.modbus.inputDeviceIds[i],
                                 self.aw.modbus.inputRegisters[i],
                                 self.aw.modbus.inputCodes[i],
                                 force,
@@ -3717,7 +3700,7 @@ class serialport:
                     self.Phidget1048semaphores[channel].release(1)
             if res is None:
                 if self.PhidgetTemperatureSensor is not None and self.Phidget1048lastvalues[channel] == -1: # there is no last value yet, we take a sync value
-                    temp_sensor:PhidgetTemperatureSensor = self.PhidgetTemperatureSensor[idx] # type:ignore[no-any-unimported,unused-ignore]
+                    temp_sensor:PhidgetTemperatureSensor = self.PhidgetTemperatureSensor[idx]
                     assert isinstance(temp_sensor, PhidgetTemperatureSensor)
                     r = float(temp_sensor.getTemperature())
                     self.Phidget1048lastvalues[channel] = r
@@ -4295,10 +4278,6 @@ class serialport:
                             do.setIsRemote(False)
                             do.setIsLocal(True)
                         self.aw.ser.PhidgetDigitalOut[serial].append(do)
-# this is not needed here as we add those a bit below on successful attach
-#                    if serial is None:
-#                        # we make this also accessible via its serial number
-#                        self.aw.ser.PhidgetDigitalOut[str(ser)] = self.aw.ser.PhidgetDigitalOut[None]
         try:
             ch = self.aw.ser.PhidgetDigitalOut[serial][channel]
             ch.setOnAttachHandler(self.phidgetOUTattached)
@@ -4431,13 +4410,6 @@ class serialport:
                             do.setIsRemote(False)
                             do.setIsLocal(True)
                         self.aw.ser.PhidgetDigitalOut[serial].append(do)
-# this is not needed here as we add those a bit below on successful attach
-#                    if serial is None:
-#                        # we make this also accessible via its serial number and serial:port number
-#                        for sn in (str(ser) if port is None else [str(ser),f'{str(ser)}:{str(port)}']):
-#                            self.aw.ser.PhidgetDigitalOut[sn] = self.aw.ser.PhidgetDigitalOut[None]
-#                            self.aw.ser.PhidgetDigitalOutLastPWM[sn] = self.aw.ser.PhidgetDigitalOutLastPWM[None]
-#                            self.aw.ser.PhidgetDigitalOutLastToggle[sn] = self.aw.ser.PhidgetDigitalOutLastToggle[None]
 
         try:
             ch = self.aw.ser.PhidgetDigitalOut[serial][channel]
@@ -4723,10 +4695,6 @@ class serialport:
                             vo.setIsRemote(False)
                             vo.setIsLocal(True)
                         self.aw.ser.PhidgetAnalogOut[serial].append(vo)
-# this is not needed here as we add those a bit below on successful attach
-#                    if serial is None:
-#                        # we make this also accessible via its serial number
-#                        self.aw.ser.PhidgetAnalogOut[str(ser)] = self.aw.ser.PhidgetAnalogOut[None]
         try:
             ch = self.aw.ser.PhidgetAnalogOut[serial][channel]
             ch.setOnAttachHandler(self.phidgetOUTattached)
@@ -4866,10 +4834,6 @@ class serialport:
                             dcm.setIsRemote(False)
                             dcm.setIsLocal(True)
                         self.aw.ser.PhidgetDCMotor[serial].append(dcm)
-# this is not needed here as we add those a bit below on successful attach
-#                    if serial is None:
-#                        # we make this also accessible via its serial number
-#                        self.aw.ser.PhidgetDCMotor[str(ser)] = self.aw.ser.PhidgetDCMotor[None]
         try:
             ch = self.aw.ser.PhidgetDCMotor[serial][channel]
             ch.setOnAttachHandler(self.phidgetOUTattached)
@@ -5401,11 +5365,6 @@ class serialport:
                             stepper.setIsRemote(True)
                             stepper.setIsLocal(False)
                         self.aw.ser.PhidgetStepperMotor[serial].append(stepper)
-# this is not needed here as we add those a bit below on successful attach
-#                    if serial is None:
-#                        # we make this also accessible via its serial number
-#                        self.aw.ser.PhidgetStepperMotor[str(ser)] = self.aw.ser.PhidgetStepperMotor[None]
-
         try:
             ch = self.aw.ser.PhidgetStepperMotor[serial][channel]
             ch.setOnAttachHandler(self.phidgetOUTattached)
@@ -5514,10 +5473,6 @@ class serialport:
                             rcservo.setIsRemote(True)
                             rcservo.setIsLocal(False)
                         self.aw.ser.PhidgetRCServo[serial].append(rcservo)
-# this is not needed here as we add those a bit below on successful attach
-#                    if serial is None:
-#                        # we make this also accessible via its serial number
-#                        self.aw.ser.PhidgetRCServo[str(ser)] = self.aw.ser.PhidgetRCServo[None]
         try:
             ch = self.aw.ser.PhidgetRCServo[serial][channel]
             ch.setOnAttachHandler(self.phidgetOUTattached)
@@ -6030,11 +5985,11 @@ class serialport:
     #   mode=4 => Yocto-4-20mA-Rx (works also for the Yocto-0-10V-Rx, the Yocto-milliVolt-Rx and the Yocto-Serial)
     # that is not in the list of already connected ones
     # if productName is given, the results are filtered by productName (has to be set with mode=4 to discriminate)
-    def getNextYOCTOsensorOfType(self, # type:ignore[no-any-unimported,unused-ignore]
+    def getNextYOCTOsensorOfType(self,
                     mode:int,
                     connected_yoctos:List[str],
-                    YOCTOsensor:Union[None, 'YGenericSensor','YPower','YVoltage','YCurrent','YSensor','YTemperature'],  # type:ignore[no-any-unimported,unused-ignore]
-                    productNameFilter:Optional[str] = None) -> Union['YGenericSensor','YPower','YVoltage','YCurrent','YSensor','YTemperature', None]: # type:ignore[no-any-unimported,unused-ignore]
+                    YOCTOsensor:Union[None, 'YGenericSensor','YPower','YVoltage','YCurrent','YSensor','YTemperature'],
+                    productNameFilter:Optional[str] = None) -> Union['YGenericSensor','YPower','YVoltage','YCurrent','YSensor','YTemperature', None]:
         if YOCTOsensor is not None:
             productName = YOCTOsensor.get_module().get_productName()
             if (YOCTOsensor.get_hardwareId() not in connected_yoctos) and  \
@@ -6101,17 +6056,19 @@ class serialport:
     # mode = 9 for Yocto Sensor (any); connects to the first two free sensor channels
     def YOCTOtemperatures(self, mode:int = 0, productNameFilter:Optional[str] = None) -> Tuple[float, float]:
         try:
-            if not self.YOCTOsensor:
+            if self.YOCTOsensor is None:
                 self.YOCTOimportLIB()
                 try:
                     YAPI.DisableExceptions()
                     # already connected YOCTO sensor channels?
                     connected_yoctos:List[str] = []
+                    # check for connected main device
                     if self.aw.ser.YOCTOsensor is not None:
                         if self.aw.ser.YOCTOchan1 is not None and self.aw.ser.YOCTOchan1.isOnline():
                             connected_yoctos.append(self.aw.ser.YOCTOchan1.get_hardwareId())
                         if self.aw.ser.YOCTOchan2 is not None and self.aw.ser.YOCTOchan2.isOnline():
                             connected_yoctos.append(self.aw.ser.YOCTOchan2.get_hardwareId())
+                    # check for connected extra devices
                     for s in self.aw.extraser:
                         if s.YOCTOsensor is not None:
                             if s.YOCTOchan1 is not None and s.YOCTOchan1.isOnline():
@@ -6149,9 +6106,9 @@ class serialport:
                         self.YOCTOchan1 = YTemperature.FindTemperature(serial + '.temperature1')
                         self.YOCTOchan2 = YTemperature.FindTemperature(serial + '.temperature2')
                         if mode == 0:
-                            self.aw.sendmessage(QApplication.translate('Message','Yocto Thermocouple attached'))
+                            self.aw.sendmessage(f"{QApplication.translate('Message','Yocto Thermocouple attached')} ({self.YOCTOsensor.get_serialNumber()})")
                         elif mode == 2:
-                            self.aw.sendmessage(QApplication.translate('Message','Yocto IR attached'))
+                            self.aw.sendmessage(f"{QApplication.translate('Message','Yocto IR attached')} ({self.YOCTOsensor.get_serialNumber()})")
                         # increase the resolution
                         try:
                             if self.YOCTOchan1 is not None:
@@ -6203,7 +6160,12 @@ class serialport:
                                 self.YOCTOthread = YoctoThread()
                             self.YOCTOthread.start()
                     elif mode == 1 and self.YOCTOsensor is not None and self.YOCTOsensor.isOnline():
-                        self.aw.sendmessage(QApplication.translate('Message','Yocto PT100 attached'))
+                        from yoctopuce.yocto_temperature import YTemperature
+                        serial = self.YOCTOsensor.get_module().get_serialNumber()
+                        self.YOCTOchan1 = YTemperature.FindTemperature(serial + '.temperature')
+                        self.YOCTOchan2 = None
+
+                        self.aw.sendmessage(f"{QApplication.translate('Message','Yocto PT100 attached')} ({self.YOCTOsensor.get_serialNumber()})")
                         # increase the resolution
                         try:
                             self.YOCTOsensor.set_resolution(yocto_res)
@@ -7098,196 +7060,3 @@ class extraserialport:
                 return False
         else:
             return False
-
-class scaleport(extraserialport):
-    """ this class handles the communications with the scale"""
-
-    __slots__ = ['bluetooth_devices']
-
-    def __init__(self, aw:'ApplicationWindow') -> None:
-        super().__init__(aw)
-
-        #default initial settings. They are changed by settingsload() at initiation of program according to the device chosen
-        self.comport:str = '/dev/cu.usbserial-FTFKDA5O'      #NOTE: this string should not be translated.
-        self.baudrate:int = 19200
-        self.bytesize:int = 8
-        self.parity:str = 'N'
-        self.stopbits:int = 1
-        self.timeout:float = 0.2
-        self.devicefunctionlist:Dict[str, Optional[Callable[[],Tuple[float,float,float]]]] = {
-            'None' : None,
-            'KERN NDE' : self.readKERN_NDE,
-            'acaia' : self.readAcaia,
-            #"Shore 930" : self.readShore930,
-        }
-        self.bluetooth_devices:List[str] = ['acaia']
-
-    def closeport(self) -> None:
-        if self.device == 'acaia':
-            # disconnect from acaia scale
-            try:
-                if self.SP is not None and self.SP.is_open:
-                    self.SP.write(str2cmd('BTDS\r\n'))
-            except Exception: # pylint: disable=broad-except
-                pass
-        super().closeport()
-
-    # returns one of weight (g), density (g/l), or moisture (%).  Others return -1.
-    def readWeight(self, scale_weight:Optional[float]=None) -> Tuple[float,float,float]:
-        if scale_weight is not None:
-            return scale_weight,-1,-1
-        if self.device is not None and self.device not in {'None', '', 'acaia'}:
-            device_fct = self.devicefunctionlist[self.device]
-            if device_fct is not None:
-                wei,den,moi = device_fct()
-                if moi is not None and moi > -1:
-                    return -1, -1, float2float(moi)
-                if den is not None and den > -1:
-                    return -1, float2float(den), -1
-                if wei is not None and wei > -1:
-                    return float2float(wei), -1, -1
-            return -1,-1,-1
-        return -1,-1,-1
-
-    def readLine(self) -> str:
-        if self.SP is not None:
-            return str(self.SP.readline().decode('ascii'))
-        return ''
-
-    # replaced by BLE direct implementation
-    @staticmethod
-    def readAcaia() -> Tuple[float,float,float]:
-        return -1, -1, -1
-
-    def readKERN_NDE(self) -> Tuple[float,float,float]:
-        try:
-            if not self.SP:
-                self.connect()
-            if self.SP:
-                if not self.SP.is_open:
-                    self.openport()
-                if self.SP.is_open:
-                    #self.SP.write(str2cmd('s')) # only stable
-                    self.SP.write(str2cmd('w')) # any weight
-                    v = self.SP.readline()
-                    if len(v) == 0:
-                        return -1,-1,-1
-                    sa = v.decode('ascii').split('g')
-                    if len(sa) == 2:
-                        return int(sa[0].replace(' ', '')), -1, -1
-                    # some times the unit is just missing, we assume it is g
-                    sa = v.decode('ascii').split('\r\n')
-                    if len(sa) == 2:
-                        return int(sa[0].replace(' ', '')),-1,-1
-            return -1, -1, -1
-        except Exception:  # pylint: disable=broad-except
-            return -1, -1, -1
-
-    def readShore930(self) -> Tuple[float,float,float]:
-        try:
-            if not self.SP:
-                self.connect()
-            if self.SP:
-                if not self.SP.is_open:
-                    self.openport()
-                if self.SP.is_open:
-                    line1 = self.SP.readline()
-                    weight = re.search(r'Current Weight:',str(line1))
-                    if weight:
-                        w = re.findall(r'([0-9\.]+)',str(line1))
-                        if len(w) == 1:
-                            return toFloat(w[0]),-1,-1
-                        return -1,-1,-1
-
-                    density = re.search(r'Test Weight',str(line1))
-                    if density:
-                        line2 = self.SP.readline()
-                        d = re.findall(r'[0-9\.\-]+',str(line2))
-                        if len(d) == 1:
-                            den = toFloat(d[0]) *12.8718597   # convert from LBS/BTU to g/
-                            return -1,toFloat(den),-1
-                        return -1,-1,-1
-
-                    moisture = re.search(r'Beans',str(line1))
-                    if moisture:
-                        line2 = self.SP.readline()
-                        m = re.findall(r'[0-9\.\-]+',str(line2))
-#                        line3 = self.SP.readline() # unused!
-                        if len(m) == 1:
-                            return -1,-1,toFloat(m[0])
-                        return -1,-1,-1
-            return -1,-1,-1
-        except Exception:  # pylint: disable=broad-except
-            return -1,-1,-1
-
-
-class colorport(extraserialport):
-    """ this class handles the communications with the color meter"""
-
-    __slots__ = []
-
-    def __init__(self, aw:'ApplicationWindow') -> None:
-        super().__init__(aw)
-
-        #default initial settings. They are changed by settingsload() at initiation of program according to the device chosen
-        self.comport:str = '/dev/cu.usbserial-FTFKDA5O'      #NOTE: this string should not be translated.
-        self.baudrate:int = 115200
-        self.bytesize:int = 8
-        self.parity:str = 'N'
-        self.stopbits:int = 1
-        self.timeout:float = 2
-        self.devicefunctionlist:Dict[str,Optional[Callable[[],Tuple[float,float,float]]]] = {
-            'None' : None,
-            'Tiny Tonino' : self.readTonino,
-            'Classic Tonino' : self.readTonino
-        }
-
-    # returns color as int or -1 if something went wrong
-    def readColor(self) -> int:
-        if self.device is not None and self.device not in {'None', ''}:
-            device_fct = self.devicefunctionlist[self.device]
-            if device_fct is not None:
-                return int(round(device_fct()[0]))
-            return -1
-        return -1
-
-    def readline_terminated(self, eol:bytes = b'\r') -> bytes:
-        leneol = len(eol)
-        line = bytearray()
-        if self.SP is not None:
-            while True:
-                c = self.SP.read(1)
-                if c:
-                    line += c
-                    if line[-leneol:] == eol:
-                        break
-                else:
-                    break
-        return bytes(line)
-
-    def readTonino(self, retry:int = 2) -> Tuple[float,float,float]:
-        try:
-            if self.SP is None:
-                self.connect()
-                libtime.sleep(2)
-                if self.SP is not None:
-                    # put Tonino into PC mode on first connect
-                    self.SP.write(str2cmd('\nTONINO\n')) # type: ignore # mypy: Statement is unreachable  [unreachable]
-                    #self.SP.flush()
-                    self.readline_terminated(b'\n')
-            if self.SP is not None:
-                if not self.SP.is_open:
-                    self.openport()
-                if self.SP.is_open:
-                    self.SP.reset_input_buffer()
-                    self.SP.reset_output_buffer()
-                    self.SP.write(str2cmd('\nSCAN\n'))
-                    #self.SP.flush()
-                    v = self.readline_terminated(b'\n').decode('ascii')
-                    if 'SCAN' in v:
-                        return int(v.split(':')[1]),-1,-1 # response should have format "SCAN:128"
-                    if retry > 0:
-                        return self.readTonino(retry-1)
-            return -1,-1,-1
-        except Exception:  # pylint: disable=broad-except
-            return -1,-1,-1

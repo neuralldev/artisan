@@ -111,7 +111,7 @@ class ArtisanDialog(QDialog): # pyright: ignore [reportGeneralTypeIssues] # Argu
         self.dialogbuttons.rejected.emit()
 
     @pyqtSlot('QCloseEvent')
-    def closeEvent(self,_:Optional['QCloseEvent'] = None) -> None:
+    def closeEvent(self,_:Optional['QCloseEvent']) -> None:
         self.dialogbuttons.rejected.emit()
 
     def keyPressEvent(self, event: Optional['QKeyEvent']) -> None:
@@ -276,7 +276,7 @@ class HelpDlg(ArtisanDialog):
             cursor.movePosition(QTextCursor.MoveOperation.Start)
 
             # Collect all matches.
-            for _ in range(500000):  # arbitrarily large limit, better than while True, should always exit via break
+            for _ in range(1000):  # arbitrarily large limit, better than while True, should always exit via break
                 found = self.phelp.document().find(regex, cursor)  # type: ignore  #self.phelp.document() will never be None
                 if found.isNull():
                     break
@@ -748,3 +748,4 @@ class tareDlg(ArtisanDialog):
             header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
             header.setSectionResizeMode(1, QHeaderView.ResizeMode.Fixed)
         self.taretable.setColumnWidth(1,80)
+        

@@ -1253,7 +1253,7 @@ class PIDcontrol:
     #  4: Kaleido
     def externalPIDControl(self) -> int:
         # TC4 with PID firmware or MODBUS and SV register set or S7 and SV area set
-        if self.aw.modbus.PID_slave_ID != 0:
+        if self.aw.modbus.PID_device_ID != 0:
             return 1
         if self.aw.s7.PID_area != 0:
             return 2

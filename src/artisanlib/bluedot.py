@@ -55,7 +55,7 @@ class BlueDOT(ClientBLE):
 
         # register BlueDOT UUIDs
         self.add_device_description(
-            #self.BlueDOT_SERVICE_UUID,
+            None, #self.BlueDOT_SERVICE_UUID,
             self.BlueDOT_NAME)
         self.add_notify(self.BlueDOT_NOTIFY_UUID, self.notify_callback)
 
@@ -94,3 +94,4 @@ class BlueDOT(ClientBLE):
 
     def getET(self) -> float:
         return self._ET
+    

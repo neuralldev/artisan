@@ -1263,16 +1263,6 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
         self.colorTrackMedianSpinBox.setRange(10,200)
         self.colorTrackMedianSpinBox.setValue(int(self.aw.colorTrack_median_window_size))
 
-        # add a combo box with a button to select the Lebrew RoastSee C1 from BLE scan
-        self.lebrewRoastSeeC1ComboBox = QComboBox()    
-        self.lebrewRoastSeeC1ComboBox.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        if self.aw.bleRoastSeeDevicesList is not None:
-            self.lebrewRoastSeeC1ComboBox.addItems(['RoastSee C1 (' + ', '.join(self.aw.bleRoastSeeDevicesList) + ')'])
-        self.bleScanForRoastSeeC1 = QPushButton(QApplication.translate('Button','Scan'))
-        self.bleScanForRoastSeeC1.clicked.connect(self.ScanForLebrewBLEDevices)
-        self.bleScanForRoastSeeC1.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.bleScanForRoastSeeC1.setToolTip(QApplication.translate('Tooltip','Click scan to discover for Lebrew devices'))
-
         santokerNetworkGrid = QGridLayout()
         santokerNetworkGrid.addWidget(self.santokerNetworkFlag,0,0)
         santokerNetworkGrid.addWidget(santokerHostLabel,0,1)
@@ -1379,17 +1369,6 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
         colorTrackVBox.setSpacing(5)
         colorTrackVBox.setContentsMargins(0,0,0,0)
 
-        # create lebrew color see C1 section
-        LebrewRoastSeeNetworkGrid = QGridLayout()
-        LebrewRoastSeeNetworkGrid.addWidget(self.lebrewRoastSeeC1ComboBox,0,0)
-        LebrewRoastSeeNetworkGrid.addWidget(self.bleScanForRoastSeeC1,0,1)
-        LebrewRoastSeeNetworkGrid.setSpacing(20)
-        LebrewRoastSeeNetworkGroupBox = QGroupBox('Lebrew Roast See C1')
-        LebrewRoastSeeNetworkGroupBox.setLayout(LebrewRoastSeeNetworkGrid)
-        LebrewRoastSeeHBox = QHBoxLayout()
-        LebrewRoastSeeHBox.addWidget(LebrewRoastSeeNetworkGroupBox)
-        LebrewRoastSeeHBox.addStretch()
- 
         # create pid box
         PIDgrid = QGridLayout()
         PIDgrid.addWidget(label1,0,1)
@@ -1544,8 +1523,6 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
         tab7V2Layout = QVBoxLayout()
         tab7V2Layout.addLayout(mugmaVBox)
         tab7V2Layout.addLayout(colorTrackVBox)
-        #add lebrew roast see C1
-        tab7V2Layout.addLayout(LebrewRoastSeeHBox)
         tab7V2Layout.addStretch()
         tab7Layout = QHBoxLayout()
         tab7Layout.addLayout(tab7VLayout)
@@ -2053,33 +2030,6 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
         self.ambientPressureComboBox.addItems(ambientSensorSourceList)
         self.ambientPressureComboBox.setCurrentIndex(self.aw.qmc.ambientPressureSource)
         self.ambientPressureComboBox.blockSignals(False)
-
-    # Lebrew section to scan for devices on BLE, if detected devices are populated to the assocated combobox for selection
-    @pyqtSlot(bool)
-    def ScanForLebrewBLEDevices(self, __:bool = False) -> None:
-        from artisanlib.lebrewroastsee import LebrewBLE
-#        _log.debug('Scan for Lebrew BLE devices')
-        self.lebrewble = LebrewBLE( )
-        if self.lebrew_devices is not None: # if Bluetooth support is correctly initialized in Artisan, try to scan else abort
-            self.lebrew_devices: List[Tuple[str, str]] = []
-            self.lebrewRoastSeeC1ComboBox.setEnabled(False)  # disable combobox before scan 
-            self.devices = self.lebrewble.scan()
-            self.lebrewRoastSeeC1ComboBox.setEnabled(True)  # Réactive  combobox after scan
-            for d in self.devices:
-                ble_device = d[0]
-                adv_data = d[1]
-                if ble_device.name == 'RoastSee C1': # all lebrew roastsee devices have the same name but different addresses
-                    self.lebrew_devices.append((ble_device.name, ble_device.address))
-                    break
-            self.lebrewRoastSeeC1ComboBox.clear() # reset combobx content
-            self.aw.bleRoastSeeDevicesList = [address for _, address in self.lebrew_devices]
-            if self.lebrew_devices is not None and len(self.lebrew_devices) > 0:
-                for name, address in self.lebrew_devices:
-                    self.lebrewRoastSeeC1ComboBox.addItem(f"{name}({address})")
-            else:
-                self.lebrewRoastSeeC1ComboBox.addItem(QApplication.translate('Label','No Lebrew BLE devices found'))
-        else:
-                self.lebrewRoastSeeC1ComboBox.addItem(QApplication.translate('Label','No Lebrew BLE devices found'))
 
     @pyqtSlot()
     def changeTaskWebDisplayGreenPort(self) -> None:
