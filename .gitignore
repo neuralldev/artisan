@@ -84,5 +84,6 @@ Thumbs.db
 CLAUDE.md
 HANDOFF.md
 REBASE.md
+CI-SETUP.md
 .gitignore
 .claude
