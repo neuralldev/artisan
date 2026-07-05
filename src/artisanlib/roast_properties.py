@@ -1364,7 +1364,7 @@ class editGraphDlg(ArtisanResizeablDialog):
             self.plus_amount_replace_selected:float|None = None # holds the max amount of the selected coffee/blend incl. replacements if known
             plusCoffeeslabel = QLabel('<b>' + QApplication.translate('Label', 'Stock') + '</b>')
             plusCoffeeslabel.setToolTip(QApplication.translate('Tooltip','Select beans from your inventory'))
-            self.plusStoreslabel = QLabel('<b>' + QApplication.translate('Label', 'Store') + '</b>')
+            self.plusStoreslabel = QLabel('<b>' + QApplication.translate('Label', 'Space') + '</b>')
             self.plusStoreslabel.setToolTip(QApplication.translate('Tooltip','Select a storage location'))
             self.plusBlendslabel = QLabel('<b>' + QApplication.translate('Label', 'Blend') + '</b>')
             self.plusBlendslabel.setToolTip(QApplication.translate('Tooltip','Select a blend from your inventory'))
