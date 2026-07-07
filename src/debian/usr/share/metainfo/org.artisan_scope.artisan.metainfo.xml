@@ -2,7 +2,7 @@
 <component type="desktop-application">
   <id>org.artisan_scope.artisan</id>
 
-  <name>Artisan</name>
+  <name>artisan Scope</name>
   <summary>Visual scope for coffee roasters</summary>
 
   <metadata_license>CC0-1.0</metadata_license>
@@ -15,29 +15,38 @@
   </supports>
 
   <description>
-    <p>Artisan is an open-source software that helps coffee roasters record, analyze, and control roast profiles. This software can automate the creation of roasting metrics to help make decisions that influence the final coffee flavor.</p>
+    <p>artisan Scope is open-source software that helps coffee roasters record, analyze, and control roast profiles. It automates tedious roasting tasks and streamlines processes, enabling roasters to consistently produce exceptional-tasting coffee. With support for over 200 brands of roasting machines, including the capability to control roaster functions, Scope stands out as the most versatile software available to roasters – and it's completely free!</p>
 
-    <p>Notable features</p>
+    <p>**Notable features**</p>
     <ul>
-      <li>we believe in Open-Source, check out our code and contribute</li>
-      <li>seamless integration into the artisan.plus inventory management service</li>
-      <li>extensive machine and device support including control</li>
-      <li>unlimited number of curves</li>
-      <li>rate-of-rise (RoR), area-under-the-curve (AUC), development-time-ratio (DTR) calculations and projection lines</li>
-      <li>statistics, roast profile evaluation, Profile Analyzerg, Roast Comparatorg, Profile Transposerg and Roast Simulatorg</li>
-      <li>roast-, production- and ranking reportsg</li>
-      <li>automated reproduction of roasts via alarm programs, replay of eventsg or PID controlg</li>
-      <li>batch counterg</li>
-      <li>profile designerg, cupping editor, spider- and wheel graph</li>
-      <li>user defined buttons and slidersg with programmable actions</li>
-      <li>many import and export formats like Aillio Roastime, Cropster XLS, Giesen CSV, IKAWA CSV, Probat Pilot, RoastLogger, RoastLog, RoastPath,..</li>
+      <li>Fully open-source under GPLv3</li>
+      <li>Extensive machine and device support, including the ability to control roasters</li>
+      <li>Local-First data management. Your curves live on your machine!</li>
+      <li>Rate-of-rise (RoR), area-under-the-curve (AUC), development-time-ratio (DTR), and projection lines</li>
+      <li>Statistics, Profile Analyzer, Roast Comparator, Profile Transposer, Profile designer, and Roast Simulator</li>
+      <li>Automated reproduction of roasts via replay, alarm programs, or PID control</li>
+      <li>Customizable interface with programmable actions</li>
+      <li>Multiple import and export formats</li>
+      <li>Localized in more than 30 languages</li>
     </ul>
 
-    <p>The Artisan project runs on donations from individuals and companies recognising the value of Artisan for their work or leisure. Consider supporting this project with your donation, or even better, purchase an artisan.plus membership!</p>
+    <p>**More features with artisan.plus**</p>
+
+    <p>Subscribers to our optional artisan.plus service unlock access to even more features of artisan Scope, including:</p>
+    <ul>
+      <li>Inventory management</li>
+      <li>Roast scheduling with Acaia scale integration</li>
+      <li>RoastGuard automated quality control flagging</li>
+      <li>Production reporting</li>
+      <li>Maintenance reminders</li>
+      <li>Multiple users under one organization  </li>
+    </ul>
+
+    <p>The artisan project runs on donations from individuals and companies recognising the value of artisan for the coffee community. Consider supporting this project with a donation or by purchasing an artisan.plus membership!</p>
   </description>
 
   <developer id="org.artisan-scope">
-    <name>Artisan developers</name>
+    <name>artisan</name>
   </developer>
 
   <url type="bugtracker">https://github.com/artisan-roaster-scope/artisan/issues</url>
