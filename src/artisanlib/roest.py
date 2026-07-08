@@ -83,6 +83,7 @@ def getMachines(client_id:str, client_secret:str) -> list[RoestMachine]:
                 params = {'page_size': 'all'},
                 headers = {
                     'Authorization': f'Bearer {token}',
+                    'Accept': 'application/json; version=1.0',
                     'Content-Type': 'application/json'})
             if res.status_code == 200:
                 data = res.json()
