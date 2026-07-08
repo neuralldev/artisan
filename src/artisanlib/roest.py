@@ -27,7 +27,7 @@ _log: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 GET_TOKEN_URL = 'https://api.roestcoffee.com/o/token/'
-GET_MACHINES_URL = 'https://api.roestcoffee.com/machines'
+GET_MACHINES_URL = 'https://api.roestcoffee.com/machines/'
 
 CONNECT_TIMEOUT:int = 3
 READ_TIMEOUT:int = 5
