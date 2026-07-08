@@ -108,8 +108,8 @@ def getMachines(client_id:str, client_secret:str) -> list[RoestMachine]:
                                 if 'has_pressure' in sensor_conf and isinstance(sensor_conf['has_pressure'], bool):
                                     machine['has_pressure'] = sensor_conf['has_pressure']
                             #
-                            if 'is_p2000' in item and isinstance(item['is_p2000'], bool):
-                                machine['p3000'] = item['is_p2000']
+                            if 'prod_type' in item and isinstance(item['prod_type'], int):
+                                machine['p3000'] = item['prod_type'] == 1
                             if 'machine_image' in item and isinstance(item['machine_image'], str):
                                 machine['machine_image'] = item['machine_image'].upper()
                             try:
