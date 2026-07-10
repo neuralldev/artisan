@@ -10883,8 +10883,8 @@ class ApplicationWindow(QMainWindow):
                                         fp = str(eval(c[len('loadBackground('):-1][:eval_limit])) # pylint: disable=eval-used
                                     except Exception: # pylint: disable=broad-except
                                         fp = str(cs[len('loadBackground('):-1])
-                                    self.loadBackgroundSignal.emit(fp, True)
                                     self.sendmessage(f'Artisan Command: {c}')
+                                    self.loadBackgroundSignal.emit(fp, True)
                                 except Exception as e: # pylint: disable=broad-except
                                     _log.exception(e)
                             # clearBackground
@@ -14574,9 +14574,19 @@ class ApplicationWindow(QMainWindow):
                 self.qmc.adderror((QApplication.translate('Error Message', 'IO Error:') + ' loadbackground() {0}').format(str(e)),getattr(exc_tb, 'tb_lineno', '?'))
                 return
 
-            except (ValidationError, InvalidSignature, InvalidProfileHash) as e:
+            except (ValidationError) as e:
                 # pydantic validation against ProfileData TypedDict failed
                 self.sendmessage(f"{QApplication.translate('Message','Invalid artisan format')}: {filename}")
+                _log.error(e)
+
+            except (InvalidSignature) as e:
+                # pydantic validation against ProfileData TypedDict failed
+                self.sendmessage(f"{QApplication.translate('Message','Not a genuine artisan profile')}: {filename}")
+                _log.error(e)
+
+            except (InvalidProfileHash) as e:
+                # pydantic validation against ProfileData TypedDict failed
+                self.sendmessage(f"{QApplication.translate('Message','Modified artisan profile')}: {filename}")
                 _log.error(e)
 
             except ValueError as e:
