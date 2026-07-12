@@ -13349,7 +13349,7 @@ class ApplicationWindow(QMainWindow):
                 res = QDir.setCurrent(self.qmc.autosavepath)
                 if res:
                     #write
-                    pf = self.getProfile()
+                    pf = self.getProfile(generate_hash=True)
                     # pf should not be modified before saving anymore this would break its hash
                     self.plusAddPath(cast(dict[str, Any], pf), filename_path)
                     serialize(filename_path, cast(dict[str, Any], pf))
@@ -17030,9 +17030,13 @@ class ApplicationWindow(QMainWindow):
         ######### RETURN #########
         return computedProfile
 
-    #used by filesave()
+    #used by filesave(), automaticsave() and roast:getRoast()
     #wrap values in unicode(.) if and only if those are of type string
-    def getProfile(self, copy:bool = False) -> 'ProfileData':
+    # if 'copy' is set a fresh roastUUID is generated
+    # if 'generate_hash' is set the 'plus_sync_record_hash' and the 'hash' over the profile is set
+    #    not that calling getProfile with generate_hash=True from roast:getRoast() generates a non-terminating loop and has to be prevented
+    #    thus this flag should only be set on generating profile data for saving into a file (by filesave() and automaticsave()), but not for internal use!
+    def getProfile(self, copy:bool = False, generate_hash:bool = False) -> 'ProfileData':
         try:
             profile = ProfileData()
             profile['recording_version'] = self.recording_version
@@ -17314,18 +17318,19 @@ class ApplicationWindow(QMainWindow):
                 _, _, exc_tb = sys.exc_info()
                 self.qmc.adderror((QApplication.translate('Error Message', 'Exception:') + ' getProfile(): {0}').format(str(ex)),getattr(exc_tb, 'tb_lineno', '?'))
 
-            # set sync_record_hash if any
-            sync_record_hash = plus.controller.updateSyncRecordHashAndSync()
-            if sync_record_hash is not None:
-                # we add the hash over the sync record to be able to detect offline changes
-                srh = encodeLocal(sync_record_hash)
-                if srh is not None:
-                    profile['plus_sync_record_hash'] = srh
+            if generate_hash:
+                # set sync_record_hash if any
+                sync_record_hash = plus.controller.updateSyncRecordHashAndSync()
+                if sync_record_hash is not None:
+                    # we add the hash over the sync record to be able to detect offline changes
+                    srh = encodeLocal(sync_record_hash)
+                    if srh is not None:
+                        profile['plus_sync_record_hash'] = srh
 
-            # add hash
-            import hashlib
-            import json
-            profile['hash'] = hashlib.sha256(json.dumps(rec_int_to_float(profile), sort_keys=True, ensure_ascii=True, separators=(',', ':')).encode()).hexdigest()
+                # add hash
+                import hashlib
+                import json
+                profile['hash'] = hashlib.sha256(json.dumps(rec_int_to_float(profile), sort_keys=True, ensure_ascii=True, separators=(',', ':')).encode()).hexdigest()
 
             return profile
         except Exception as ex: # pylint: disable=broad-except
@@ -17371,7 +17376,7 @@ class ApplicationWindow(QMainWindow):
                 filename = self.ArtisanSaveFileDialog(msg=QApplication.translate('Message', 'Save Profile'), path=fname)
             if filename:
                 #write
-                pf = self.getProfile(copy)
+                pf = self.getProfile(copy, generate_hash=True)
                 # pf should not be modified before saving anymore this would break its hash
                 if pf:
                     # we save the file and set the filename

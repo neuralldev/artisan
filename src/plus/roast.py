@@ -289,7 +289,7 @@ def getRoast() -> dict[str, Any]:
         assert config.app_window is not None
         aw = config.app_window
         assert aw is not None
-        p:ProfileData = aw.getProfile()
+        p:ProfileData = aw.getProfile() # calling getProfile with generate_hash=True here generates a non-terminating loop!
 
         d = getTemplate(p)
 
