@@ -26,7 +26,7 @@
 ######
 # packages that are required on all platforms
 #
-setuptools==82.0.1
+setuptools==81.0.0 # forced by numpy 25.1 (current would be 83.0.0)
 wheel==0.47.0
 pyserial==3.5
 pymodbus==3.13.1
@@ -44,7 +44,7 @@ websockets==16.0
 PyYAML==6.0.3
 psutil==7.2.2
 protobuf==7.35.1
-numpy==2.5.0
+numpy==2.5.1
 scipy==1.18.0
 wquantiles==0.6
 colorspacious==1.1.2
@@ -56,14 +56,14 @@ matplotlib==3.11.0
 jinja2==3.1.6
 aiohttp==3.14.1
 aiohttp_jinja2==1.6
-python-bidi==0.6.10
+python-bidi==0.6.11
 arabic-reshaper==3.0.1
-pillow==12.2.0
+pillow==12.3.0
 pydantic==2.13.4
 babel==2.18.0
 bleak==3.0.2
 python-statemachine==3.2.0
-yoctopuce==2.1.14927
+yoctopuce==2.1.15129
 PyQt6==6.11.0
 PyQt6-WebEngine==6.11.0
 paho-mqtt==2.1.0

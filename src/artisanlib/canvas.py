@@ -13746,7 +13746,6 @@ class tgraphcanvas(QObject):
 
                 # disconnect Orbiter
                 if not bool(self.aw.simulator) and self.device == 196 and self.aw.orbiter is not None:
-#                    self.aw.orbiter.stop()
                     self.aw.orbiter.disconnect(wasRecording, self.timeindex[6] != 0)
                     self.aw.orbiter = None
 

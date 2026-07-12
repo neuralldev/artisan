@@ -27,7 +27,7 @@ _log: Final[logging.Logger] = logging.getLogger(__name__)
 
 
 GET_TOKEN_URL = 'https://api.roestcoffee.com/o/token/'
-GET_MACHINES_URL = 'https://api.roestcoffee.com/machines'
+GET_MACHINES_URL = 'https://api.roestcoffee.com/machines/'
 
 CONNECT_TIMEOUT:int = 3
 READ_TIMEOUT:int = 5
@@ -83,6 +83,7 @@ def getMachines(client_id:str, client_secret:str) -> list[RoestMachine]:
                 params = {'page_size': 'all'},
                 headers = {
                     'Authorization': f'Bearer {token}',
+                    'Accept': 'application/json; version=1.0',
                     'Content-Type': 'application/json'})
             if res.status_code == 200:
                 data = res.json()
@@ -107,8 +108,8 @@ def getMachines(client_id:str, client_secret:str) -> list[RoestMachine]:
                                 if 'has_pressure' in sensor_conf and isinstance(sensor_conf['has_pressure'], bool):
                                     machine['has_pressure'] = sensor_conf['has_pressure']
                             #
-                            if 'is_p2000' in item and isinstance(item['is_p2000'], bool):
-                                machine['p3000'] = item['is_p2000']
+                            if 'prod_type' in item and isinstance(item['prod_type'], int):
+                                machine['p3000'] = item['prod_type'] == 1
                             if 'machine_image' in item and isinstance(item['machine_image'], str):
                                 machine['machine_image'] = item['machine_image'].upper()
                             try:

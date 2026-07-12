@@ -7647,7 +7647,7 @@ class ApplicationWindow(QMainWindow):
                 try:
                     # we masked the -1 error values
                     np_etb_masked = numpy.ma.masked_equal(np_etb, -1)
-                    np_timeB_etb_masked = numpy.ma.masked_array(np_timeB, np_etb_masked.mask) # type:ignore[operator,unused-ignore] # ty:ignore[call-non-callable] # pylint:disable=no-member
+                    np_timeB_etb_masked = numpy.ma.masked_array(np_timeB, np_etb_masked.mask) # type:ignore[operator,unused-ignore] # pylint:disable=no-member
                     # ignore the masked error values on computing the interpolation and fill (especially on the left) with -1 values
                     interp_np_etb = numpy.interp(np_timex,np_timeB_etb_masked.compressed(),np_etb_masked.compressed(),left=-1,right=-1) # pyright:ignore[reportUnknownArgumentType]  # pylint:disable=no-member
 
@@ -7672,7 +7672,7 @@ class ApplicationWindow(QMainWindow):
                 try:
                     # we masked the -1 error values
                     np_btb_masked = numpy.ma.masked_equal(np_btb, -1)
-                    np_timeB_btb_masked = numpy.ma.masked_array(np_timeB, np_btb_masked.mask) # type:ignore[operator,unused-ignore] # ty:ignore[call-non-callable] # pylint:disable=no-member
+                    np_timeB_btb_masked = numpy.ma.masked_array(np_timeB, np_btb_masked.mask) # type:ignore[operator,unused-ignore] # pylint:disable=no-member
                     # ignore the masked error values on computing the interpolation and fill (especially on the left) with -1 values
                     interp_np_btb = numpy.interp(np_timex,np_timeB_btb_masked.compressed(),np_btb_masked.compressed(),left=-1,right=-1) # pyright:ignore[reportUnknownArgumentType]  # pylint:disable=no-member
 
@@ -10905,8 +10905,8 @@ class ApplicationWindow(QMainWindow):
                                         fp = str(eval(c[len('loadBackground('):-1][:eval_limit])) # pylint: disable=eval-used
                                     except Exception: # pylint: disable=broad-except
                                         fp = str(cs[len('loadBackground('):-1])
-                                    self.loadBackgroundSignal.emit(fp, True)
                                     self.sendmessage(f'Artisan Command: {c}')
+                                    self.loadBackgroundSignal.emit(fp, True)
                                 except Exception as e: # pylint: disable=broad-except
                                     _log.exception(e)
                             # clearBackground
@@ -13372,12 +13372,7 @@ class ApplicationWindow(QMainWindow):
                 if res:
                     #write
                     pf = self.getProfile()
-                    sync_record_hash = plus.controller.updateSyncRecordHashAndSync()
-                    if sync_record_hash is not None:
-                        # we add the hash over the sync record to be able to detect offline changes
-                        hash_encoded = encodeLocal(sync_record_hash)
-                        if hash_encoded is not None:
-                            pf['plus_sync_record_hash'] = hash_encoded
+                    # pf should not be modified before saving anymore this would break its hash
                     self.plusAddPath(cast(dict[str, Any], pf), filename_path)
                     serialize(filename_path, cast(dict[str, Any], pf))
                     self.sendmessage(QApplication.translate('Message','Profile {0} saved in: {1}').format(filename,self.qmc.autosavepath))
@@ -14601,9 +14596,19 @@ class ApplicationWindow(QMainWindow):
                 self.qmc.adderror((QApplication.translate('Error Message', 'IO Error:') + ' loadbackground() {0}').format(str(e)),getattr(exc_tb, 'tb_lineno', '?'))
                 return
 
-            except (ValidationError, InvalidSignature, InvalidProfileHash) as e:
+            except (ValidationError) as e:
                 # pydantic validation against ProfileData TypedDict failed
                 self.sendmessage(f"{QApplication.translate('Message','Invalid artisan format')}: {filename}")
+                _log.error(e)
+
+            except (InvalidSignature) as e:
+                # pydantic validation against ProfileData TypedDict failed
+                self.sendmessage(f"{QApplication.translate('Message','Not a genuine artisan profile')}: {filename}")
+                _log.error(e)
+
+            except (InvalidProfileHash) as e:
+                # pydantic validation against ProfileData TypedDict failed
+                self.sendmessage(f"{QApplication.translate('Message','Modified artisan profile')}: {filename}")
                 _log.error(e)
 
             except ValueError as e:
@@ -17049,7 +17054,7 @@ class ApplicationWindow(QMainWindow):
 
     #used by filesave()
     #wrap values in unicode(.) if and only if those are of type string
-    def getProfile(self) -> 'ProfileData':
+    def getProfile(self, copy:bool = False) -> 'ProfileData':
         try:
             profile = ProfileData()
             profile['recording_version'] = self.recording_version
@@ -17142,10 +17147,15 @@ class ApplicationWindow(QMainWindow):
             profile['roastbatchnr'] = self.qmc.roastbatchnr
             profile['roastbatchprefix'] = encodeLocalStrict(self.qmc.roastbatchprefix)
             profile['roastbatchpos'] = self.qmc.roastbatchpos
-            if self.qmc.roastUUID is None:
+            if copy:
+                # if the copy flag is set, we generate a new roastUUID
                 import uuid
-                self.qmc.roastUUID = uuid.uuid4().hex # generate UUID
-            profile['roastUUID'] = self.qmc.roastUUID
+                profile['roastUUID'] = uuid.uuid4().hex # generate UUID
+            else:
+                if self.qmc.roastUUID is None:
+                    import uuid
+                    self.qmc.roastUUID = uuid.uuid4().hex # generate UUID
+                profile['roastUUID'] = self.qmc.roastUUID
             if self.qmc.scheduleID is not None:
                 profile['scheduleID'] = self.qmc.scheduleID
             if self.qmc.scheduleDate is not None:
@@ -17326,6 +17336,14 @@ class ApplicationWindow(QMainWindow):
                 _, _, exc_tb = sys.exc_info()
                 self.qmc.adderror((QApplication.translate('Error Message', 'Exception:') + ' getProfile(): {0}').format(str(ex)),getattr(exc_tb, 'tb_lineno', '?'))
 
+            # set sync_record_hash if any
+            sync_record_hash = plus.controller.updateSyncRecordHashAndSync()
+            if sync_record_hash is not None:
+                # we add the hash over the sync record to be able to detect offline changes
+                srh = encodeLocal(sync_record_hash)
+                if srh is not None:
+                    profile['plus_sync_record_hash'] = srh
+
             # add hash
             import hashlib
             import json
@@ -17375,20 +17393,9 @@ class ApplicationWindow(QMainWindow):
                 filename = self.ArtisanSaveFileDialog(msg=QApplication.translate('Message', 'Save Profile'), path=fname)
             if filename:
                 #write
-                pf = self.getProfile()
+                pf = self.getProfile(copy)
+                # pf should not be modified before saving anymore this would break its hash
                 if pf:
-                    # if the copy flag is set, we generate a new roastUUID
-                    if copy:
-                        import uuid
-                        pf['roastUUID'] = uuid.uuid4().hex # generate UUID
-
-                    sync_record_hash = plus.controller.updateSyncRecordHashAndSync()
-                    if sync_record_hash is not None:
-                        # we add the hash over the sync record to be able to detect offline changes
-                        srh = encodeLocal(sync_record_hash)
-                        if srh is not None:
-                            pf['plus_sync_record_hash'] = srh
-
                     # we save the file and set the filename
                     self.plusAddPath(cast(dict[str,Any], pf), filename)
                     serialize(filename, cast(dict[str,Any], pf))
