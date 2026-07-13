@@ -175,10 +175,7 @@ if TYPE_CHECKING:
     from artisanlib.santoker import Santoker # pylint: disable=unused-import
     from artisanlib.santoker_r import SantokerR # pylint: disable=unused-import
     from artisanlib.skywalker import Skywalker # pylint: disable=unused-import ## CYBER ##
-<<<<<<< HEAD
-=======
     from artisanlib.skyble import SkyBLE # pylint: disable=unused-import ## SKYBLE ##
->>>>>>> feature/skywalker-cyberroaster
     from artisanlib.lebrew import Lebrew_RoastSeeNEXT # pylint: disable=unused-import
     from artisanlib.bluedot import BlueDOT # pylint: disable=unused-import
     from artisanlib.mugma import Mugma # pylint: disable=unused-import
@@ -1836,13 +1833,9 @@ class ApplicationWindow(QMainWindow):
         self.santokerR:SantokerR|None = None # holds the Santoker R instance created on connect; reset to None on disconnect
 
         ## CYBER ## Skywalker V2 (Cyberroaster)
-<<<<<<< HEAD
-        self.skywalker:'Skywalker|None' = None # holds the Skywalker instance created on connect; reset to None on disconnect
-=======
         self.skywalker:Skywalker|None = None # holds the Skywalker instance created on connect; reset to None on disconnect
         ## SKYBLE ## Skywalker V2 (Cyberroaster)
         self.skyble:SkyBLE|None = None # holds the Skycommand BLE instance created on connect; reset to None on disconnect
->>>>>>> feature/skywalker-cyberroaster
 
         # Lebrew RoastSee NEXT
         self.lebrew_roastseeNEXT:Lebrew_RoastSeeNEXT|None = None # holds the Lebrew RoastSeeNEXT instance; reset to None on disconnect

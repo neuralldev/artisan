@@ -1084,7 +1084,7 @@ class tgraphcanvas(QObject):
             176, # Aillio Bullet R2
             194, # +Yocto Meteo Hum/Temp
             195, # +Yocto Meteo Pressure
-            207  # Skywalker BT/ET ## CYBER ## Cyberroaster is BLE (nonserial)
+            207,  # Skywalker BT/ET ## CYBER ## Cyberroaster is BLE (nonserial)
             209, # SkyBLE BT/ET ## SKYBLE ## Skywalker V2 through SkyBLE dongle
         ]
 
@@ -1179,7 +1179,6 @@ class tgraphcanvas(QObject):
             198, # +Orbiter Sound/Drum
             199, # +Orbiter Damper/Heater
             200, # +Orbiter Air/RoR
-            208  # +Skywalker Burner/Air ## CYBER ## OT duty echoes are %, not temperatures
             208, # +Skywalker Burner/Air ## CYBER ## 
             210, # +SkyBLE Burner/Air ## SKYBLE ## 
         ]
@@ -13509,8 +13508,6 @@ class tgraphcanvas(QObject):
                         disconnected_handler=lambda : self.aw.sendmessageSignal.emit(QApplication.translate('Message', '{} disconnected').format('Skywalker'),True,None))
                     self.aw.skywalker.setLogging(self.device_logging)
                     self.aw.skywalker.start(case_sensitive=False)
-<<<<<<< HEAD
-=======
                 elif self.device == 209:
                     ## SKYBLE ## connect Skywalker V2 through BLE (SkyBLE)
                     from artisanlib.skyble import SkyBLE
@@ -13519,7 +13516,6 @@ class tgraphcanvas(QObject):
                         disconnected_handler=lambda : self.aw.sendmessageSignal.emit(QApplication.translate('Message', '{} disconnected').format('SkyBLE'),True,None))
                     self.aw.skyble.setLogging(self.device_logging)
                     self.aw.skyble.start(case_sensitive=False)
->>>>>>> feature/skywalker-cyberroaster
                 elif self.device == 175:
                     # connect Thermoworks BlueDOT
                     from artisanlib.bluedot import BlueDOT
