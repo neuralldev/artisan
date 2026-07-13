@@ -30,11 +30,13 @@ _log: Final[logging.Logger] = logging.getLogger(__name__)
 
 class SkyBLE(ClientBLE):
 
-    # Skywalker V2 TC4-over-BLE bridge (TD5325A) service and characteristics
-    SKYWALKER_NAME:Final[str]    = 'ESP32_Skycommand_BLE'                                # advertised name prefix
-    SKYWALKER_SERVICE:Final[str] = '6e400001-b5a3-f393-e0a9-e50e24dcca9e'  # advertised service UUID
-    SKYWALKER_NOTIFY:Final[str]  = '6e400002-b5a3-f393-e0a9-e50e24dcca9e'  # TC4 telemetry (RX)
-    SKYWALKER_WRITE:Final[str]   = '6e400003-b5a3-f393-e0a9-e50e24dcca9e'  # TC4 commands (TX)
+    # Skywalker V1 Skycommand ESP32 custom service and characteristics
+    # download esp32 S3 4Mb flash here https://github.com/ThankGod886/SkywalkerRoasterLab/tree/main/CONTROLLER
+
+    SKYCOMMAND_NAME:Final[str]    = 'ESP32_Skycommand_BLE'                  # advertised name prefix
+    SKYCOMMAND_SERVICE:Final[str] = '6e400001-b5a3-f393-e0a9-e50e24dcca9e'  # advertised service UUID
+    SKYCOMMAND_NOTIFY:Final[str]  = '6e400002-b5a3-f393-e0a9-e50e24dcca9e'  # TC4 telemetry (RX)
+    SKYCOMMAND_WRITE:Final[str]   = '6e400003-b5a3-f393-e0a9-e50e24dcca9e'  # TC4 commands (TX)
 
     # TC4 protocol
     POLL_S:Final[float]  = 1.0          # READ poll cadence (keep <= sample interval / 2)
@@ -80,17 +82,18 @@ class SkyBLE(ClientBLE):
         self._burner:float = -1
         self._airflow:float = -1
 
-        self.add_device_description(self.SKYWALKER_SERVICE, self.SKYWALKER_NAME)
-        self.add_notify(self.SKYWALKER_NOTIFY, self.notify_callback)
-        self.add_write(self.SKYWALKER_SERVICE, self.SKYWALKER_WRITE)
+        self.add_device_description(self.SKYCOMMAND_SERVICE, self.SKYCOMMAND_NAME)
+        self.add_notify(self.SKYCOMMAND_NOTIFY, self.notify_callback)
+        self.add_write(self.SKYCOMMAND_SERVICE, self.SKYCOMMAND_WRITE)
         # poll READ on the ClientBLE heartbeat (no-op while disconnected)
         self.set_heartbeat(self.POLL_S)
+        _log.info("Skycommand BLE initialized, poll %.1fs", self.POLL_S)
 
     # ── command TX ────────────────────────────────────────────────────────────
+    # expected syntax is "command,value"
     @classmethod
     def _normalize(cls, cmd:str) -> str:
-        # TC4 firmware wants an integer duty (OT2,25 not OT2,25.0) and rejects
-        # out-of-range values, so coerce and clamp 'OTn,<duty>'.
+        _log.info("Skycommand received command: %s", cmd)
         head, sep, val = cmd.strip().partition(',')
         if sep and head.upper().startswith('OT'):
             try:
@@ -104,43 +107,52 @@ class SkyBLE(ClientBLE):
 
     # send a raw TC4 command, e.g. "OT1,50" (burner), "OT2,80" (airflow)
     def send_command(self, cmd:str) -> None: # type:ignore[override]
+        _log.info("Skycommand sending command: %s", cmd)
         if not cmd:
             return
         msg = self._normalize(cmd)
         if self._logging:
-            _log.debug('TX: %s', msg)
+            _log.info('Skycommand TX: %s', msg)
         super().send((msg + self.CMD_TERM).encode())
 
     # ── telemetry RX ──────────────────────────────────────────────────────────
     # runs in the ClientBLE async loop thread
     def notify_callback(self, _sender:'BleakGATTCharacteristic', data:bytearray) -> None:
-        if self._logging:
-            _log.debug('notify: %s', data)
         # the bridge may fragment or coalesce frames, so accumulate then split on CRLF
+        _log.info("Skycommand received notification")
         self._buf.extend(data)
         while self.LINE_TERM in self._buf:
             line, _, rest = self._buf.partition(self.LINE_TERM)
             self._buf = bytearray(rest)
             self._parse(bytes(line))
 
+    # received telemetry is a CSV line: "ambient,et,bt[,burner,airflow]"
+    # avoid to erase current value if there is a parsing error, use previous value instead
     def _parse(self, line:bytes) -> None:
+        with self._lock:
+            et:float = self._et
+            bt:float = self._bt
+            ambient:float = self._ambient
+            burner:int = self._burner
+            airflow:int = self._airflow
         try:
             parts = line.decode('ascii', 'ignore').split(',')
             ambient = float(parts[self.IDX_AMBIENT])
             et = float(parts[self.IDX_ET])
             bt = float(parts[self.IDX_BT])
+            _log.info('Skycommand parsed line: ambient=%.1f, et=%.1f, bt=%.1f', ambient, et, bt)
         except (ValueError, IndexError):
-            _log.debug('unparsable TC4 line: %r', line)
+            _log.info('Skycommand unparsable line: %r', line)
             return
         # actuator duty echoes (optional fields)
         try:
             burner = int(float(parts[self.IDX_BURNER]))
         except (ValueError, IndexError):
-            burner = -1
+            pass
         try:
             airflow = int(float(parts[self.IDX_AIRFLOW]))
         except (ValueError, IndexError):
-            airflow = -1
+            pass
         with self._lock:
             self._ambient = ambient
             self._et = et
@@ -175,7 +187,7 @@ class SkyBLE(ClientBLE):
         # init the TC4 channel map, then assert burner OFF (safety: connecting
         # alone leaves the burner at a default high duty)
         self.send(self.CHAN_INIT)
-        self.send(f'OT{self.OT_BURNER},0')
+#        self.send(f'OT{self.OT_BURNER},0')
         if self._connected_handler is not None:
             self._connected_handler()
 
