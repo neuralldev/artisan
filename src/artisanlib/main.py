@@ -9641,7 +9641,7 @@ class ApplicationWindow(QMainWindow):
                                 ##  skycommand(<command>,<value>) : raw TC4 command to the Cyberroaster (OT1=burner, OT2=airflow, OT3=drum)  ## SKYBLE ##
                                 ##     ex: skycommand(OT1,50) => burner to 50% ; skycommand(OT2, _) => airflow to slider value
                                 elif c.startswith('skycommand'):
-                                    if self.skycommand is not None:
+                                    if self.skyble is not None:
                                         args = c[len('skycommand'):].strip()
                                         if args.startswith('(') and args.endswith(')'):
                                             inner = args[1:-1].strip()
@@ -9654,7 +9654,7 @@ class ApplicationWindow(QMainWindow):
                                                     vs = str(eval(vs[:eval_limit])) # pylint: disable=eval-used
                                                 except Exception:  # pylint: disable=broad-except
                                                     pass
-                                                self.skywalker.send(f'{target},{vs}')
+                                                self.skyble.send(f'{target},{vs}')
 
                                 ##  kaleido(<target>,<value>) : the <target> string indicates where <value> of type string should be written to
                                 elif c.startswith('kaleido'):
@@ -9663,7 +9663,7 @@ class ApplicationWindow(QMainWindow):
                                         if args.startswith('(') and args.endswith(')'):
                                             comma_pos = args.index(',')
                                             target = args[1:comma_pos].strip()
-                                            vs:str = args[comma_pos+1:-1].strip()
+                                            vs = args[comma_pos+1:-1].strip()
                                             try:
                                                 # <value> can be a formula like "1 - _" or "1 - $"
                                                 vs = str(eval(vs[:eval_limit])) # pylint: disable=eval-used

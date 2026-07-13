@@ -1179,8 +1179,8 @@ class tgraphcanvas(QObject):
             198, # +Orbiter Sound/Drum
             199, # +Orbiter Damper/Heater
             200, # +Orbiter Air/RoR
-            208, # +Skywalker Burner/Air ## CYBER ## OT duty echoes are %, not temperatures
-            210, # +SkyBLE Burner/Air ## SKYBLE ## OT duty echoes are %, not temperatures
+            208, # +Skywalker Burner/Air ## CYBER ## 
+            210, # +SkyBLE Burner/Air ## SKYBLE ## 
         ]
 
         # ADD DEVICE:
