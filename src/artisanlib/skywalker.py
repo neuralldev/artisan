@@ -4,7 +4,7 @@
 #
 # Minimal, additive device for the Cyberroaster fork. Talks to the roaster's
 # TC4-over-BLE bridge (model "TD5325A"): reads BT/ET telemetry and drives the
-# burner / airflow / drum outputs (OT channels).
+# burner / airflow / drum outputs (channels).
 #
 # Transport: subclasses artisanlib.ble_port.ClientBLE, so discovery connects to
 # the FIRST device that broadcasts the FF00 service with the "TD5325A" name
@@ -57,7 +57,7 @@ class Skywalker(ClientBLE):
     CHAN_INIT:Final[str] = 'CHAN;1200'  # logical->physical channel map (Artisan default)
     READ_CMD:Final[str]  = 'READ'       # request one CSV telemetry line
 
-    # OT output channels
+    # output channels
     OT_BURNER:Final[int]  = 1
     OT_AIRFLOW:Final[int] = 2
     OT_DRUM:Final[int]    = 3
