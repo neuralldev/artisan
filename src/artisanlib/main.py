@@ -175,6 +175,7 @@ if TYPE_CHECKING:
     from artisanlib.santoker import Santoker # pylint: disable=unused-import
     from artisanlib.santoker_r import SantokerR # pylint: disable=unused-import
     from artisanlib.skywalker import Skywalker # pylint: disable=unused-import ## CYBER ##
+    from artisanlib.skyble import SkyBLE # pylint: disable=unused-import ## SKYBLE ##
     from artisanlib.lebrew import Lebrew_RoastSeeNEXT # pylint: disable=unused-import
     from artisanlib.bluedot import BlueDOT # pylint: disable=unused-import
     from artisanlib.mugma import Mugma # pylint: disable=unused-import
@@ -9622,6 +9623,24 @@ class ApplicationWindow(QMainWindow):
                                 elif c.startswith('skywalker'):
                                     if self.skywalker is not None:
                                         args = c[len('skywalker'):].strip()
+                                        if args.startswith('(') and args.endswith(')'):
+                                            inner = args[1:-1].strip()
+                                            comma_pos = inner.find(',')
+                                            if comma_pos > 0:
+                                                target = inner[:comma_pos].strip()
+                                                vs = inner[comma_pos+1:].strip()
+                                                try:
+                                                    # <value> can be a formula like "100 - _" or "_"
+                                                    vs = str(eval(vs[:eval_limit])) # pylint: disable=eval-used
+                                                except Exception:  # pylint: disable=broad-except
+                                                    pass
+                                                self.skywalker.send(f'{target},{vs}')
+
+                                ##  skycommand(<command>,<value>) : raw TC4 command to the Cyberroaster (OT1=burner, OT2=airflow, OT3=drum)  ## SKYBLE ##
+                                ##     ex: skycommand(OT1,50) => burner to 50% ; skycommand(OT2, _) => airflow to slider value
+                                elif c.startswith('skycommand'):
+                                    if self.skycommand is not None:
+                                        args = c[len('skycommand'):].strip()
                                         if args.startswith('(') and args.endswith(')'):
                                             inner = args[1:-1].strip()
                                             comma_pos = inner.find(',')
