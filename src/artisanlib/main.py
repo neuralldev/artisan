@@ -1833,7 +1833,9 @@ class ApplicationWindow(QMainWindow):
         self.santokerR:SantokerR|None = None # holds the Santoker R instance created on connect; reset to None on disconnect
 
         ## CYBER ## Skywalker V2 (Cyberroaster)
-        self.skywalker:'Skywalker|None' = None # holds the Skywalker instance created on connect; reset to None on disconnect
+        self.skywalker:Skywalker|None = None # holds the Skywalker instance created on connect; reset to None on disconnect
+        ## SKYBLE ## Skywalker V2 (Cyberroaster)
+        self.skyble:SkyBLE|None = None # holds the Skycommand BLE instance created on connect; reset to None on disconnect
 
         # Lebrew RoastSee NEXT
         self.lebrew_roastseeNEXT:Lebrew_RoastSeeNEXT|None = None # holds the Lebrew RoastSeeNEXT instance; reset to None on disconnect
