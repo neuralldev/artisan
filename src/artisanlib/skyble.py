@@ -43,7 +43,7 @@ class SkyBLE(ClientBLE):
     CHAN_INIT:Final[str] = 'CHAN;1200'  # logical->physical channel map (Artisan default)
     READ_CMD:Final[str]  = 'READ'       # request one CSV telemetry line
 
-    # OT output channels
+    # output channels
     OT_BURNER:Final[int]  = 1
     OT_AIRFLOW:Final[int] = 2
     OT_DRUM:Final[int]    = 3
