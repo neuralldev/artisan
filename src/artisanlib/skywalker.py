@@ -117,7 +117,7 @@ class Skywalker(ClientBLE):
         return cmd.strip()
 
     # send a raw TC4 command, e.g. "OT1,50" (burner), "OT2,80" (airflow)
-    def send(self, cmd:str) -> None: # type:ignore[override]
+    def send_command(self, cmd:str) -> None: # type:ignore[override]
         if not cmd:
             return
         msg = self._normalize(cmd)

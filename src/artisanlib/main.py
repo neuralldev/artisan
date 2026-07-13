@@ -9636,7 +9636,7 @@ class ApplicationWindow(QMainWindow):
                                                     vs = str(eval(vs[:eval_limit])) # pylint: disable=eval-used
                                                 except Exception:  # pylint: disable=broad-except
                                                     pass
-                                                self.skywalker.send(f'{target},{vs}')
+                                                self.skywalker.send_command(f'{target},{vs}')
 
                                 ##  skycommand(<command>,<value>) : raw TC4 command to the Cyberroaster (OT1=burner, OT2=airflow, OT3=drum)  ## SKYBLE ##
                                 ##     ex: skycommand(OT1,50) => burner to 50% ; skycommand(OT2, _) => airflow to slider value
@@ -9654,7 +9654,7 @@ class ApplicationWindow(QMainWindow):
                                                     vs = str(eval(vs[:eval_limit])) # pylint: disable=eval-used
                                                 except Exception:  # pylint: disable=broad-except
                                                     pass
-                                                self.skyble.send(f'{target},{vs}')
+                                                self.skyble.send_command(f'{target},{vs}')
 
                                 ##  kaleido(<target>,<value>) : the <target> string indicates where <value> of type string should be written to
                                 elif c.startswith('kaleido'):
