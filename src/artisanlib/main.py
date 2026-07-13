@@ -175,6 +175,10 @@ if TYPE_CHECKING:
     from artisanlib.santoker import Santoker # pylint: disable=unused-import
     from artisanlib.santoker_r import SantokerR # pylint: disable=unused-import
     from artisanlib.skywalker import Skywalker # pylint: disable=unused-import ## CYBER ##
+<<<<<<< HEAD
+=======
+    from artisanlib.skyble import SkyBLE # pylint: disable=unused-import ## SKYBLE ##
+>>>>>>> feature/skywalker-cyberroaster
     from artisanlib.lebrew import Lebrew_RoastSeeNEXT # pylint: disable=unused-import
     from artisanlib.bluedot import BlueDOT # pylint: disable=unused-import
     from artisanlib.mugma import Mugma # pylint: disable=unused-import
@@ -1832,7 +1836,13 @@ class ApplicationWindow(QMainWindow):
         self.santokerR:SantokerR|None = None # holds the Santoker R instance created on connect; reset to None on disconnect
 
         ## CYBER ## Skywalker V2 (Cyberroaster)
+<<<<<<< HEAD
         self.skywalker:'Skywalker|None' = None # holds the Skywalker instance created on connect; reset to None on disconnect
+=======
+        self.skywalker:Skywalker|None = None # holds the Skywalker instance created on connect; reset to None on disconnect
+        ## SKYBLE ## Skywalker V2 (Cyberroaster)
+        self.skyble:SkyBLE|None = None # holds the Skycommand BLE instance created on connect; reset to None on disconnect
+>>>>>>> feature/skywalker-cyberroaster
 
         # Lebrew RoastSee NEXT
         self.lebrew_roastseeNEXT:Lebrew_RoastSeeNEXT|None = None # holds the Lebrew RoastSeeNEXT instance; reset to None on disconnect
@@ -9638,6 +9648,24 @@ class ApplicationWindow(QMainWindow):
                                                     pass
                                                 self.skywalker.send(f'{target},{vs}')
 
+                                ##  skycommand(<command>,<value>) : raw TC4 command to the Cyberroaster (OT1=burner, OT2=airflow, OT3=drum)  ## SKYBLE ##
+                                ##     ex: skycommand(OT1,50) => burner to 50% ; skycommand(OT2, _) => airflow to slider value
+                                elif c.startswith('skycommand'):
+                                    if self.skyble is not None:
+                                        args = c[len('skycommand'):].strip()
+                                        if args.startswith('(') and args.endswith(')'):
+                                            inner = args[1:-1].strip()
+                                            comma_pos = inner.find(',')
+                                            if comma_pos > 0:
+                                                target = inner[:comma_pos].strip()
+                                                vs = inner[comma_pos+1:].strip()
+                                                try:
+                                                    # <value> can be a formula like "100 - _" or "_"
+                                                    vs = str(eval(vs[:eval_limit])) # pylint: disable=eval-used
+                                                except Exception:  # pylint: disable=broad-except
+                                                    pass
+                                                self.skyble.send(f'{target},{vs}')
+
                                 ##  kaleido(<target>,<value>) : the <target> string indicates where <value> of type string should be written to
                                 elif c.startswith('kaleido'):
                                     if self.kaleido is not None:
@@ -9645,7 +9673,7 @@ class ApplicationWindow(QMainWindow):
                                         if args.startswith('(') and args.endswith(')'):
                                             comma_pos = args.index(',')
                                             target = args[1:comma_pos].strip()
-                                            vs:str = args[comma_pos+1:-1].strip()
+                                            vs = args[comma_pos+1:-1].strip()
                                             try:
                                                 # <value> can be a formula like "1 - _" or "1 - $"
                                                 vs = str(eval(vs[:eval_limit])) # pylint: disable=eval-used

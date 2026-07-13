@@ -53,6 +53,7 @@ SOURCES = \
     artisanlib/s7port.py \
     artisanlib/sampling.py \
     artisanlib/skywalker.py \
+    artisanlib/syyble.py \
     artisanlib/statistics.py \
     artisanlib/transposer.py \
     artisanlib/wheels.py \

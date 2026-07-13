@@ -4584,6 +4584,11 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
                     self.aw.qmc.device = 207
                     message = QApplication.translate('Message','Device set to {0}').format(meter)
                 ##########################
+                ####  DEVICE 209 is Skywalker BT/ET  ## SKYBLE ##
+                elif meter == 'Skycommand BT/ET':
+                    self.aw.qmc.device = 209
+                    message = QApplication.translate('Message','Device set to {0}').format(meter)
+                ##########################
 
                 # ADD DEVICE:
 
@@ -4811,7 +4816,9 @@ class DeviceAssignmentDlg(ArtisanResizeablDialog):
                 1, # 205
                 1, # 206
                 1, # 207 ## CYBER ## Skywalker (nonserial, value unused)
-                1  # 208 ## CYBER ## +Skywalker Burner/Air
+                1, # 208 ## CYBER ## +Skywalker Burner/Air
+                1, # 209 ## SKYBLE ## Skycommand (nonserial, value unused)
+                1, # 210 ## SKYBLE ## +Skycommand Burner/Air
                 ]
             #init serial settings of extra devices
             for i, _ in enumerate(self.aw.qmc.extradevices):
