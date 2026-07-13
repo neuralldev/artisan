@@ -2,6 +2,13 @@ Detailed Release History
 ========================
 
 ----
+v4.2.2
+------------------
+
+* FIXES
+  - fixes faulty hash generation on files on created using `Save As` causing modified file warnings on load ([Issue #2205](../../../issues/2205))
+
+----
 v4.2.0 (Jun 30, 2026)
 ------------------
 
