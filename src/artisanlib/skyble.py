@@ -58,11 +58,11 @@ class SkyBLE(ClientBLE):
     }
 
     # CSV field order (physical probe swap: field[2] = bean (BT), field[1] = drum (ET))
-    IDX_AMBIENT:Final[int] = 1
-    IDX_ET:Final[int]      = 2
-    IDX_BT:Final[int]      = 3
-    IDX_BURNER:Final[int]  = 4   # OT1 duty echo
-    IDX_AIRFLOW:Final[int] = 5   # OT2 duty echo
+    IDX_AMBIENT:Final[int] = 0
+    IDX_ET:Final[float]      = 1
+    IDX_BT:Final[float]      = 2
+    IDX_BURNER:Final[int]  = 3   # OT1 duty echo
+    IDX_AIRFLOW:Final[int] = 4   # OT2 duty echo
 
     def __init__(self,
                     connected_handler:'Callable[[], None]|None' = None,
@@ -76,24 +76,24 @@ class SkyBLE(ClientBLE):
         # latest telemetry (Celsius / %), guarded by _lock as the sampling thread reads it
         self._lock = threading.Lock()
         self._buf = bytearray()
-        self._ambient:float = -1
-        self._bt:float = -1
-        self._et:float = -1
-        self._burner:float = -1
-        self._airflow:float = -1
+        self._ambient:int = -1
+        self._bt:float = -1.0
+        self._et:float = -1.0
+        self._burner:int = -1
+        self._airflow:int = -1
 
         self.add_device_description(self.SKYCOMMAND_SERVICE, self.SKYCOMMAND_NAME)
         self.add_notify(self.SKYCOMMAND_NOTIFY, self.notify_callback)
         self.add_write(self.SKYCOMMAND_SERVICE, self.SKYCOMMAND_WRITE)
         # poll READ on the ClientBLE heartbeat (no-op while disconnected)
         self.set_heartbeat(self.POLL_S)
-        _log.debug("Skycommand BLE initialized, poll %.1fs", self.POLL_S)
+        _log.info("Skycommand BLE initialized, poll %.1fs", self.POLL_S)
 
     # ── command TX ────────────────────────────────────────────────────────────
     # expected syntax is "command,value"
     @classmethod
     def _normalize(cls, cmd:str) -> str:
-        _log.debug("Skycommand received command: %s", cmd)
+        _log.info("Skycommand received command: %s", cmd)
         head, sep, val = cmd.strip().partition(',')
         if sep and head.upper().startswith('OT'):
             try:
@@ -107,19 +107,19 @@ class SkyBLE(ClientBLE):
 
     # send a raw TC4 command, e.g. "OT1,50" (burner), "OT2,80" (airflow)
     def send_command(self, cmd:str) -> None: # type:ignore[override]
-        _log.debug("Skycommand sending command: %s", cmd)
+        _log.info("Skycommand sending command: %s", cmd)
         if not cmd:
             return
         msg = self._normalize(cmd)
         if self._logging:
-            _log.debug('Skycommand TX: %s', msg)
+            _log.info('Skycommand TX: %s', msg)
         super().send((msg + self.CMD_TERM).encode())
 
     # ── telemetry RX ──────────────────────────────────────────────────────────
     # runs in the ClientBLE async loop thread
     def notify_callback(self, _sender:'BleakGATTCharacteristic', data:bytearray) -> None:
         # the bridge may fragment or coalesce frames, so accumulate then split on CRLF
-        _log.debug("Skycommand received notification")
+        _log.info("Skycommand received notification")
         self._buf.extend(data)
         while self.LINE_TERM in self._buf:
             line, _, rest = self._buf.partition(self.LINE_TERM)
@@ -132,17 +132,17 @@ class SkyBLE(ClientBLE):
         with self._lock:
             et:float = self._et
             bt:float = self._bt
-            ambient:float = self._ambient
+            ambient:int = self._ambient
             burner:int = self._burner
             airflow:int = self._airflow
         try:
             parts = line.decode('ascii', 'ignore').split(',')
-            ambient = float(parts[self.IDX_AMBIENT])
+            ambient = int(parts[self.IDX_AMBIENT])
             et = float(parts[self.IDX_ET])
             bt = float(parts[self.IDX_BT])
-            _log.debug('Skycommand parsed line: ambient=%.1f, et=%.1f, bt=%.1f', ambient, et, bt)
+            _log.info('Skycommand parsed line: ambient=%d, et=%.1f, bt=%.1f', ambient, et, bt)
         except (ValueError, IndexError):
-            _log.debug('Skycommand unparsable line: %r', line)
+            _log.info('Skycommand unparsable line: %r', line)
             return
         # actuator duty echoes (optional fields)
         try:
@@ -175,12 +175,12 @@ class SkyBLE(ClientBLE):
 
     def getAmbient(self) -> float:
         with self._lock:
-            return self._ambient
+            return float(self._ambient)
 
     # burner (OT1) and airflow (OT2) duty echoes (%) for the extra device channel
     def getPF(self) -> tuple[float,float]:
         with self._lock:
-            return self._burner, self._airflow
+            return float(self._burner), float(self._airflow)
 
     # ── ClientBLE hooks ───────────────────────────────────────────────────────
     def on_connect(self) -> None:
