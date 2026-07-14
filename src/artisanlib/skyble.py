@@ -186,8 +186,8 @@ class SkyBLE(ClientBLE):
     def on_connect(self) -> None:
         # init the TC4 channel map, then assert burner OFF (safety: connecting
         # alone leaves the burner at a default high duty)
-        self.send(self.CHAN_INIT)
-#        self.send(f'OT{self.OT_BURNER},0')
+        self.send_command(self.CHAN_INIT)
+#        self.send_command(f'OT{self.OT_BURNER},0')
         if self._connected_handler is not None:
             self._connected_handler()
 
@@ -201,4 +201,4 @@ class SkyBLE(ClientBLE):
 
     def heartbeat(self) -> None:
         # poll one telemetry line (nothing streams unsolicited)
-        self.send(self.READ_CMD)
+        self.send_command(self.READ_CMD)
