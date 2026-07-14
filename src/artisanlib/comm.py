@@ -2036,7 +2036,9 @@ class serialport:
     def SKYBLE_BTET(self) -> tuple[float,float,float]:
         tx = self.aw.qmc.timeclock.elapsedMilli()
         if self.aw.skyble is not None:
+            _log.error('SKYBLE_BTET() reading BT/ET from Skycommand device')
             t2,t1 = self.aw.skyble.getBTET() # (BT, ET)
+            _log.error('SKYBLE_BTET() reading BT/ET from Skycommand device: BT=%s, ET=%s', t2, t1)
             if self.aw.qmc.mode == 'F':
                 t1 = fromCtoFstrict(t1)
                 t2 = fromCtoFstrict(t2)
@@ -2048,7 +2050,9 @@ class serialport:
     def SKYBLE_PF(self) -> tuple[float,float,float]:
         tx = self.aw.qmc.timeclock.elapsedMilli()
         if self.aw.skyble is not None:
+            _log.error('SKYBLE_PF() reading burner/airflow from Skycommand device')
             t2,t1 = self.aw.skyble.getPF() # (burner, airflow)
+            _log.error('SKYBLE_PF() reading burner/airflow from Skycommand device: Burner=%s, Airflow=%s', t2, t1)
         else:
             t1 = t2 = -1
         return tx,t1,t2 # time, Airflow (chan2), Burner (chan1)
