@@ -93,7 +93,7 @@ class SkyBLE(ClientBLE):
     # expected syntax is "command,value"
     @classmethod
     def _normalize(cls, cmd:str) -> str:
-        _log.info("Skycommand received command: %s", cmd)
+        _log.info("Skycommand normalizing : %s", cmd)
         head, sep, val = cmd.strip().partition(',')
         if sep and head.upper().startswith('OT'):
             try:
@@ -111,8 +111,7 @@ class SkyBLE(ClientBLE):
         if not cmd:
             return
         msg = self._normalize(cmd)
-        if self._logging:
-            _log.info('Skycommand TX: %s', msg)
+        _log.info('Skycommand TX: %s', msg)
         super().send((msg + self.CMD_TERM).encode())
 
     # ── telemetry RX ──────────────────────────────────────────────────────────
