@@ -2,7 +2,7 @@
 # This program shows how to plot the temperature and its rate of change from a
 # roasting machine, PID or a thermocouple meter.
 #
-# COPYRIGHT (C) 2010-2026 The Artisan team represented by
+# COPYRIGHT (C) 2010-2026 The artisan team represented by
 #   Marko Luther <marko.luther@gmx.net> (maintainer) and all contributors
 #
 # LICENSE
@@ -564,49 +564,6 @@ if qsettings.contains('scale_factor'):
     os.environ['QT_SCALE_FACTOR'] = f"{float(qsettings.value('scale_factor')):.2f}"
 
 app = Artisan(app_args)
-
-
-
-# On the first run if there are legacy settings under "YourQuest" but no new settings under "artisan-scope" then the legacy settings
-# will be copied to the new settings location. Once settings exist under "artisan-scope" the legacy settings under "YourQuest" will
-# no longer be read or saved.  At start-up, versions of Artisan before to v2.0 will no longer share settings with versions v2.0 and after.
-# Settings can be shared among all versions of Artisan by explicitly saving and loading them using Help>Save/Load Settings.
-
-settingsRelocated:bool = False
-try:
-    app.setApplicationName(application_name)                                #needed by QSettings() to store windows geometry in operating system
-
-    app.setOrganizationName('YourQuest')                                    #needed by QSettings() to store windows geometry in operating system
-    app.setOrganizationDomain('p.code.google.com')                          #needed by QSettings() to store windows geometry in operating system
-    legacysettings = QSettings()
-    app.setOrganizationName(application_organization_name)                  #needed by QSettings() to store windows geometry in operating system
-    app.setOrganizationDomain(application_organization_domain)              #needed by QSettings() to store windows geometry in operating system
-    newsettings = QSettings()
-
-    # copy settings from legacy to new if newsettings do not exist, legacysettings do exist, and were not previously copied
-    if not newsettings.contains('Mode') and legacysettings.contains('Mode') and legacysettings.contains('_settingsCopied') and legacysettings.value('_settingsCopied') != 1:
-        settingsRelocated = True
-        # copy Artisan settings
-        for key in legacysettings.allKeys():
-            newsettings.setValue(key,legacysettings.value(key))
-        legacysettings.setValue('_settingsCopied', 1)  # prevents copying again in the future, this key not cleared by a Factory Reset
-
-        # copy ArtisanViewer settings
-        app.setApplicationName(application_viewer_name)                         #needed by QSettings() to store windows geometry in operating system
-
-        app.setOrganizationName('YourQuest')                                    #needed by QSettings() to store windows geometry in operating system
-        app.setOrganizationDomain('p.code.google.com')                          #needed by QSettings() to store windows geometry in operating system
-        legacysettings = QSettings()
-        app.setOrganizationName(application_organization_name)                  #needed by QSettings() to store windows geometry in operating system
-        app.setOrganizationDomain(application_organization_domain)              #needed by QSettings() to store windows geometry in operating system
-        newsettings = QSettings()
-        for key in legacysettings.allKeys():
-            newsettings.setValue(key,legacysettings.value(key))
-    del legacysettings   #free up memory?
-    del newsettings      #free up memory?
-except Exception: # pylint: disable=broad-except
-    pass
-
 app.setApplicationName(application_name)                                #needed by QSettings() to store windows geometry in operating system
 app.setOrganizationName(application_organization_name)                  #needed by QSettings() to store windows geometry in operating system
 app.setOrganizationDomain(application_organization_domain)              #needed by QSettings() to store windows geometry in operating system
@@ -2906,6 +2863,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: #147bb3;
                     background-color: white;
+                    border-radius:4;
                 }
                 QPushButton:!enabled {
                     color: darkgrey;
@@ -2928,7 +2886,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: #cc0f50;
                     background-color: white;
-
+                    border-radius:4;
                 }
                 QPushButton:!enabled {
                     color: darkgrey;
@@ -2951,6 +2909,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: #147bb3;
                     background-color: white;
+                    border-radius:4;
                 }
                 QPushButton:!enabled {
                     color: #EFEFEF;
@@ -2973,6 +2932,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: yellow;
                     background-color: #ff3d00;
+                    border-radius:4;
                 }
                 QPushButton:!enabled {
                     color: darkgrey;
@@ -2998,6 +2958,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: white;
                     background-color: #4c97c3;
+                    border-radius:4;
                 }
                 QPushButton:!enabled {
                     color: darkgrey;
@@ -3020,6 +2981,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: white;
                     background-color: #3979ae;
+                    border-radius:4;
                 }
                 QPushButton:!enabled {
                     color: darkgrey;
@@ -3042,6 +3004,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: white;
                     background-color: #cc0f50;
+                    border-radius:4;
                 }
                 QPushButton:!enabled {
                     color: darkgrey;
@@ -3064,6 +3027,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: white;
                     background-color: #3979ae;
+                    border-radius:4;
                 }
                 QPushButton:!enabled {
                     color: darkgrey;
@@ -3086,6 +3050,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: yellow;
                     background-color: #ff3d00;
+                    border-radius:4;
                 }
                 QPushButton:!enabled {
                     color: darkgrey;
@@ -3108,6 +3073,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: white;
                     background-color: #4c97c3;
+                    border-radius:4;
                 }
                 QPushButton:!enabled {
                     color: darkgrey;
@@ -3130,6 +3096,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: white;
                     background-color: #cc0f50;
+                    border-radius:4;
                 }
                 QPushButton:!enabled {
                     color: darkgrey;
@@ -3152,6 +3119,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: white;
                     background-color:""" + createGradient('#db5785') + """ ;
+                    border-radius:4;
                 }
                 QPushButton:pressed {
                     color: #EEEEEE;
@@ -3170,6 +3138,7 @@ class ApplicationWindow(QMainWindow):
                     font-weight: bold;
                     color: white;
                     background-color:""" + createGradient('#64b7d8') + """ ;
+                    border-radius:4;
                 }
                 QPushButton:pressed {
                     color: #EEEEEE;
@@ -4147,18 +4116,6 @@ class ApplicationWindow(QMainWindow):
         # this variable is bound to the Roast Properties dialog if it is open, set to False to block opening the dialog or None otherwise
 
         self.editgraphdialog:editGraphDlg|bool|None = None
-
-#        # provide information message to user about sharing settings at start-up
-        if settingsRelocated:
-            string =  QApplication.translate('Message','Welcome to version {0} of artisan!').format(__version__) + '\n\n'
-            string += QApplication.translate('Message','This is a one time message to inform you about a change in artisan.') + '\n\n'
-            string += QApplication.translate('Message','If you never run older versions of artisan you can skip this message, the change does not affect you.') + '  '
-            string += QApplication.translate('Message','artisan preserves all your configuration settings when you exit so they will automatically be available the next time you start artisan.') + '  '
-            string += QApplication.translate('Message','Beginning with release v2.0, settings will no longer be automatically shared at start-up with versions before v2.0.') + '\n\n'
-            string += QApplication.translate('Message','Do not worry. Since this is the first time you opened this new version artisan has already loaded your last used settings.') + '\n\n'
-            string += QApplication.translate('Message',"To share settings between this version and artisan versions before v2.0 use 'Help>Save Settings' and 'Help>Load Settings'.") + '\n\n'
-            string += QApplication.translate('Message','Enjoy using artisan, The artisan team')
-            QMessageBox.information(self, QApplication.translate('Message','One time message about loading settings at start-up'),string)
 
         # provide information message to user about artisanViewer the first time it is started
         if self.artisanviewerFirstStart:
@@ -7804,6 +7761,18 @@ class ApplicationWindow(QMainWindow):
             else:
                 rcParams['font.family'] = ['Comic Neue', 'Comic Sans MS']
             self.set_mpl_fontproperties(getResourcePath() + 'ComicNeue-Regular.ttf')
+        elif self.qmc.graphfont == 12:
+            # font Nunito  selected
+            # https://fonts.google.com/specimen/Nunito
+            rcParams['font.size'] = 12.0
+            rcParams['font.family'] = ['Nunito']
+            self.set_mpl_fontproperties(getResourcePath() + 'Nunito-Regular.ttf')
+        elif self.qmc.graphfont == 13:
+            # font Nunito  selected
+            # https://fonts.google.com/noto/specimen/Noto+Sans+Mono
+            rcParams['font.size'] = 12.0
+            rcParams['font.family'] = ['NotoSansMono']
+            self.set_mpl_fontproperties(getResourcePath() + 'NotoSansMono-Regular.ttf')
         elif self.qmc.graphfont == 2 and platform.system() != 'Linux':
             # font Comic selected
             rcParams['axes.unicode_minus'] = True
@@ -10342,7 +10311,6 @@ class ApplicationWindow(QMainWindow):
                                     self.updatePlaybackIndicatorSignal.emit()
                                 except Exception as e: # pylint: disable=broad-except
                                     _log.exception(e)
-
                             # playbackdropmode(<n>) with 0: off, 1: time, 2: BT, 3: ET
                             elif cs.startswith('playbackdropmode(') and cs.endswith(')'):
                                 try:
@@ -10365,7 +10333,52 @@ class ApplicationWindow(QMainWindow):
                                         self.sendmessage(QApplication.translate('Message','playback DROP by ET'))
                                 except Exception as e: # pylint: disable=broad-except
                                     _log.exception(e)
-
+                            # pidDerivativeFilter(<n>) : 0 <= n < 6
+                            elif cs.startswith('pidDerivativeFilter(') and cs.endswith(')'):
+                                try:
+                                    value_int = max(0, min(5, int(cs[len('pidDerivativeFilter('):-1])))
+                                    self.pidcontrol.derivative_filter = value_int
+                                    self.pidcontrol.confSoftwarePID()
+                                except Exception as e: # pylint: disable=broad-except
+                                    _log.exception(e)
+                            # pidDerivativeLimit(<n>) : n >= 0
+                            elif cs.startswith('pidDerivativeLimit(') and cs.endswith(')'):
+                                try:
+                                    value_int = max(0, int(cs[len('pidDerivativeLimit('):-1]))
+                                    self.pidcontrol.pidDlimit = value_int
+                                    self.pidcontrol.confSoftwarePID()
+                                except Exception as e: # pylint: disable=broad-except
+                                    _log.exception(e)
+                            # pidILF(<n>) 0 <= n <= 1
+                            elif cs.startswith('pidILF(') and cs.endswith(')'):
+                                try:
+                                    value_float = max(0, min(1, float(eval(cs[len('pidILF('):-1][:eval_limit])))) # pylint: disable=eval-used
+                                    self.pidcontrol.pidIlimitFactor = value_float
+                                    self.pidcontrol.confSoftwarePID()
+                                except Exception as e: # pylint: disable=broad-except
+                                    _log.exception(e)
+                            # pidIWP(<bool>) enable/disable PID IWP
+                            elif cs.startswith('pidIWP(') and cs.endswith(')'):
+                                try:
+                                    value_str = cs[len('pidIWP('):-1].strip()
+                                    if value_str.lower() in {'yes', 'true', 't', '1'}:
+                                        self.pidcontrol.pidIWP = True
+                                    else:
+                                        self.pidcontrol.pidIWP = False
+                                    self.pidcontrol.confSoftwarePID()
+                                except Exception as e: # pylint: disable=broad-except
+                                    _log.exception(e)
+                            # pidIRoC(<bool>) enable/disable PID IRoC
+                            elif cs.startswith('pidIRoC(') and cs.endswith(')'):
+                                try:
+                                    value_str = cs[len('pidIRoC('):-1].strip()
+                                    if value_str.lower() in {'yes', 'true', 't', '1'}:
+                                        self.pidcontrol.pidIRoC = True
+                                    else:
+                                        self.pidcontrol.pidIRoC = False
+                                    self.pidcontrol.confSoftwarePID()
+                                except Exception as e: # pylint: disable=broad-except
+                                    _log.exception(e)
                             # openProperties : open Roast Properties dialog
                             elif cs == 'openProperties':
                                 self.openPropertiesSignal.emit()
@@ -12429,7 +12442,7 @@ class ApplicationWindow(QMainWindow):
                             self.sendmessage(QApplication.translate('Message','Auto Axis Graph Mode is off'))
                 elif self.buttonpalette_shortcuts and control_modifier and k in numberkeys: # palette switch via COMMAND-NUM-Keys
                     self.setbuttonsfrom(numberkeys.index(Qt.Key(k)), only_non_empty=True)
-#                elif k == Qt.Key.Key_J and no_modifier: # 74:       #J (toggle Playback Events) # deactivated as it might be activated accidentally
+#                elif k == Qt.Key.Key_J and no_modifier: # 74:      #J (toggle Playback Events) # deactivated as it might be activated accidentally
 #                    self.togglePlaybackEvents()
                 elif k == Qt.Key.Key_I and no_modifier: # 73:       #I (toggle foreground showfull flag)
                     self.toggleForegroundShowfullFlag()
@@ -12972,14 +12985,12 @@ class ApplicationWindow(QMainWindow):
                     else:
                         nextcmd = self.nextActiveButton(self.keyboardmoveindex)
                     # activate the button at index nextcmd
-                    self.keyboardButtonList[nextcmd].setSelected(True)
-                    self.keyboardButtonList[self.keyboardmoveindex].setSelected(False)
-                    # update self.keyboardmoveindex
-                    self.keyboardmoveindex = nextcmd
-                else:
-                    # last visible enabled button pressed
-                    self.keyboardmoveindex += 1
-                    self.keyboardButtonList[self.keyboardmoveindex].setSelected(True)
+                    if not (self.keyboardButtonList[self.keyboardmoveindex].isFlat() and self.keyboardButtonList[nextcmd].isFlat()):
+                        # only move if source and destination are not both flat
+                        self.keyboardButtonList[nextcmd].setSelected(True)
+                        self.keyboardButtonList[self.keyboardmoveindex].setSelected(False)
+                        # update self.keyboardmoveindex
+                        self.keyboardmoveindex = nextcmd
 
     #sound feedback when pressing a push button
     @pyqtSlot()
@@ -21374,6 +21385,7 @@ class ApplicationWindow(QMainWindow):
             else:
                 settings = QSettings()
             #save Events settings
+#--- BEGIN GROUP events
             settings.beginGroup('events')
             settings.setValue('EvalueColor',self.qmc.EvalueColor)
             settings.setValue('EvalueTextColor',self.qmc.EvalueTextColor)
@@ -21382,6 +21394,7 @@ class ApplicationWindow(QMainWindow):
             settings.setValue('EvalueMarkerSize',self.qmc.EvalueMarkerSize)
             settings.setValue('Evaluealpha',self.qmc.Evaluealpha)
             settings.endGroup()
+#--- END GROUP events
             #save phases watermarks flag
             settings.setValue('watermarks',self.qmc.watermarksflag)
             #save colors
@@ -21394,15 +21407,116 @@ class ApplicationWindow(QMainWindow):
             settings.setValue('ETBdeltaColor',self.qmc.backgrounddeltaetcolor)
             settings.setValue('BTBdeltaColor',self.qmc.backgrounddeltabtcolor)
             settings.setValue('BackgroundAlpha',self.qmc.backgroundalpha)
+            settings.setValue('foregroundShowFullflag',self.qmc.foregroundShowFullflag)
+#--- BEGIN GROUP background
+            settings.beginGroup('background')
+            settings.setValue('backgroundShowFullflag',self.qmc.backgroundShowFullflag)
+            settings.endGroup()
+#--- END GROUP background
+#--- BEGIN GROUP XT
             settings.beginGroup('XT')
             settings.setValue('color',self.qmc.backgroundxtcolor)
             settings.setValue('color2',self.qmc.backgroundytcolor)
             settings.setValue('index',self.qmc.xtcurveidx)
             settings.setValue('index2',self.qmc.ytcurveidx)
             settings.endGroup()
+#--- END GROUP XT
+#--- BEGIN GROUP grid
             settings.beginGroup('grid')
             settings.setValue('gridalpha',self.qmc.gridalpha)
             settings.endGroup()
+#--- END GROUP grid
+#--- BEGIN GROUP style
+            settings.beginGroup('Style')
+            settings.setValue('patheffects',self.qmc.patheffects)
+            settings.setValue('glow',self.qmc.glow)
+            settings.setValue('graphstyle',self.qmc.graphstyle)
+            settings.setValue('graphfont',self.qmc.graphfont)
+            settings.endGroup()
+#--- END GROUP style
+#--- BEGIN GROUP CurveStyles
+            #curve styles
+            settings.beginGroup('CurveStyles')
+            settings.setValue('BTlinestyle',self.qmc.BTlinestyle)
+            settings.setValue('BTdrawstyle',self.qmc.BTdrawstyle)
+            settings.setValue('BTlinewidth',self.qmc.BTlinewidth)
+            settings.setValue('BTmarker',self.qmc.BTmarker)
+            settings.setValue('BTmarkersize',self.qmc.BTmarkersize)
+            settings.setValue('ETlinestyle',self.qmc.ETlinestyle)
+            settings.setValue('ETdrawstyle',self.qmc.ETdrawstyle)
+            settings.setValue('ETlinewidth',self.qmc.ETlinewidth)
+            settings.setValue('ETmarker',self.qmc.ETmarker)
+            settings.setValue('ETmarkersize',self.qmc.ETmarkersize)
+            settings.setValue('BTdeltalinestyle',self.qmc.BTdeltalinestyle)
+            settings.setValue('BTdeltadrawstyle',self.qmc.BTdeltadrawstyle)
+            settings.setValue('BTdeltalinewidth',self.qmc.BTdeltalinewidth)
+            settings.setValue('BTdeltamarker',self.qmc.BTdeltamarker)
+            settings.setValue('BTdeltamarkersize',self.qmc.BTdeltamarkersize)
+            settings.setValue('ETdeltalinestyle',self.qmc.ETdeltalinestyle)
+            settings.setValue('ETdeltadrawstyle',self.qmc.ETdeltadrawstyle)
+            settings.setValue('ETdeltalinewidth',self.qmc.ETdeltalinewidth)
+            settings.setValue('ETdeltamarker',self.qmc.ETdeltamarker)
+            settings.setValue('ETdeltamarkersize',self.qmc.ETdeltamarkersize)
+            settings.setValue('BTbacklinestyle',self.qmc.BTbacklinestyle)
+            settings.setValue('BTbackdrawstyle',self.qmc.BTbackdrawstyle)
+            settings.setValue('BTbacklinewidth',self.qmc.BTbacklinewidth)
+            settings.setValue('BTbackmarker',self.qmc.BTbackmarker)
+            settings.setValue('BTbackmarkersize',self.qmc.BTbackmarkersize)
+            settings.setValue('ETbacklinestyle',self.qmc.ETbacklinestyle)
+            settings.setValue('ETbackdrawstyle',self.qmc.ETbackdrawstyle)
+            settings.setValue('ETbacklinewidth',self.qmc.ETbacklinewidth)
+            settings.setValue('ETbackmarker',self.qmc.ETbackmarker)
+            settings.setValue('ETbackmarkersize',self.qmc.ETbackmarkersize)
+            settings.setValue('XTbacklinestyle',self.qmc.XTbacklinestyle)
+            settings.setValue('XTbackdrawstyle',self.qmc.XTbackdrawstyle)
+            settings.setValue('XTbacklinewidth',self.qmc.XTbacklinewidth)
+            settings.setValue('XTbackmarker',self.qmc.XTbackmarker)
+            settings.setValue('XTbackmarkersize',self.qmc.XTbackmarkersize)
+            settings.setValue('YTbacklinestyle',self.qmc.YTbacklinestyle)
+            settings.setValue('YTbackdrawstyle',self.qmc.YTbackdrawstyle)
+            settings.setValue('YTbacklinewidth',self.qmc.YTbacklinewidth)
+            settings.setValue('YTbackmarker',self.qmc.YTbackmarker)
+            settings.setValue('YTbackmarkersize',self.qmc.YTbackmarkersize)
+            settings.setValue('BTBdeltalinestyle',self.qmc.BTBdeltalinestyle)
+            settings.setValue('BTBdeltadrawstyle',self.qmc.BTBdeltadrawstyle)
+            settings.setValue('BTBdeltalinewidth',self.qmc.BTBdeltalinewidth)
+            settings.setValue('BTBdeltamarker',self.qmc.BTBdeltamarker)
+            settings.setValue('BTBdeltamarkersize',self.qmc.BTBdeltamarkersize)
+            settings.setValue('ETBdeltalinestyle',self.qmc.ETBdeltalinestyle)
+            settings.setValue('ETBdeltadrawstyle',self.qmc.ETBdeltadrawstyle)
+            settings.setValue('ETBdeltalinewidth',self.qmc.ETBdeltalinewidth)
+            settings.setValue('ETBdeltamarker',self.qmc.ETBdeltamarker)
+            settings.setValue('ETBdeltamarkersize',self.qmc.ETBdeltamarkersize)
+            settings.endGroup()
+#--- END GROUP CurveStyles
+#--- BEGIN GROUP Axis
+            settings.beginGroup('Axis')
+            xmin = self.qmc.startofx
+            if self.qmc.timeindex[0] != -1:
+                xmin -= self.qmc.timex[self.qmc.timeindex[0]]
+            settings.setValue('xmin',xmin)
+            settings.setValue('xmax',self.qmc.endofx)
+            settings.setValue('ymax',self.qmc.ylimit)
+            settings.setValue('ymin',self.qmc.ylimit_min)
+            settings.setValue('zmax',self.qmc.zlimit)
+            settings.setValue('zmin',self.qmc.zlimit_min)
+            settings.setValue('resetmaxtime',self.qmc.resetmaxtime)
+            settings.setValue('chargemintime',self.qmc.chargemintime)
+            settings.setValue('legendloc',self.qmc.legendloc)
+            settings.setValue('temp_grid',self.qmc.temp_grid)
+            settings.setValue('time_grid',self.qmc.time_grid)
+            settings.endGroup()
+#--- END GROUP Axis
+#--- BEGIN GROUP grid
+            settings.beginGroup('grid')
+            settings.setValue('xgrid',self.qmc.xgrid)
+            settings.setValue('ygrid',self.qmc.ygrid)
+            settings.setValue('zgrid',self.qmc.zgrid)
+            settings.setValue('gridlinestyle',self.qmc.gridlinestyle)
+            settings.setValue('gridthickness',self.qmc.gridthickness)
+            settings.setValue('gridalpha',self.qmc.gridalpha)
+            settings.endGroup()
+#--- END GROUP grid
 
         except Exception as e: # pylint: disable=broad-except
             _log.exception(e)
@@ -24615,7 +24729,7 @@ class ApplicationWindow(QMainWindow):
     @pyqtSlot()
     @pyqtSlot(bool)
     def helpHelp(self, _:bool = False) -> None:  # pylint: disable=no-self-use # used as slot
-        QDesktopServices.openUrl(QUrl('https://artisan-scope.org/help/', QUrl.ParsingMode.TolerantMode))
+        QDesktopServices.openUrl(QUrl('https://artisan-scope.org/docs/', QUrl.ParsingMode.TolerantMode))
 
     @pyqtSlot()
     @pyqtSlot(bool)

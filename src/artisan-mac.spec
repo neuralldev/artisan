@@ -1,8 +1,8 @@
 ### -*- mode: python ; coding: utf-8 -*-
 # ABOUT
-# artisan-mac.spec script for Artisan macOS builds using pyinstaller
+# artisan-mac.spec script for artisan macOS builds using pyinstaller
 #
-# COPYRIGHT (C) 2010-2026 The Artisan team represented by
+# COPYRIGHT (C) 2010-2026 The artisan team represented by
 #   Marko Luther <marko.luther@gmx.net> (maintainer) and all contributors
 #
 # LICENSE
@@ -116,6 +116,8 @@ DATA_FILES = [
         (r'includes/dijkstra.ttf', '.'),
         (r'includes/ComicNeue-Regular.ttf', '.'),
         (r'includes/xkcd-script.ttf', '.'),
+        (r'includes/Nunito-Regular.ttf', '.'),
+        (r'includes/NotoSansMono-Regular.ttf', '.'),
         (r'includes/artisan_public_key.pem', '.'),
         (r'includes/Machines', './Machines'),
         (r'includes/Themes', './Themes'),

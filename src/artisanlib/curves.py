@@ -1,8 +1,8 @@
 #
 # ABOUT
-# Artisan Curves Dialog
+# artisan scope curves dialog
 #
-# COPYRIGHT (C) 2010-2026 The Artisan team represented by
+# COPYRIGHT (C) 2010-2026 The artisan team represented by
 #   Marko Luther <marko.luther@gmx.net> (maintainer) and all contributors
 #
 # LICENSE
@@ -740,7 +740,9 @@ class CurvesDlg(ArtisanDialog):
                                       'Source Han Sans JP',
                                       'Dijkstra',
                                       'xkcd Script',
-                                      'Comic Neue'])
+                                      'Comic Neue',
+                                      'Nunito',
+                                      'Noto Sans Mono'])
         self.GraphFont.setCurrentIndex(self.aw.qmc.graphfont)
         self.GraphFont.currentIndexChanged.connect(self.changeGraphFont)
         graphLayout = QHBoxLayout()

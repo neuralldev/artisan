@@ -1,7 +1,7 @@
 ; ABOUT
-; NSIS script file for Artisan Windows installer.
+; NSIS script file for artisan Windows installer.
 ;
-; COPYRIGHT (C) 2010-2026 The Artisan team represented by
+; COPYRIGHT (C) 2010-2026 The artisan team represented by
 ; Marko Luther <marko.luther@gmx.net> (maintainer) and all contributors
 ;
 ; LICENSE
@@ -433,6 +433,8 @@ Section Uninstall
   Delete "$INSTDIR\Humor-Sans.ttf"
   Delete "$INSTDIR\dijkstra.ttf"
   Delete "$INSTDIR\xkcd-script.ttf"
+  Delete "$INSTDIR\Nunito-Regular.ttf"
+  Delete "$INSTDIR\NotoSansMono-Regular.ttf"
   Delete "$INSTDIR\ComicNeue-Regular.ttf"
   Delete "$INSTDIR\WenQuanYiZenHei-01.ttf"
   Delete "$INSTDIR\WenQuanYiZenHeiMonoMedium.ttf"

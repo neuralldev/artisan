@@ -1,8 +1,8 @@
 #!/bin/sh
 # ABOUT
-# Build shell script for Artisan Linux builds
+# Build shell script for artisan Linux builds
 #
-# COPYRIGHT (C) 2010-2026 The Artisan team represented by
+# COPYRIGHT (C) 2010-2026 The artisan team represented by
 #   Marko Luther <marko.luther@gmx.net> (maintainer) and all contributors
 #
 # LICENSE
@@ -98,6 +98,8 @@ cp includes/SourceHanSansTW-Regular.otf dist
 cp includes/dijkstra.ttf dist
 cp includes/ComicNeue-Regular.ttf dist
 cp includes/xkcd-script.ttf dist
+cp includes/Nunito-Regular.ttf dist
+cp includes/NotoSansMono-Regular.ttf dist
 cp includes/alarmclock.eot dist
 cp includes/alarmclock.svg dist
 cp includes/alarmclock.ttf dist
